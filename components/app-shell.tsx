@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from './theme-provider';
 
+import RouteGuard from './route-guard';
+
 interface AppShellProps {
     children: React.ReactNode;
     user: UserWithProfileAndRoles;
@@ -30,6 +32,7 @@ export default function AppShell({ children, user, appName = 'EdVision ERP' }: A
     return (
         <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Sidebar */}
+            {/* ... aside content ... */}
             <aside className={cn(
                 "fixed inset-y-0 left-0 border-r bg-white dark:bg-gray-950 dark:border-gray-800 flex flex-col z-20 transition-all duration-300 ease-in-out",
                 isCollapsed ? "w-20" : "w-64"
@@ -135,10 +138,13 @@ export default function AppShell({ children, user, appName = 'EdVision ERP' }: A
                 {/* Content Container with Unified Padding */}
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-8 max-w-7xl mx-auto">
-                        {children}
+                        <RouteGuard user={user}>
+                            {children}
+                        </RouteGuard>
                     </div>
                 </div>
             </main>
         </div>
     );
 }
+

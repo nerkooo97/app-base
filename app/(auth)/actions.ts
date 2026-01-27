@@ -26,3 +26,39 @@ export async function signIn(formData: FormData) {
 
     return redirect('/');
 }
+
+export async function verify2FA(formData: FormData) {
+    const code = formData.get('code') as string;
+    const supabase = await createClient();
+
+    // 1. Get factors
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const activeFactor = factors?.all.find(f => f.status === 'verified');
+
+    if (!activeFactor) {
+        return redirect('/sign-in');
+    }
+
+    // 2. Challenge
+    const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
+        factorId: activeFactor.id
+    });
+
+    if (challengeError) {
+        return redirect(`/verify-2fa?error=${encodeURIComponent(challengeError.message)}`);
+    }
+
+    // 3. Verify
+    const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId: activeFactor.id,
+        challengeId: challengeData.id,
+        code
+    });
+
+    if (verifyError) {
+        return redirect(`/verify-2fa?error=${encodeURIComponent('Neispravan kod. Pokušajte ponovo.')}`);
+    }
+
+    return redirect('/');
+}
+

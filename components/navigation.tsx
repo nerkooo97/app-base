@@ -24,9 +24,11 @@ export default function Navigation({ user, isCollapsed }: NavigationProps) {
 
     const visibleGroups = navigationConfig.map(group => {
         const visibleItems = group.items.filter(item => {
+            // If no permissions required, show to everyone
             if (!item.requiredPermissions || item.requiredPermissions.length === 0) {
                 return true;
             }
+            // Check if user has all required permissions
             return item.requiredPermissions.every(p => hasPermission(user, p));
         });
 

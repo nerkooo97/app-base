@@ -77,3 +77,29 @@ export function getNavLabel(href: string): string | null {
     }
     return null;
 }
+
+/**
+ * Finds the required permissions for a given pathname by matching it against 
+ * the navigation configuration.
+ */
+export function getRequiredPermissions(pathname: string): Permission[] | null {
+    // Exact match first
+    for (const group of navigationConfig) {
+        const item = group.items.find(i => i.href === pathname);
+        if (item) return item.requiredPermissions ?? [];
+    }
+
+    // Prefix match for dynamic routes (e.g. /companies/123 matches /companies)
+    // We sort by length descending to match the most specific route first
+    const allItems = navigationConfig.flatMap(g => g.items)
+        .sort((a, b) => b.href.length - a.href.length);
+
+    for (const item of allItems) {
+        if (item.href !== '/' && pathname.startsWith(item.href)) {
+            return item.requiredPermissions ?? [];
+        }
+    }
+
+    return null;
+}
+

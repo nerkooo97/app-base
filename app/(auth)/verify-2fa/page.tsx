@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LayoutDashboard, ShieldCheck, Smartphone, ArrowLeft } from 'lucide-react';
+import MFAForm from '@/components/auth/mfa-form';
 import Link from 'next/link';
 
 export default async function Verify2FAPage(props: {
@@ -96,73 +97,11 @@ export default async function Verify2FAPage(props: {
                         </div>
                     )}
 
-                    <form action={async (formData) => {
+                    <MFAForm onVerify={async (formData) => {
                         'use server';
-                        const code = formData.get('code') as string;
-                        const { createClient } = await import('@/lib/supabase/server');
-                        const { redirect } = await import('next/navigation');
-                        const supabase = await createClient();
-
-                        // 1. Get factors
-                        const { data: factors } = await supabase.auth.mfa.listFactors();
-                        const activeFactor = factors?.all.find(f => f.status === 'verified');
-
-                        if (!activeFactor) {
-                            return redirect('/sign-in');
-                        }
-
-                        // 2. Challenge
-                        const { data: challengeData, error: challengeError } = await supabase.auth.mfa.challenge({
-                            factorId: activeFactor.id
-                        });
-
-                        if (challengeError) {
-                            return redirect(`/verify-2fa?error=${encodeURIComponent(challengeError.message)}`);
-                        }
-
-                        // 3. Verify
-                        const { error: verifyError } = await supabase.auth.mfa.verify({
-                            factorId: activeFactor.id,
-                            challengeId: challengeData.id,
-                            code
-                        });
-
-                        if (verifyError) {
-                            return redirect(`/verify-2fa?error=${encodeURIComponent('Neispravan kod. Pokušajte ponovo.')}`);
-                        }
-
-                        return redirect('/');
-                    }} className="space-y-8">
-                        <div className="space-y-4">
-                            <div className="space-y-2 text-center">
-                                <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-4">Kod za potvrdu</Label>
-                                <Input
-                                    id="code"
-                                    name="code"
-                                    type="text"
-                                    placeholder="000 000"
-                                    maxLength={6}
-                                    autoFocus
-                                    required
-                                    className="h-16 rounded-2xl border-gray-100 bg-gray-50/50 font-black text-center text-3xl tracking-[0.4em] focus:bg-white focus:border-primary/20 transition-all shadow-none placeholder:text-gray-200"
-                                />
-                                <div className="flex justify-center pt-2">
-                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600">
-                                        <Smartphone className="h-3.5 w-3.5" />
-                                        <span className="text-[10px] font-bold uppercase tracking-tight">Potvrda putem telefona</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            className="w-full h-14 rounded-2xl font-black shadow-lg shadow-primary/20 active:scale-[0.98] transition-all text-base gap-3"
-                        >
-                            <ShieldCheck className="h-5 w-5" />
-                            Verifikuj i nastavi
-                        </Button>
-                    </form>
+                        const { verify2FA } = await import('../actions');
+                        await verify2FA(formData);
+                    }} />
 
                     <div className="text-center pt-4">
                         <p className="text-xs font-bold text-gray-400">
