@@ -113,7 +113,7 @@ export default function RolesPage() {
         return (
             <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
                 <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mb-4"></div>
-                <p className="text-gray-400 font-medium text-xs">Učitavanje uloga...</p>
+                <p className="text-gray-400 dark:text-gray-500 font-medium text-xs">Učitavanje uloga...</p>
             </div>
         );
     }

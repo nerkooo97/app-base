@@ -3,6 +3,7 @@ import { getUserWithProfileAndRoles } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { getSystemName } from '@/lib/queries/settings';
 import AppShell from '@/components/app-shell';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export default async function AppLayout({
     children,
@@ -25,8 +26,10 @@ export default async function AppLayout({
     const appName = await getSystemName(supabase);
 
     return (
-        <AppShell user={user} appName={appName}>
-            {children}
-        </AppShell>
+        <ThemeProvider>
+            <AppShell user={user} appName={appName}>
+                {children}
+            </AppShell>
+        </ThemeProvider>
     );
 }

@@ -19,13 +19,13 @@ interface SlideOverProps {
 export default function SlideOver({ isOpen, onClose, title, description, children }: SlideOverProps) {
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <SheetContent side="right" className="w-full sm:max-w-md p-0 border-l border-gray-100 shadow-2xl overflow-hidden">
-                <SheetHeader className="px-6 py-8 border-b border-gray-50 flex flex-col items-start bg-white sticky top-0 z-10 backdrop-blur-md text-left">
-                    <SheetTitle className="text-lg font-black text-gray-900 font-outfit">
+            <SheetContent side="right" className="w-full sm:max-w-md p-0 border-l border-gray-100 dark:border-gray-800 shadow-2xl overflow-hidden bg-white dark:bg-gray-950">
+                <SheetHeader className="px-6 py-8 border-b border-gray-50 dark:border-gray-800 flex flex-col items-start bg-white dark:bg-gray-950 sticky top-0 z-10 backdrop-blur-md text-left">
+                    <SheetTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">
                         {title}
                     </SheetTitle>
                     {description && (
-                        <SheetDescription className="text-xs font-bold text-gray-400 mt-1">
+                        <SheetDescription className="text-xs font-bold text-gray-400 dark:text-gray-500 mt-1">
                             {description}
                         </SheetDescription>
                     )}

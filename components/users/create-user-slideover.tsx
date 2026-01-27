@@ -49,28 +49,28 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
         >
             <div className="space-y-6 text-left">
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-gray-400 ml-1">Puno ime</Label>
+                    <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Puno ime</Label>
                     <Input
                         placeholder="npr. Amar Hadžić"
                         value={fullName}
                         onChange={e => setFullName(e.target.value)}
-                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none placeholder:text-gray-300 placeholder:font-normal"
+                        className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:font-normal"
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-gray-400 ml-1">Email adresa</Label>
+                    <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Email adresa</Label>
                     <Input
                         type="email"
                         placeholder="amar@example.com"
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none placeholder:text-gray-300 placeholder:font-normal"
+                        className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:font-normal"
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-gray-400 ml-1">Uloga</Label>
+                    <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Uloga</Label>
                     <Select value={roleId} onValueChange={setRoleId}>
-                        <SelectTrigger className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none">
+                        <SelectTrigger className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none">
                             <SelectValue placeholder="Izaberi ulogu..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -94,7 +94,7 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
                     </Button>
                     <Button
                         variant="ghost"
-                        className="w-full h-12 rounded-xl font-bold text-gray-400 hover:text-gray-900 hover:bg-gray-50 shadow-none transition-all mt-2"
+                        className="w-full h-12 rounded-xl font-bold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-900 shadow-none transition-all mt-2"
                         onClick={onClose}
                     >
                         Odustani

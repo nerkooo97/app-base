@@ -68,27 +68,27 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
 
     return (
         <div className="space-y-6">
-            <Card className="border-gray-100 shadow-sm overflow-hidden">
-                <CardHeader className="bg-gray-50/30 border-b border-gray-100 py-6 px-8">
+            <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10">
+                        <div className="h-10 w-10 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center border border-primary/10 dark:border-primary/20">
                             <Mail className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="text-lg font-black text-gray-900 font-outfit">Email adresa</CardTitle>
-                            <CardDescription className="text-xs font-bold text-gray-400">Primarna email adresa za prijavu u sistem.</CardDescription>
+                            <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">Email adresa</CardTitle>
+                            <CardDescription className="text-xs font-bold text-gray-400 dark:text-gray-500">Primarna email adresa za prijavu u sistem.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-8">
                     <form onSubmit={handleUpdateEmail} className="space-y-6 max-w-md">
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-bold text-gray-400 ml-1">Email adresa</Label>
+                            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Email adresa</Label>
                             <Input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none"
+                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                             />
                         </div>
                         <div className="flex items-center gap-4 pt-2">
@@ -101,7 +101,7 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                                 Ažuriraj email
                             </Button>
                             {emailSuccess && (
-                                <div className="flex items-center gap-2 text-emerald-500 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
+                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
                                     <Check className="h-4 w-4" />
                                     Kod za potvrdu poslan
                                 </div>
@@ -111,15 +111,15 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                 </CardContent>
             </Card>
 
-            <Card className="border-gray-100 shadow-sm overflow-hidden">
-                <CardHeader className="bg-gray-50/30 border-b border-gray-100 py-6 px-8">
+            <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+                <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center border border-primary/10">
+                        <div className="h-10 w-10 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center border border-primary/10 dark:border-primary/20">
                             <Lock className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="text-lg font-black text-gray-900 font-outfit">Promjena lozinke</CardTitle>
-                            <CardDescription className="text-xs font-bold text-gray-400">Redovno mijenjajte lozinku radi veće sigurnosti.</CardDescription>
+                            <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">Promjena lozinke</CardTitle>
+                            <CardDescription className="text-xs font-bold text-gray-400 dark:text-gray-500">Redovno mijenjajte lozinku radi veće sigurnosti.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -127,21 +127,21 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                     <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-md">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-gray-400 ml-1">Nova lozinka</Label>
+                                <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Nova lozinka</Label>
                                 <Input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none"
+                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-gray-400 ml-1">Potvrda lozinke</Label>
+                                <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Potvrda lozinke</Label>
                                 <Input
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none"
+                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                 />
                             </div>
                         </div>
@@ -155,7 +155,7 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                                 Promijeni lozinku
                             </Button>
                             {passwordSuccess && (
-                                <div className="flex items-center gap-2 text-emerald-500 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
+                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
                                     <Check className="h-4 w-4" />
                                     Lozinka promijenjena
                                 </div>

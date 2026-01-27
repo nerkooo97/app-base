@@ -69,7 +69,7 @@ export default function SettingsPage() {
         return (
             <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
                 <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full mb-4"></div>
-                <p className="text-gray-400 font-medium text-xs">Učitavanje postavki...</p>
+                <p className="text-gray-400 dark:text-gray-500 font-medium text-xs">Učitavanje postavki...</p>
             </div>
         );
     }
@@ -79,12 +79,12 @@ export default function SettingsPage() {
             <SettingsHeader />
 
             <div className="grid gap-8">
-                <div className="rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden">
-                    <div className="p-6 border-b bg-gray-50/30 text-left">
-                        <h2 className="text-[10px] font-bold text-gray-400 uppercase">Konfiguracijski ključevi</h2>
+                <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b bg-gray-50/30 dark:bg-gray-900/30 dark:border-gray-800 text-left">
+                        <h2 className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Konfiguracijski ključevi</h2>
                     </div>
 
-                    <div className="divide-y divide-gray-50">
+                    <div className="divide-y divide-gray-50 dark:divide-gray-800">
                         {settings.map((setting) => (
                             <SettingItem
                                 key={setting.key}
