@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getAllRoles, getAllPermissions } from '@/lib/queries/roles';
 import { PERMISSIONS } from '@/config/permissions';
-import { toggleRolePermission, createRole, createPermission } from './actions';
+import { toggleRolePermission, createRole, createPermission, updateRole, deleteRole } from './actions';
 import { useToast } from '@/components/ui/toast-provider';
 
 // Components
@@ -12,6 +12,8 @@ import RolesHeader from '@/components/roles/roles-header';
 import RoleCard from '@/components/roles/role-card';
 import PermissionsModal from '@/components/roles/permissions-modal';
 import CreateRoleModal from '@/components/roles/create-role-modal';
+import EditRoleModal from '@/components/roles/edit-role-modal';
+import DeleteRoleModal from '@/components/roles/delete-role-modal';
 import CreatePermissionModal from '@/components/roles/create-permission-modal';
 
 export default function RolesPage() {
@@ -23,6 +25,10 @@ export default function RolesPage() {
     const [isPermModalOpen, setIsPermModalOpen] = useState(false);
     const [isNewRoleModalOpen, setIsNewRoleModalOpen] = useState(false);
     const [isNewPermissionModalOpen, setIsNewPermissionModalOpen] = useState(false);
+
+    // Edit/Delete state
+    const [editingRole, setEditingRole] = useState<any>(null);
+    const [deletingRole, setDeletingRole] = useState<any>(null);
 
     const [selectedRole, setSelectedRole] = useState<any>(null);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -109,6 +115,32 @@ export default function RolesPage() {
         setIsUpdating(false);
     };
 
+    const handleUpdateRole = async (id: number, data: { name: string, description: string, hierarchy: number }) => {
+        setIsUpdating(true);
+        const result = await updateRole(id, data.name, data.description, data.hierarchy);
+        if (result.success) {
+            await fetchData();
+            setEditingRole(null);
+            showToast('success', 'Uloga uspješno ažurirana!');
+        } else {
+            showToast('error', 'Greška pri ažuriranju uloge: ' + result.error);
+        }
+        setIsUpdating(false);
+    };
+
+    const handleDeleteRole = async (roleId: number) => {
+        setIsUpdating(true);
+        const result = await deleteRole(roleId);
+        if (result.success) {
+            await fetchData();
+            setDeletingRole(null);
+            showToast('success', 'Uloga uspješno obrisana!');
+        } else {
+            showToast('error', 'Greška pri brisanju uloge: ' + result.error);
+        }
+        setIsUpdating(false);
+    };
+
     if (isLoading && roles.length === 0) {
         return (
             <div className="p-8 text-center flex flex-col items-center justify-center min-h-[400px]">
@@ -131,6 +163,8 @@ export default function RolesPage() {
                         key={role.id}
                         role={role}
                         onManagePermissions={handleManagePermissions}
+                        onEdit={(role) => setEditingRole(role)}
+                        onDelete={() => setDeletingRole(role)}
                     />
                 ))}
             </div>
@@ -148,6 +182,22 @@ export default function RolesPage() {
                 isOpen={isNewRoleModalOpen}
                 onClose={() => setIsNewRoleModalOpen(false)}
                 onCreate={handleCreateRole}
+                isUpdating={isUpdating}
+            />
+
+            <EditRoleModal
+                isOpen={!!editingRole}
+                onClose={() => setEditingRole(null)}
+                role={editingRole}
+                onUpdate={handleUpdateRole}
+                isUpdating={isUpdating}
+            />
+
+            <DeleteRoleModal
+                isOpen={!!deletingRole}
+                onClose={() => setDeletingRole(null)}
+                role={deletingRole}
+                onDelete={handleDeleteRole}
                 isUpdating={isUpdating}
             />
 

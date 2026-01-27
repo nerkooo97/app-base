@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 interface RoleCardProps {
     role: any;
     onManagePermissions: (role: any) => void;
+    onEdit?: (role: any) => void;
+    onDelete?: (roleId: number) => void;
 }
 
-export default function RoleCard({ role, onManagePermissions }: RoleCardProps) {
+export default function RoleCard({ role, onManagePermissions, onEdit, onDelete }: RoleCardProps) {
     return (
         <Card className="group transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600 border-gray-100 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-950 shadow-none">
             <CardHeader className="p-8 pb-4">
@@ -59,14 +61,36 @@ export default function RoleCard({ role, onManagePermissions }: RoleCardProps) {
                 <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500">
                     ID: {String(role.id).slice(0, 8)}
                 </span>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onManagePermissions(role)}
-                    className="h-auto p-0 text-primary font-bold text-xs hover:bg-transparent hover:text-primary/80 transition-all underline underline-offset-4"
-                >
-                    Uredi dozvole
-                </Button>
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onManagePermissions(role)}
+                        className="h-auto p-0 text-gray-400 font-bold text-[10px] hover:bg-transparent hover:text-gray-600 transition-all uppercase tracking-wider"
+                    >
+                        Dozvole
+                    </Button>
+                    {(role.name !== 'super_admin' && onEdit && onDelete) && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onEdit(role)}
+                                className="h-auto p-0 text-primary font-bold text-[10px] hover:bg-transparent hover:text-primary/80 transition-all uppercase tracking-wider"
+                            >
+                                Uredi
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onDelete(role.id)}
+                                className="h-auto p-0 text-red-500 font-bold text-[10px] hover:bg-transparent hover:text-red-600 transition-all uppercase tracking-wider"
+                            >
+                                Obriši
+                            </Button>
+                        </>
+                    )}
+                </div>
             </CardFooter>
         </Card>
     );

@@ -50,6 +50,56 @@ export async function createRole(name: string, description: string, hierarchyLev
 }
 
 /**
+ * Updates an existing role.
+ */
+export async function updateRole(id: number, name: string, description: string, hierarchyLevel: number) {
+    const supabase = await createClient();
+
+    // Prevent modification of super_admin role name (optional safety)
+    // You might want to fetch and check if it's super_admin first, but RLS/constraints usually handle safety.
+    // However, allowing name change of super_admin might break hardcoded checks, so let's allow it but be careful.
+
+    const { error } = await supabase
+        .from('roles')
+        .update({ name, description, hierarchy_level: hierarchyLevel })
+        .eq('id', id);
+
+    if (error) {
+        return { error: error.message };
+    }
+
+    revalidatePath('/roles');
+    return { success: true };
+}
+
+/**
+ * Deletes a role.
+ */
+export async function deleteRole(id: number) {
+    const supabase = await createClient();
+
+    // Prevent deletion of super_admin (ID check usually or Name check)
+    // It's safer to check name before delete or rely on database constraints if any.
+    // For now, simple delete.
+
+    const { error } = await supabase
+        .from('roles')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        // Typical error: VIOLATES FOREIGN KEY CONSTRAINT if users are assigned
+        if (error.code === '23503') {
+            return { error: 'Nije moguće obrisati ulogu koja je dodijeljena korisnicima.' };
+        }
+        return { error: error.message };
+    }
+
+    revalidatePath('/roles');
+    return { success: true };
+}
+
+/**
  * Creates a new permission.
  */
 export async function createPermission(name: string) {

@@ -30,6 +30,17 @@ export const navigationConfig: NavGroup[] = [
         ],
     },
     {
+        groupLabel: 'CRM',
+        items: [
+            {
+                label: 'Firme',
+                href: '/companies',
+                icon: 'Building2',
+                requiredPermissions: [PERMISSIONS.COMPANIES_VIEW],
+            },
+        ],
+    },
+    {
         groupLabel: 'Upravljanje timom',
         items: [
             {
