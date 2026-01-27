@@ -11,8 +11,10 @@ export default function UsersHeader({ onAddUser }: UsersHeaderProps) {
     return (
         <div className="flex items-center justify-between">
             <div>
-                <h1 className="text-2xl font-black text-gray-900 dark:text-white font-outfit">Korisnici</h1>
-                <p className="text-xs font-bold text-gray-400 mt-1">Upravljanje ulogama i pristupom korisnika.</p>
+                <h1 className="text-3xl font-semibold text-gray-900 dark:text-white font-outfit tracking-tight">Korisnici</h1>
+                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">
+                    Upravljanje ulogama i pristupom korisnika
+                </p>
             </div>
             <div className="flex items-center gap-3">
                 <Button

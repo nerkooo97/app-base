@@ -55,14 +55,14 @@ export default async function Verify2FAPage(props: {
                         <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                             <LayoutDashboard className="h-6 w-6 text-white" />
                         </div>
-                        <span className="text-2xl font-black text-white font-outfit tracking-tight">{appName}</span>
+                        <span className="text-2xl font-semibold text-white font-outfit tracking-tight">{appName}</span>
                     </div>
 
                     <div className="space-y-6">
                         <div className="h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-8">
                             <ShieldCheck className="h-10 w-10 text-white" />
                         </div>
-                        <h2 className="text-4xl font-black text-white font-outfit leading-tight max-w-md">
+                        <h2 className="text-4xl font-semibold text-white font-outfit leading-tight max-w-md">
                             Vaš nalog je dodatno zaštićen.
                         </h2>
                         <p className="text-lg text-white/70 max-w-sm font-medium leading-relaxed">
@@ -82,12 +82,12 @@ export default async function Verify2FAPage(props: {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
                 <div className="w-full max-w-md space-y-10">
                     <div className="text-left space-y-2">
-                        <Link href="/sign-in" className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-primary transition-colors mb-4 group">
+                        <Link href="/sign-in" className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-primary transition-colors mb-4 group">
                             <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
                             Nazad na prijavu
                         </Link>
-                        <h1 className="text-3xl font-black text-gray-900 font-outfit">Verifikacija</h1>
-                        <p className="text-sm font-bold text-gray-400">Unesite 6-cifreni kod iz vaše autentifikatorske aplikacije.</p>
+                        <h1 className="text-3xl font-semibold text-gray-900 font-outfit">Verifikacija</h1>
+                        <p className="text-sm font-semibold text-gray-400">Unesite 6-cifreni kod iz vaše autentifikatorske aplikacije.</p>
                     </div>
 
                     {error && (

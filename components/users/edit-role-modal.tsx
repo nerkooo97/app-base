@@ -45,25 +45,25 @@ export default function EditRoleModal({ isOpen, onClose, user, roles, onSave, is
         >
             <div className="space-y-6 text-left">
                 <div className="p-5 bg-gray-50/50 rounded-2xl border border-gray-100 flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center font-bold text-primary shadow-sm">
+                    <div className="h-12 w-12 rounded-xl bg-white border border-gray-100 flex items-center justify-center font-semibold text-primary shadow-sm">
                         {user?.full_name?.[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{user?.full_name}</p>
-                        <p className="text-[10px] text-gray-400 font-bold font-mono">ID: {user?.user_id}</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
+                        <p className="text-[10px] text-gray-400 font-semibold font-mono uppercase tracking-wider">ID: {user?.user_id}</p>
                     </div>
                 </div>
 
                 <div className="space-y-2">
                     <Label className="text-[10px] font-bold text-gray-400 ml-1">Sistemska uloga</Label>
                     <Select value={roleId} onValueChange={setRoleId}>
-                        <SelectTrigger className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none">
+                        <SelectTrigger className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-semibold focus:bg-white transition-all shadow-none">
                             <SelectValue placeholder="Izaberi ulogu..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-gray-100 p-1">
-                            <SelectItem value="0" className="rounded-lg font-bold text-xs py-2">Bez uloge</SelectItem>
+                            <SelectItem value="0" className="rounded-lg font-semibold text-xs py-2">Bez uloge</SelectItem>
                             {roles.map(role => (
-                                <SelectItem key={role.id} value={role.id.toString()} className="rounded-lg font-bold text-xs py-2">
+                                <SelectItem key={role.id} value={role.id.toString()} className="rounded-lg font-semibold text-xs py-2">
                                     {role.name}
                                 </SelectItem>
                             ))}
@@ -73,7 +73,7 @@ export default function EditRoleModal({ isOpen, onClose, user, roles, onSave, is
 
                 <div className="pt-6 space-y-3">
                     <Button
-                        className="w-full h-12 rounded-xl font-bold shadow-sm active:scale-[0.98] transition-all"
+                        className="w-full h-12 rounded-xl font-semibold shadow-sm active:scale-[0.98] transition-all"
                         onClick={handleSubmit}
                         disabled={isUpdating}
                     >

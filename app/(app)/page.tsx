@@ -30,13 +30,13 @@ export default async function DashboardPage() {
             <Card className="relative overflow-hidden border-none bg-white dark:bg-gray-950 shadow-sm group">
                 <div className="absolute right-0 top-0 -translate-y-1/2 translate-x-1/2 h-64 w-64 rounded-full bg-primary/5 blur-3xl group-hover:bg-primary/10 transition-colors duration-1000"></div>
                 <CardContent className="p-8 relative z-10">
-                    <h1 className="text-3xl font-black font-outfit text-gray-900 dark:text-white mb-2">
+                    <h1 className="text-3xl font-semibold font-outfit text-gray-900 dark:text-white mb-2">
                         Dobro došli, {user.profile?.full_name?.split(' ')[0] || user.email?.split('@')[0]}!
                     </h1>
-                    <div className="flex items-center gap-2 text-gray-400 font-bold text-xs">
-                        Status sistema: <Badge variant="secondary" className="bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-none font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900">Operativan</Badge>
+                    <div className="flex items-center gap-2 text-gray-400 font-semibold text-xs uppercase tracking-wider">
+                        Status sistema: <Badge variant="secondary" className="bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-none font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900">Operativan</Badge>
                         <span className="mx-2">•</span>
-                        Uloga: <span className="text-gray-900 dark:text-white">{user.roles[0]?.name || 'Korisnik'}</span>
+                        Uloga: <span className="text-gray-900 dark:text-white normal-case">{user.roles[0]?.name || 'Korisnik'}</span>
                     </div>
                 </CardContent>
             </Card>
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
                     <Link key={stat.label} href={stat.href}>
                         <Card className="group transition-all hover:-translate-y-1 hover:shadow-md border-gray-100 dark:border-gray-800">
                             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 p-6">
-                                <CardTitle className="text-[10px] font-bold text-gray-400 dark:text-gray-500 leading-none">
+                                <CardTitle className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 leading-none uppercase tracking-widest">
                                     {stat.label}
                                 </CardTitle>
                                 <div className="h-8 w-8 rounded-lg bg-gray-50 dark:bg-gray-900 flex items-center justify-center border border-gray-100 dark:border-gray-800 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all">
@@ -55,14 +55,14 @@ export default async function DashboardPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="p-6 pt-0">
-                                <div className="text-3xl font-black text-gray-900 dark:text-white group-hover:text-primary transition-colors">
+                                <div className="text-3xl font-semibold text-gray-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">
                                     {stat.value}
                                 </div>
                                 <div className="mt-4 flex items-center justify-between">
-                                    <p className="text-[10px] font-bold text-primary flex items-center gap-1">
-                                        Upravljaj podacima <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                                    <p className="text-[10px] font-semibold text-primary flex items-center gap-1 uppercase tracking-wider">
+                                        Upravljaj <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
                                     </p>
-                                    <Badge variant="outline" className="text-[9px] font-bold text-gray-300 dark:text-gray-600 border-gray-100 dark:border-gray-800">Sinhronizovano</Badge>
+                                    <Badge variant="outline" className="text-[9px] font-semibold text-gray-300 dark:text-gray-600 border-gray-100 dark:border-gray-800 uppercase tracking-widest">Sinhronizovano</Badge>
                                 </div>
                             </CardContent>
                         </Card>
@@ -76,9 +76,9 @@ export default async function DashboardPage() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Shield className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                            <CardTitle className="text-[10px] font-bold text-gray-400 dark:text-gray-500">Aktivne privilegije</CardTitle>
+                            <CardTitle className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Aktivne privilegije</CardTitle>
                         </div>
-                        <Badge className="bg-primary/10 text-primary border-primary/20 font-bold text-[9px]">Verifikovano</Badge>
+                        <Badge className="bg-primary/10 text-primary border-primary/20 font-semibold text-[9px] uppercase tracking-widest">Verifikovano</Badge>
                     </div>
                 </CardHeader>
                 <CardContent className="p-6">

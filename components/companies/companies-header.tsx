@@ -8,9 +8,9 @@ export default function CompaniesHeader() {
     return (
         <div className="flex items-center justify-between">
             <div>
-                <h1 className="text-3xl font-black text-gray-900 dark:text-white font-outfit">Firme</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
-                    Upravljajte svim firmama i njihovim kontaktima
+                <h1 className="text-3xl font-semibold text-gray-900 dark:text-white font-outfit tracking-tight">Firme</h1>
+                <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">
+                    Upravljajte svim firmama i kontaktima
                 </p>
             </div>
             <Link href="/companies/new">

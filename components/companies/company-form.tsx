@@ -109,7 +109,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                     </div>
                                     <div>
                                         <div className={cn(
-                                            "font-bold text-sm",
+                                            "font-semibold text-sm",
                                             isActive ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"
                                         )}>
                                             {tab.label}
@@ -134,7 +134,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Building2 className="h-5 w-5 text-gray-400" />
                                         Informacije o firmi
                                     </CardTitle>
@@ -149,7 +149,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                                 required
                                                 value={formData.name}
                                                 onChange={(e) => handleChange('name', e.target.value)}
-                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                                 placeholder="npr. Edvision d.o.o."
                                             />
                                         </div>
@@ -158,7 +158,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                             <Input
                                                 value={formData.industry}
                                                 onChange={(e) => handleChange('industry', e.target.value)}
-                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                                 placeholder="npr. IT usluge"
                                             />
                                         </div>
@@ -167,7 +167,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase ml-1">Status</Label>
                                             <Select value={formData.status} onValueChange={(val) => handleChange('status', val)}>
-                                                <SelectTrigger className="h-11 w-full md:w-[200px] rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none">
+                                                <SelectTrigger className="h-11 w-full md:w-[200px] rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -182,7 +182,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
 
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <FileText className="h-5 w-5 text-gray-400" />
                                         Poreski podaci
                                     </CardTitle>
@@ -193,7 +193,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.registration_number}
                                             onChange={(e) => handleChange('registration_number', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -201,7 +201,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.tax_number}
                                             onChange={(e) => handleChange('tax_number', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -209,7 +209,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.vat_number}
                                             onChange={(e) => handleChange('vat_number', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                 </CardContent>
@@ -222,7 +222,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <MapPin className="h-5 w-5 text-gray-400" />
                                         Adresa sjedišta
                                     </CardTitle>
@@ -233,7 +233,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.address}
                                             onChange={(e) => handleChange('address', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -242,7 +242,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                             <Input
                                                 value={formData.city}
                                                 onChange={(e) => handleChange('city', e.target.value)}
-                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -250,7 +250,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                             <Input
                                                 value={formData.postal_code}
                                                 onChange={(e) => handleChange('postal_code', e.target.value)}
-                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -258,14 +258,14 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                             <Input
                                                 value={formData.canton}
                                                 onChange={(e) => handleChange('canton', e.target.value)}
-                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                             />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase ml-1">Država</Label>
                                         <Select value={formData.country} onValueChange={(val) => handleChange('country', val)}>
-                                            <SelectTrigger className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none">
+                                            <SelectTrigger className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -283,7 +283,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
 
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Phone className="h-5 w-5 text-gray-400" />
                                         Kontakt podaci
                                     </CardTitle>
@@ -294,7 +294,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.phone}
                                             onChange={(e) => handleChange('phone', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -302,7 +302,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.fax}
                                             onChange={(e) => handleChange('fax', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -313,7 +313,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                                 type="email"
                                                 value={formData.email}
                                                 onChange={(e) => handleChange('email', e.target.value)}
-                                                className="pl-9 h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="pl-9 h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                             />
                                         </div>
                                     </div>
@@ -324,7 +324,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                             <Input
                                                 value={formData.website}
                                                 onChange={(e) => handleChange('website', e.target.value)}
-                                                className="pl-9 h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                                className="pl-9 h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                                 placeholder="https://"
                                             />
                                         </div>
@@ -339,7 +339,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Landmark className="h-5 w-5 text-gray-400" />
                                         Bankarski podaci
                                     </CardTitle>
@@ -350,7 +350,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.bank_name}
                                             onChange={(e) => handleChange('bank_name', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -358,7 +358,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                         <Input
                                             value={formData.bank_account}
                                             onChange={(e) => handleChange('bank_account', e.target.value)}
-                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                         />
                                     </div>
                                 </CardContent>
@@ -366,7 +366,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
 
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Info className="h-5 w-5 text-gray-400" />
                                         Napomene
                                     </CardTitle>
@@ -375,7 +375,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                                     <Textarea
                                         value={formData.notes}
                                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange('notes', e.target.value)}
-                                        className="min-h-[120px] rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none resize-none"
+                                        className="min-h-[120px] rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none resize-none"
                                         placeholder="Unesite dodatne napomene o firmi..."
                                     />
                                 </CardContent>
@@ -391,7 +391,7 @@ export default function CompanyForm({ initialData, isLoading, onSubmit, onCancel
                     type="button"
                     variant="ghost"
                     onClick={onCancel}
-                    className="h-12 px-8 rounded-xl font-bold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                    className="h-12 px-8 rounded-xl font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                     disabled={isLoading}
                 >
                     Odustani

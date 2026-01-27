@@ -42,33 +42,33 @@ export default function PersonalInfoForm({ initialFullName }: PersonalInfoFormPr
                         <User className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">Lični podaci</CardTitle>
-                        <CardDescription className="text-xs font-bold text-gray-400 dark:text-gray-500">Vaše ime koje će biti vidljivo u sistemu.</CardDescription>
+                        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit">Lični podaci</CardTitle>
+                        <CardDescription className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Vaše ime koje će biti vidljivo u sistemu</CardDescription>
                     </div>
                 </div>
             </CardHeader>
             <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Puno ime i prezime</Label>
+                        <Label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 ml-1 uppercase tracking-wider">Puno ime i prezime</Label>
                         <Input
                             placeholder="npr. Amar Hadžić"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                            className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                         />
                     </div>
                     <div className="flex items-center gap-4 pt-2">
                         <Button
                             type="submit"
                             disabled={isUpdating || fullName === initialFullName}
-                            className="h-11 px-8 rounded-xl font-bold shadow-sm active:scale-95 transition-all"
+                            className="h-11 px-8 rounded-xl font-semibold shadow-sm active:scale-95 transition-all"
                         >
                             {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                             Sačuvaj izmjene
                         </Button>
                         {isSaved && (
-                            <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
+                            <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-semibold text-xs animate-in fade-in slide-in-from-left-2 transition-all uppercase tracking-wider">
                                 <Check className="h-4 w-4" />
                                 Podaci sačuvani
                             </div>

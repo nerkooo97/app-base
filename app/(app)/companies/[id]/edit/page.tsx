@@ -73,7 +73,7 @@ export default function EditCompanyPage() {
                     <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white font-outfit">Uredi firmu</h1>
+                    <h1 className="text-3xl font-semibold text-gray-900 dark:text-white font-outfit">Uredi firmu</h1>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 font-medium">
                         {company?.name}
                     </p>

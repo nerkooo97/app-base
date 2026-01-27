@@ -58,7 +58,7 @@ export default function UsersTable({
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[150px] h-9 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-none">
+                    <SelectTrigger className="w-[150px] h-9 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-none">
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -76,10 +76,10 @@ export default function UsersTable({
                             <TableHead className="w-12 px-6">
                                 <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary" />
                             </TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Korisnik</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Uloge</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Status</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-right">Akcije</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Korisnik</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Uloge</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Status</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-right uppercase tracking-wider">Akcije</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -90,11 +90,11 @@ export default function UsersTable({
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-left">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold border border-gray-200 dark:border-gray-700">
+                                        <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700">
                                             {user.full_name?.[0]}
                                         </div>
                                         <div>
-                                            <div className="font-bold text-gray-900 dark:text-white leading-tight text-sm">{user.full_name}</div>
+                                            <div className="font-semibold text-gray-900 dark:text-white leading-tight text-sm">{user.full_name}</div>
                                             <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">#{user.user_id.slice(0, 8)}</div>
                                         </div>
                                     </div>
@@ -105,17 +105,17 @@ export default function UsersTable({
                                             <Badge
                                                 key={ur.roles?.name}
                                                 variant="secondary"
-                                                className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800 font-bold text-[10px] py-0 px-2 shadow-none"
+                                                className="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-800 font-semibold text-[10px] py-0 px-2 shadow-none"
                                             >
                                                 {ur.roles?.name}
                                             </Badge>
                                         )) || (
-                                                <span className="text-[10px] text-gray-300 dark:text-gray-600 italic font-bold">Bez uloge</span>
+                                                <span className="text-[10px] text-gray-300 dark:text-gray-600 italic font-semibold">Bez uloge</span>
                                             )}
                                     </div>
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-left">
-                                    <Badge className="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-900 shadow-none font-bold text-[10px] gap-1.5 px-2 py-0.5 border-none">
+                                    <Badge className="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900 hover:bg-emerald-100 dark:hover:bg-emerald-900 shadow-none font-semibold text-[10px] gap-1.5 px-2 py-0.5 border-none">
                                         <div className="h-1 w-1 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div>
                                         Aktivan
                                     </Badge>
@@ -151,7 +151,7 @@ export default function UsersTable({
 
             {users.length === 0 && (
                 <div className="p-12 text-center">
-                    <p className="text-gray-400 dark:text-gray-500 text-xs font-black">Nema pronađenih korisnika.</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-xs font-semibold uppercase tracking-widest">Nema pronađenih korisnika.</p>
                 </div>
             )}
         </div>

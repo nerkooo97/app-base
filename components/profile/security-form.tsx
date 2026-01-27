@@ -75,33 +75,33 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                             <Mail className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">Email adresa</CardTitle>
-                            <CardDescription className="text-xs font-bold text-gray-400 dark:text-gray-500">Primarna email adresa za prijavu u sistem.</CardDescription>
+                            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit">Email adresa</CardTitle>
+                            <CardDescription className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Primarna adresa za prijavu</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-8">
                     <form onSubmit={handleUpdateEmail} className="space-y-6 max-w-md">
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Email adresa</Label>
+                            <Label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 ml-1 uppercase tracking-wider">Email adresa</Label>
                             <Input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                             />
                         </div>
                         <div className="flex items-center gap-4 pt-2">
                             <Button
                                 type="submit"
                                 disabled={isUpdatingEmail || email === currentEmail}
-                                className="h-11 px-8 rounded-xl font-bold shadow-sm active:scale-95 transition-all"
+                                className="h-11 px-8 rounded-xl font-semibold shadow-sm active:scale-95 transition-all"
                             >
                                 {isUpdatingEmail ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                 Ažuriraj email
                             </Button>
                             {emailSuccess && (
-                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
+                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-semibold text-xs animate-in fade-in slide-in-from-left-2 transition-all uppercase tracking-wider">
                                     <Check className="h-4 w-4" />
                                     Kod za potvrdu poslan
                                 </div>
@@ -118,8 +118,8 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                             <Lock className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit">Promjena lozinke</CardTitle>
-                            <CardDescription className="text-xs font-bold text-gray-400 dark:text-gray-500">Redovno mijenjajte lozinku radi veće sigurnosti.</CardDescription>
+                            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit">Promjena lozinke</CardTitle>
+                            <CardDescription className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Redovno mijenjajte lozinku</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -127,21 +127,21 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                     <form onSubmit={handleUpdatePassword} className="space-y-6 max-w-md">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Nova lozinka</Label>
+                                <Label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 ml-1 uppercase tracking-wider">Nova lozinka</Label>
                                 <Input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 ml-1">Potvrda lozinke</Label>
+                                <Label className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 ml-1 uppercase tracking-wider">Potvrda lozinke</Label>
                                 <Input
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-bold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
+                                    className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none"
                                 />
                             </div>
                         </div>
@@ -149,13 +149,13 @@ export default function SecurityForm({ currentEmail }: SecurityFormProps) {
                             <Button
                                 type="submit"
                                 disabled={isUpdatingPassword || !password}
-                                className="h-11 px-8 rounded-xl font-bold shadow-sm active:scale-95 transition-all"
+                                className="h-11 px-8 rounded-xl font-semibold shadow-sm active:scale-95 transition-all"
                             >
                                 {isUpdatingPassword ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                 Promijeni lozinku
                             </Button>
                             {passwordSuccess && (
-                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-bold text-xs animate-in fade-in slide-in-from-left-2 transition-all">
+                                <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 font-semibold text-xs animate-in fade-in slide-in-from-left-2 transition-all uppercase tracking-wider">
                                     <Check className="h-4 w-4" />
                                     Lozinka promijenjena
                                 </div>

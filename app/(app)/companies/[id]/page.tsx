@@ -99,8 +99,8 @@ export default function CompanyDetailPage() {
                     </Link>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white font-outfit">{company.name}</h1>
-                            <Badge className={`font-bold text-[10px] gap-1.5 px-2 py-0.5 border-none ${company.status === 'active'
+                            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white font-outfit">{company.name}</h1>
+                            <Badge className={`font-semibold text-[10px] gap-1.5 px-2 py-0.5 border-none ${company.status === 'active'
                                 ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
                                 : 'bg-gray-50 dark:bg-gray-900 text-gray-500'
                                 }`}>
@@ -149,7 +149,7 @@ export default function CompanyDetailPage() {
                                     </div>
                                     <div>
                                         <div className={cn(
-                                            "font-bold text-sm",
+                                            "font-semibold text-sm",
                                             isActive ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"
                                         )}>
                                             {tab.label}
@@ -174,7 +174,7 @@ export default function CompanyDetailPage() {
                             {/* Basic Info */}
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Building2 className="h-5 w-5 text-gray-400" />
                                         Osnovni podaci
                                     </CardTitle>
@@ -248,7 +248,7 @@ export default function CompanyDetailPage() {
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <FileText className="h-5 w-5 text-gray-400" />
                                         Poreski podaci
                                     </CardTitle>
@@ -283,7 +283,7 @@ export default function CompanyDetailPage() {
 
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Landmark className="h-5 w-5 text-gray-400" />
                                         Bankarski podaci
                                     </CardTitle>
@@ -296,7 +296,7 @@ export default function CompanyDetailPage() {
                                             </div>
                                             <div>
                                                 {company.bank_name && (
-                                                    <div className="font-bold text-gray-900 dark:text-white text-lg">{company.bank_name}</div>
+                                                    <div className="font-semibold text-gray-900 dark:text-white text-lg">{company.bank_name}</div>
                                                 )}
                                                 {company.bank_account && (
                                                     <div className="font-mono text-gray-500 dark:text-gray-400 mt-1">{company.bank_account}</div>
@@ -327,7 +327,7 @@ export default function CompanyDetailPage() {
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <Card className="border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
                                 <CardHeader className="bg-gray-50/30 dark:bg-gray-900/30 border-b border-gray-100 dark:border-gray-800 py-6 px-8">
-                                    <CardTitle className="text-lg font-black text-gray-900 dark:text-white font-outfit flex items-center gap-2">
+                                    <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white font-outfit flex items-center gap-2">
                                         <Info className="h-5 w-5 text-gray-400" />
                                         Napomene
                                     </CardTitle>

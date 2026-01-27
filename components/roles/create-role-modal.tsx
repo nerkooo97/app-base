@@ -40,7 +40,7 @@ export default function CreateRoleModal({ isOpen, onClose, onCreate, isUpdating 
                         placeholder="npr. Menadžer"
                         value={name}
                         onChange={e => setName(e.target.value)}
-                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none placeholder:font-normal placeholder:text-gray-300"
+                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-semibold focus:bg-white transition-all shadow-none placeholder:font-normal placeholder:text-gray-300"
                     />
                 </div>
                 <div className="space-y-2">
@@ -49,7 +49,7 @@ export default function CreateRoleModal({ isOpen, onClose, onCreate, isUpdating 
                         placeholder="Kratki opis prava ove uloge..."
                         value={description}
                         onChange={e => setDescription(e.target.value)}
-                        className="flex min-h-[100px] w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2 text-sm font-bold ring-offset-background placeholder:text-gray-300 placeholder:font-normal focus:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-none"
+                        className="flex min-h-[100px] w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3 py-2 text-sm font-semibold ring-offset-background placeholder:text-gray-300 placeholder:font-normal focus:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all shadow-none"
                     />
                 </div>
                 <div className="space-y-2">
@@ -58,12 +58,12 @@ export default function CreateRoleModal({ isOpen, onClose, onCreate, isUpdating 
                         type="number"
                         value={hierarchy}
                         onChange={e => setHierarchy(parseInt(e.target.value))}
-                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none"
+                        className="h-11 rounded-xl border-gray-100 bg-gray-50/50 font-semibold focus:bg-white transition-all shadow-none"
                     />
                 </div>
                 <div className="pt-6 space-y-3">
                     <Button
-                        className="w-full h-12 rounded-xl font-bold shadow-sm active:scale-[0.98] transition-all"
+                        className="w-full h-12 rounded-xl font-semibold shadow-sm active:scale-[0.98] transition-all"
                         onClick={handleSubmit}
                         disabled={isUpdating}
                     >

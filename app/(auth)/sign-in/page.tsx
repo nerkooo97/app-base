@@ -47,11 +47,11 @@ export default async function SignInPage(props: {
                         <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
                             <LayoutDashboard className="h-6 w-6 text-white" />
                         </div>
-                        <span className="text-2xl font-black text-white font-outfit tracking-tight">{appName}</span>
+                        <span className="text-2xl font-semibold text-white font-outfit tracking-tight">{appName}</span>
                     </div>
 
                     <div className="space-y-6">
-                        <h2 className="text-4xl font-black text-white font-outfit leading-tight max-w-md">
+                        <h2 className="text-4xl font-semibold text-white font-outfit leading-tight max-w-md">
                             Temelj povjerenja u svakoj izgrađenoj konstrukciji.
                         </h2>
                         <p className="text-lg text-white/70 max-w-sm font-medium leading-relaxed">
@@ -69,7 +69,7 @@ export default async function SignInPage(props: {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 text-white/40 text-[10px] font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-4 text-white/40 text-[10px] font-semibold uppercase tracking-widest">
                         <span>© 2026 ed-vision.com</span>
                         <span>•</span>
                         <span>Sva prava zadržana</span>
@@ -85,10 +85,10 @@ export default async function SignInPage(props: {
                             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                                 <LayoutDashboard className="h-4 w-4 text-white" />
                             </div>
-                            <span className="font-black text-lg text-gray-900">{appName}</span>
+                            <span className="font-semibold text-lg text-gray-900">{appName}</span>
                         </div>
-                        <h1 className="text-3xl font-black text-gray-900 font-outfit">Dobro došli nazad</h1>
-                        <p className="text-sm font-bold text-gray-400">Prijavite se na svoj nalog kako biste nastavili rad.</p>
+                        <h1 className="text-3xl font-semibold text-gray-900 font-outfit">Dobro došli nazad</h1>
+                        <p className="text-sm font-semibold text-gray-400">Prijavite se na svoj nalog kako biste nastavili rad.</p>
                     </div>
 
                     {error && (
@@ -113,7 +113,7 @@ export default async function SignInPage(props: {
                                         placeholder="npr. ime.prezime@edvision.ba"
                                         autoComplete="email"
                                         required
-                                        className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none placeholder:text-gray-300"
+                                        className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50/50 font-semibold focus:bg-white transition-all shadow-none placeholder:text-gray-300"
                                     />
                                 </div>
                             </div>
@@ -133,7 +133,7 @@ export default async function SignInPage(props: {
                                         placeholder="••••••••"
                                         autoComplete="current-password"
                                         required
-                                        className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold focus:bg-white transition-all shadow-none placeholder:text-gray-300"
+                                        className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50/50 font-semibold focus:bg-white transition-all shadow-none placeholder:text-gray-300"
                                     />
                                 </div>
                             </div>

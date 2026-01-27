@@ -42,11 +42,11 @@ export default function CompaniesTable({
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent bg-gray-50/30 dark:bg-gray-900/30 border-gray-100 dark:border-gray-800">
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Firma</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">ID broj</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Grad</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Kontakt</TableHead>
-                            <TableHead className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left">Status</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Firma</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">ID broj</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Grad</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Kontakt</TableHead>
+                            <TableHead className="px-6 text-[10px] font-semibold text-gray-400 dark:text-gray-500 text-left uppercase tracking-wider">Status</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -54,11 +54,11 @@ export default function CompaniesTable({
                             <TableRow key={company.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 border-gray-50 dark:border-gray-800 group">
                                 <TableCell className="px-6 py-4 text-left">
                                     <Link href={`/companies/${company.id}`} className="flex items-center gap-3 hover:text-primary transition-colors">
-                                        <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold border border-gray-200 dark:border-gray-700">
+                                        <div className="h-9 w-9 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 font-semibold border border-gray-200 dark:border-gray-700">
                                             <Building2 className="h-4 w-4" />
                                         </div>
                                         <div>
-                                            <div className="font-bold text-gray-900 dark:text-white leading-tight text-sm">{company.name}</div>
+                                            <div className="font-semibold text-gray-900 dark:text-white leading-tight text-sm">{company.name}</div>
                                             <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono">#{company.id.slice(0, 8)}</div>
                                         </div>
                                     </Link>
@@ -85,9 +85,9 @@ export default function CompaniesTable({
                                     </div>
                                 </TableCell>
                                 <TableCell className="px-6 py-4 text-left">
-                                    <Badge className={`font-bold text-[10px] gap-1.5 px-2 py-0.5 border-none ${company.status === 'active'
-                                            ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
-                                            : 'bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-500'
+                                    <Badge className={`font-semibold text-[10px] gap-1.5 px-2 py-0.5 border-none ${company.status === 'active'
+                                        ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400'
+                                        : 'bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-500'
                                         }`}>
                                         {company.status === 'active' && (
                                             <div className="h-1 w-1 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]"></div>
@@ -103,7 +103,7 @@ export default function CompaniesTable({
 
             {companies.length === 0 && (
                 <div className="p-12 text-center">
-                    <p className="text-gray-400 dark:text-gray-500 text-xs font-black">Nema pronađenih firmi.</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-xs font-semibold uppercase tracking-widest">Nema pronađenih firmi.</p>
                 </div>
             )}
         </div>
