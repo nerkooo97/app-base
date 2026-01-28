@@ -20,6 +20,12 @@
 !config/
 !public/
 !styles/
+!hooks/
+!supabase/
+!next-env.d.ts
+!eslint.config.mjs
+!postcss.config.mjs
+!components.json
 
 # Ignore within allowed directories
 **/.git
