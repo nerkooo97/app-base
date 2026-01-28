@@ -15,10 +15,15 @@ import {
 import { Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/components/ui/toast-provider';
 
+interface Role {
+    id: number;
+    name: string;
+}
+
 interface CreateUserSlideOverProps {
     isOpen: boolean;
     onClose: () => void;
-    roles: any[];
+    roles: Role[];
     onCreate: (data: { email: string, fullName: string, roleId: number }) => Promise<void>;
     isUpdating: boolean;
 }

@@ -11,13 +11,26 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Label } from '@/components/ui/label';
-import { Loader2, UserCog, UserCheck } from 'lucide-react';
+import { Loader2, UserCheck } from 'lucide-react';
+
+interface Role {
+    id: number;
+    name: string;
+}
+
+interface User {
+    user_id: string;
+    full_name: string;
+    user_roles?: {
+        role_id: number;
+    }[];
+}
 
 interface EditRoleModalProps {
     isOpen: boolean;
     onClose: () => void;
-    user: any;
-    roles: any[];
+    user: User | null;
+    roles: Role[];
     onSave: (userId: string, roleId: number) => Promise<void>;
     isUpdating: boolean;
 }

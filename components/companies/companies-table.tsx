@@ -13,8 +13,18 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
+interface Company {
+    id: string;
+    name: string;
+    registration_number?: string;
+    city?: string;
+    email?: string;
+    phone?: string;
+    status: 'active' | 'inactive';
+}
+
 interface CompaniesTableProps {
-    companies: any[];
+    companies: Company[];
     searchQuery: string;
     setSearchQuery: (query: string) => void;
 }
