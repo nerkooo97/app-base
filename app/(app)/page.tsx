@@ -2,25 +2,17 @@ import { getUserWithProfileAndRoles } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { TrendingUp, ArrowRight, Shield } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getDashboardStats } from '@/lib/queries/dashboard';
 
 export default async function DashboardPage() {
     const user = await getUserWithProfileAndRoles();
     const supabase = await createClient();
 
-    // Fetch stats
-    const [usersCount, rolesCount, settingsCount] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('roles').select('*', { count: 'exact', head: true }),
-        supabase.from('settings').select('*', { count: 'exact', head: true })
-    ]);
+    // Fetch stats via shared query
+    const stats = await getDashboardStats(supabase);
 
-    const stats = [
-        { label: 'Ukupno korisnika', value: usersCount.count || 0, href: '/users' },
-        { label: 'Sistemske uloge', value: rolesCount.count || 0, href: '/roles' },
-        { label: 'Konfig. ključevi', value: settingsCount.count || 0, href: '/settings' }
-    ];
 
     if (!user) return null;
 

@@ -1,11 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { LayoutDashboard, ShieldCheck, Smartphone, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, ArrowLeft } from 'lucide-react';
 import MFAForm from '@/components/auth/mfa-form';
 import Link from 'next/link';
+import { getSystemName } from '@/lib/queries/settings';
 
 export default async function Verify2FAPage(props: {
     searchParams: Promise<{ error?: string }>;
@@ -29,13 +27,8 @@ export default async function Verify2FAPage(props: {
     }
 
     // Fetch system name for branding
-    const { data: appNameSetting } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'system_name')
-        .single();
+    const appName = await getSystemName(supabase);
 
-    const appName = appNameSetting?.value ? String(appNameSetting.value).replace(/^"|"$/g, '') : 'ERP System';
 
     return (
         <div className="flex min-h-screen bg-white">

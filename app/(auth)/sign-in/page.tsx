@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LayoutDashboard, ShieldCheck, Mail, Lock } from 'lucide-react';
 import ForgotPasswordDialog from '@/components/auth/forgot-password-dialog';
+import { getSystemName } from '@/lib/queries/settings';
 
 export default async function SignInPage(props: {
     searchParams: Promise<{ error?: string }>;
@@ -20,14 +21,9 @@ export default async function SignInPage(props: {
         return redirect('/');
     }
 
-    // Fetch system name for branding
-    const { data: appNameSetting } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'system_name')
-        .single();
+    // Fetch system name for branding via shared query
+    const appName = await getSystemName(supabase);
 
-    const appName = appNameSetting?.value ? String(appNameSetting.value).replace(/^"|"$/g, '') : 'ERP System';
 
     return (
         <div className="flex min-h-screen bg-white">
