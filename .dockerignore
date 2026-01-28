@@ -1,42 +1,25 @@
-# Ignore everything by default
-*
+# Dependency directories
+node_modules
+.next
+out
 
-# Allow specific files
-!Dockerfile
-!.dockerignore
-!package.json
-!package-lock.json
-!yarn.lock
-!pnpm-lock.yaml
-!next.config.ts
-!tsconfig.json
-!postcss.config.mjs
-!tailwind.config.ts
+# Build logs and diagnostics
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Allow source directories
-!app/
-!components/
-!lib/
-!config/
-!public/
-!styles/
-!hooks/
-!supabase/
-!next-env.d.ts
-!eslint.config.mjs
-!postcss.config.mjs
-!components.json
+# Environment variables (already handled via ARG/ENV in Dockerfile)
+.env
+.env.local
+.env*.local
 
-# Ignore within allowed directories
-**/.git
-**/.gitignore
-**/.env.local
-**/.env*.local
-**/.next
-**/node_modules
-**/.DS_Store
-**/npm-debug.log*
-**/yarn-debug.log*
-**/yarn-error.log*
-**/.vscode
-**/.idea
+# System and IDE files
+.DS_Store
+.vscode
+.idea
+.git
+.gitignore
+
+# Tests
+tests
