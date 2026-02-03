@@ -34,7 +34,8 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
     const [roleId, setRoleId] = useState<string>('0');
     const { showToast } = useToast();
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         if (!email || !fullName) {
             showToast('warning', 'Molimo popunite ime i email');
             return;
@@ -51,6 +52,27 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
             onClose={onClose}
             title="Novi korisnik"
             description="Dodajte novog člana tima i dodijelite mu početnu ulogu."
+            onSubmit={handleSubmit}
+            footer={
+                <div className="flex flex-col gap-2 w-full">
+                    <Button
+                        className="w-full h-12 rounded-xl font-semibold shadow-sm active:scale-[0.98] transition-all"
+                        type="submit"
+                        disabled={isUpdating}
+                    >
+                        {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
+                        {isUpdating ? 'Slanje pozivnice...' : 'Kreiraj korisnika'}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        type="button"
+                        className="w-full h-12 rounded-xl font-semibold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-900 shadow-none transition-all"
+                        onClick={onClose}
+                    >
+                        Odustani
+                    </Button>
+                </div>
+            }
         >
             <div className="space-y-6 text-left">
                 <div className="space-y-2">
@@ -60,6 +82,7 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
                         value={fullName}
                         onChange={e => setFullName(e.target.value)}
                         className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:font-normal"
+                        required
                     />
                 </div>
                 <div className="space-y-2">
@@ -70,6 +93,7 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         className="h-11 rounded-xl border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900 font-semibold focus:bg-white dark:focus:bg-gray-800 transition-all shadow-none placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:font-normal"
+                        required
                     />
                 </div>
                 <div className="space-y-2">
@@ -87,23 +111,6 @@ export default function CreateUserSlideOver({ isOpen, onClose, roles, onCreate, 
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
-                <div className="pt-6">
-                    <Button
-                        className="w-full h-12 rounded-xl font-semibold shadow-sm active:scale-[0.98] transition-all"
-                        onClick={handleSubmit}
-                        disabled={isUpdating}
-                    >
-                        {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                        {isUpdating ? 'Slanje pozivnice...' : 'Kreiraj korisnika'}
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        className="w-full h-12 rounded-xl font-semibold text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-900 shadow-none transition-all mt-2"
-                        onClick={onClose}
-                    >
-                        Odustani
-                    </Button>
                 </div>
             </div>
         </SlideOver>

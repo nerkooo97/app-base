@@ -41,6 +41,29 @@ export const navigationConfig: NavGroup[] = [
         ],
     },
     {
+        groupLabel: 'Betonara',
+        items: [
+            {
+                label: 'Kontrolna tabla',
+                href: '/betonara/dashboard',
+                icon: 'Monitor',
+                requiredPermissions: [PERMISSIONS.BETONARA_VIEW],
+            },
+            {
+                label: 'Import',
+                href: '/betonara/import',
+                icon: 'FileUp',
+                requiredPermissions: [PERMISSIONS.BETONARA_MANAGE],
+            },
+            {
+                label: 'Izvještaji',
+                href: '/betonara/reports',
+                icon: 'FileBarChart',
+                requiredPermissions: [PERMISSIONS.BETONARA_VIEW],
+            },
+        ],
+    },
+    {
         groupLabel: 'Upravljanje timom',
         items: [
             {

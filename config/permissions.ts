@@ -6,6 +6,8 @@ export const PERMISSIONS = {
     PROFILE_EDIT: 'profile.edit',
     COMPANIES_VIEW: 'companies.view',
     COMPANIES_MANAGE: 'companies.manage',
+    BETONARA_VIEW: 'betonara.view',
+    BETONARA_MANAGE: 'betonara.manage',
 } as const;
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
