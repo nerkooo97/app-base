@@ -43,7 +43,7 @@ import {
     SelectTrigger, 
     SelectValue 
 } from '@/components/ui/select';
-import { format, subDays, startOfMonth } from 'date-fns';
+import { format, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfYear } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -139,61 +139,163 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
         .filter(m => m.target > 0)
         .sort((a, b) => Math.abs(b.deviation) - Math.abs(a.deviation));
 
+    // Helper function for quick date ranges
+    const setQuickRange = (range: string) => {
+        const now = new Date();
+        let from: Date;
+        let to: Date = now;
+
+        switch (range) {
+            case '7d':
+                from = subDays(now, 7);
+                break;
+            case '15d':
+                from = subDays(now, 15);
+                break;
+            case '1m':
+                from = subMonths(now, 1);
+                break;
+            case '3m':
+                from = subMonths(now, 3);
+                break;
+            case '6m':
+                from = subMonths(now, 6);
+                break;
+            case 'cy':
+                from = startOfYear(now);
+                to = now;
+                break;
+            case 'ly':
+                from = startOfYear(subYears(now, 1));
+                to = endOfYear(subYears(now, 1));
+                break;
+            default:
+                from = startOfMonth(now);
+        }
+
+        setDateFrom(format(from, 'yyyy-MM-dd'));
+        setDateTo(format(to, 'yyyy-MM-dd'));
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Filters Row */}
-            <div className="flex flex-col md:flex-row items-end gap-4 bg-card/40 backdrop-blur p-6 rounded-2xl border shadow-premium">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1">
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Od datuma</label>
-                        <Input 
-                            type="date" 
-                            value={dateFrom} 
-                            onChange={(e) => setDateFrom(e.target.value)} 
-                            className="bg-background/50 h-10"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Do datuma</label>
-                        <Input 
-                            type="date" 
-                            value={dateTo} 
-                            onChange={(e) => setDateTo(e.target.value)} 
-                            className="bg-background/50 h-10"
-                        />
-                    </div>
-                    <div className="space-y-2 col-span-2 md:col-span-1">
-                        <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Betonara</label>
-                        <Select value={plant} onValueChange={setPlant}>
-                            <SelectTrigger className="bg-background/50 h-10 font-medium">
-                                <SelectValue placeholder="Odaberi lokaciju" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Sve betonare</SelectItem>
-                                <SelectItem value="Betonara 1">Betonara 1</SelectItem>
-                                <SelectItem value="Betonara 2">Betonara 2</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+            <div className="flex flex-col gap-4 bg-card/40 backdrop-blur p-6 rounded-2xl border shadow-premium">
+                {/* Quick Range Buttons */}
+                <div className="flex flex-wrap gap-2">
+                    <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest self-center mr-2">Brzi period:</span>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('7d')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        7 dana
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('15d')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        15 dana
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('1m')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        1 mjesec
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('3m')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        3 mjeseca
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('6m')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        6 mjeseci
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('cy')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        Trenutna godina
+                    </Button>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('ly')}
+                        className="h-8 text-xs font-bold"
+                    >
+                        Prošla godina
+                    </Button>
                 </div>
-                <div className="flex gap-2">
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={handleReset}
-                        className="h-10 w-10 text-muted-foreground hover:text-destructive"
-                        title="Poništi filtere"
-                    >
-                        <FilterX className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                        onClick={fetchStats} 
-                        disabled={loading}
-                        className="h-10 px-6 font-bold tracking-tight shadow-md"
-                    >
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Osvježi
-                    </Button>
+
+                {/* Date Inputs and Plant Filter */}
+                <div className="flex flex-col md:flex-row items-end gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1">
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Od datuma</label>
+                            <Input 
+                                type="date" 
+                                value={dateFrom} 
+                                onChange={(e) => setDateFrom(e.target.value)} 
+                                className="bg-background/50 h-10"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Do datuma</label>
+                            <Input 
+                                type="date" 
+                                value={dateTo} 
+                                onChange={(e) => setDateTo(e.target.value)} 
+                                className="bg-background/50 h-10"
+                            />
+                        </div>
+                        <div className="space-y-2 col-span-2 md:col-span-1">
+                            <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Betonara</label>
+                            <Select value={plant} onValueChange={setPlant}>
+                                <SelectTrigger className="bg-background/50 h-10 font-medium">
+                                    <SelectValue placeholder="Odaberi lokaciju" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Sve betonare</SelectItem>
+                                    <SelectItem value="Betonara 1">Betonara 1</SelectItem>
+                                    <SelectItem value="Betonara 2">Betonara 2</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={handleReset}
+                            className="h-10 w-10 text-muted-foreground hover:text-destructive"
+                            title="Poništi filtere"
+                        >
+                            <FilterX className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                            onClick={fetchStats} 
+                            disabled={loading}
+                            className="h-10 px-6 font-bold tracking-tight shadow-md"
+                        >
+                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Osvježi
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -261,26 +363,28 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                 </Card>
 
                 {/* Betonara 1 Card */}
-                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
-                    <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 1</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-black tracking-tighter tabular-nums">
-                                        {(stats.by_plant['Betonara 1'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden">
+                    <CardContent className="p-0">
+                        <div className="p-6 pb-4">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 1</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl font-black tracking-tighter tabular-nums">
+                                            {(stats.by_plant['Betonara 1'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                        </span>
+                                        <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-2xl font-black text-emerald-500">
+                                        {(((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
                                     </span>
-                                    <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <span className="text-2xl font-black text-emerald-500">
-                                    {(((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
-                                </span>
-                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
-                            </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
@@ -296,26 +400,28 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                 </Card>
 
                 {/* Betonara 2 Card */}
-                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
-                    <CardContent className="p-6">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 2</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-black tracking-tighter tabular-nums">
-                                        {(stats.by_plant['Betonara 2'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden">
+                    <CardContent className="p-0">
+                        <div className="p-6 pb-4">
+                            <div className="flex justify-between items-start mb-3">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 2</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl font-black tracking-tighter tabular-nums">
+                                            {(stats.by_plant['Betonara 2'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                        </span>
+                                        <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-2xl font-black text-orange-500">
+                                        {(((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
                                     </span>
-                                    <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <span className="text-2xl font-black text-orange-500">
-                                    {(((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
-                                </span>
-                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
-                            </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-orange-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.3)]"
