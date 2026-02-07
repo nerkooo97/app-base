@@ -19,7 +19,8 @@ import {
     Area,
     Legend,
     ComposedChart,
-    Line
+    Line,
+    ReferenceLine
 } from 'recharts';
 import { 
     Factory, 
@@ -45,6 +46,7 @@ import {
 import { format, subDays, startOfMonth } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface BetonaraDashboardClientProps {
     initialStats: BetonaraStats;
@@ -52,6 +54,17 @@ interface BetonaraDashboardClientProps {
 }
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+const MATERIAL_NAMES: Record<string, string> = {
+    '01030073': 'Riječni agregat 0-4',
+    '01030063': 'Kameni drobljeni 0-4',
+    '01030074': 'Riječni agregat 4-8',
+    '01030075': 'Riječni agregat 8-16',
+    '01110045': 'Cement 42.5/52.5 N',
+    '01044076': 'SF 16 (AB)',
+    '01044077': 'Sika / Aditiv',
+    'VODA': 'Voda'
+};
 
 export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDashboardClientProps) {
     const [stats, setStats] = useState<BetonaraStats>(initialStats);
@@ -100,19 +113,31 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
         ...materials.map(m => ({
             name: m.name,
             code: m.code,
-            value: stats.material_consumption[m.code] || 0
+            value: stats.material_consumption[m.code] || 0,
+            target: stats.material_targets[m.code] || 0
         })),
         // Add materials that are consumed but not in our master list
         ...Object.entries(stats.material_consumption)
             .filter(([code]) => !materials.find(m => m.code === code))
             .map(([code, value]) => ({
-                name: code === 'VODA' ? 'Voda' : `Nemapiran (${code})`,
+                name: MATERIAL_NAMES[code] || `Nemapiran (${code})`,
                 code,
-                value
+                value,
+                target: stats.material_targets[code] || 0
             }))
     ]
-    .filter(m => m.value > 0)
+    .map(m => {
+        const diff = m.value - m.target;
+        const deviation = m.target > 0 ? (diff / m.target) * 100 : 0;
+        return { ...m, diff, deviation };
+    })
+    .filter(m => m.value > 0 || m.target > 0)
     .sort((a, b) => b.value - a.value);
+
+    // Filtered data specifically for deviation chart (only items with targets)
+    const deviationData = materialData
+        .filter(m => m.target > 0)
+        .sort((a, b) => Math.abs(b.deviation) - Math.abs(a.deviation));
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -174,60 +199,133 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
 
             {/* Quick Stats Grid */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <Card className="border-none shadow-premium bg-gradient-to-br from-blue-500/10 to-blue-600/5 backdrop-blur-md">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-xs font-black uppercase tracking-widest text-blue-600/70">Ukupna Proizvodnja</CardTitle>
-                        <div className="rounded-full bg-blue-500/20 p-2 text-blue-600">
-                            <TrendingUp className="h-4 w-4" />
+                {/* Total Production Card */}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden group">
+                    <CardContent className="p-0">
+                        <div className="p-6 pb-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Ukupna Proizvodnja</p>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-4xl font-black tracking-tighter tabular-nums">{stats.total_m3.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+                                <span className="text-sm font-bold text-muted-foreground">m³</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-2">
+                                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-[10px] font-bold text-emerald-600/80 uppercase">U realnom vremenu</span>
+                            </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-black tabular-nums">{stats.total_m3.toLocaleString()} <span className="text-sm font-medium opacity-50">m³</span></div>
-                        <p className="text-[10px] mt-1 text-muted-foreground flex items-center gap-1 leading-none">
-                            <ArrowUpRight className="h-3 w-3 text-emerald-500 inline" /> U realnom vremenu
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-premium bg-gradient-to-br from-purple-500/10 to-purple-600/5 backdrop-blur-md">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-xs font-black uppercase tracking-widest text-purple-600/70">Broj Zapisa</CardTitle>
-                        <div className="rounded-full bg-purple-500/20 p-2 text-purple-600">
-                            <Layers className="h-4 w-4" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-black tabular-nums">{stats.record_count.toLocaleString()}</div>
-                        <p className="text-[10px] mt-1 text-muted-foreground leading-none italic">Ukupan broj unosa u periodu</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-premium bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 backdrop-blur-md">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-xs font-black uppercase tracking-widest text-emerald-600/70">Betonara 1</CardTitle>
-                        <div className="rounded-full bg-emerald-500/20 p-2 text-emerald-600">
-                            <Factory className="h-4 w-4" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-black tabular-nums">{(stats.by_plant['Betonara 1'] || 0).toLocaleString()} <span className="text-sm font-medium opacity-50">m³</span></div>
-                        <div className="flex gap-1 mt-2">
-                            <Badge variant="outline" className="text-[9px] h-4 bg-emerald-500/5 border-emerald-500/20">{(((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}% Udjela</Badge>
+                        <div className="h-[60px] w-full mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={stats.daily_production.slice(-14)}>
+                                    <Area 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#3b82f6" 
+                                        strokeWidth={2} 
+                                        fill="url(#colorTotal)" 
+                                        isAnimationActive={true}
+                                    />
+                                    <defs>
+                                        <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                </AreaChart>
+                            </ResponsiveContainer>
                         </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-premium bg-gradient-to-br from-orange-500/10 to-orange-600/5 backdrop-blur-md">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                        <CardTitle className="text-xs font-black uppercase tracking-widest text-orange-600/70">Betonara 2</CardTitle>
-                        <div className="rounded-full bg-orange-500/20 p-2 text-orange-600">
-                            <Factory className="h-4 w-4" />
+                {/* Records Count Card */}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden group">
+                    <CardContent className="p-0">
+                        <div className="p-6 pb-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Broj Zapisa</p>
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-4xl font-black tracking-tighter tabular-nums">{stats.record_count.toLocaleString()}</span>
+                            </div>
+                            <p className="text-[10px] mt-2 font-bold text-muted-foreground uppercase opacity-70">Unosa u periodu</p>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-black tabular-nums">{(stats.by_plant['Betonara 2'] || 0).toLocaleString()} <span className="text-sm font-medium opacity-50">m³</span></div>
-                        <div className="flex gap-1 mt-2">
-                            <Badge variant="outline" className="text-[9px] h-4 bg-orange-500/5 border-orange-500/20">{(((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}% Udjela</Badge>
+                        <div className="h-[60px] w-full mt-2 opacity-40 group-hover:opacity-80 transition-opacity">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={stats.daily_production.slice(-14)}>
+                                    <Bar 
+                                        dataKey="value" 
+                                        fill="#8b5cf6" 
+                                        radius={[2, 2, 0, 0]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Betonara 1 Card */}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 1</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-3xl font-black tracking-tighter tabular-nums">
+                                        {(stats.by_plant['Betonara 1'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                    </span>
+                                    <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-2xl font-black text-emerald-500">
+                                    {(((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
+                                </span>
+                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                    style={{ width: `${((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0}%` }}
+                                />
+                            </div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase flex justify-between">
+                                <span>Primarni kapacitet</span>
+                                <span className="text-emerald-600">Aktivno</span>
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Betonara 2 Card */}
+                <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
+                    <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 2</p>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-3xl font-black tracking-tighter tabular-nums">
+                                        {(stats.by_plant['Betonara 2'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                    </span>
+                                    <span className="text-xs font-bold text-muted-foreground">m³</span>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <span className="text-2xl font-black text-orange-500">
+                                    {(((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
+                                </span>
+                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-orange-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                                    style={{ width: `${((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0}%` }}
+                                />
+                            </div>
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase flex justify-between">
+                                <span>Sekundarni kapacitet</span>
+                                <span className="text-orange-600">Aktivno</span>
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -417,13 +515,67 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Deviation Analysis Row */}
+            <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden">
+                <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-lg font-black tracking-tight uppercase text-foreground">Analiza Odstupanja (Stvarno vs Teoretski)</CardTitle>
+                            <CardDescription className="text-xs">Procentualno rasipanje materijala u odnosu na recepturu</CardDescription>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="h-[400px] pt-4 px-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart 
+                            data={deviationData} 
+                            margin={{ left: 10, right: 30, top: 20, bottom: 20 }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis 
+                                dataKey="name" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                            />
+                            <YAxis 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{ fontSize: 10, fill: '#94a3b8' }} 
+                                unit=" %"
+                            />
+                            <Tooltip 
+                                cursor={{ fill: 'rgba(0,0,0,0.02)' }}
+                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                                formatter={(val: number | undefined) => [`${(val || 0).toFixed(2)} %`, 'Odstupanje']}
+                            />
+                            <ReferenceLine y={0} stroke="#cbd5e1" />
+                            <Bar 
+                                dataKey="deviation" 
+                                radius={4} 
+                                barSize={40}
+                                animationDuration={1500}
+                            >
+                                {deviationData.map((entry, index) => (
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={entry.deviation > 5 || entry.deviation < -5 ? '#ef4444' : entry.deviation > 2 || entry.deviation < -2 ? '#f59e0b' : '#10b981'} 
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+
             {/* Bottom Section: Detailed Material Table */}
             <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-black tracking-tight">Detaljna specifikacija utroška materijala</CardTitle>
-                            <CardDescription className="text-xs">Kompletna lista svih utrošenih sirovina u odabranom periodu</CardDescription>
+                            <CardTitle className="text-lg font-black tracking-tight">Detaljna specifikacija i analiza utroška</CardTitle>
+                            <CardDescription className="text-xs">Poređenje stvarne potrošnje sa teoretski zadatom po recepturama</CardDescription>
                         </div>
                         <Badge variant="outline" className="font-bold">
                             {materialData.length} stavki
@@ -437,15 +589,17 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                 <tr className="border-y bg-muted/30">
                                     <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest">Šifra</th>
                                     <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest">Naziv materijala</th>
-                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Ukupan utrošak</th>
-                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Udio</th>
+                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Stvarni utrošak</th>
+                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Teoretski</th>
+                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Razlika</th>
+                                    <th className="px-6 py-3 text-[10px] uppercase font-black text-muted-foreground tracking-widest text-right">Odstupanje</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y">
                                 {materialData.map((m, idx) => {
-                                    const totalConsumption = materialData.reduce((acc, curr) => acc + curr.value, 0);
-                                    const percentage = ((m.value / totalConsumption) * 100).toFixed(1);
-                                    
+                                    const isCritical = Math.abs(m.deviation) > 5;
+                                    const isWarning = Math.abs(m.deviation) > 2;
+
                                     return (
                                         <tr key={m.code} className="hover:bg-muted/20 transition-colors group">
                                             <td className="px-6 py-4 font-mono text-[11px] text-muted-foreground group-hover:text-foreground">
@@ -461,20 +615,34 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <span className="font-black tabular-nums">
-                                                    {m.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    {m.value.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                                                 </span>
                                                 <span className="text-[10px] ml-1 text-muted-foreground uppercase font-bold">kg/l</span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <span className="text-xs font-medium text-muted-foreground">{percentage}%</span>
-                                                    <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden hidden sm:block">
-                                                        <div 
-                                                            className="h-full bg-primary transition-all duration-500" 
-                                                            style={{ width: `${percentage}%`, backgroundColor: COLORS[idx % COLORS.length] }}
-                                                        />
-                                                    </div>
-                                                </div>
+                                                <span className="font-medium tabular-nums text-muted-foreground">
+                                                    {m.target.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <span className={cn(
+                                                    "font-bold tabular-nums",
+                                                    m.diff > 0 ? "text-amber-600" : m.diff < 0 ? "text-emerald-600" : "text-muted-foreground"
+                                                )}>
+                                                    {m.diff > 0 ? '+' : ''}{m.diff.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <Badge 
+                                                    variant={isCritical ? "destructive" : "outline"} 
+                                                    className={cn(
+                                                        "font-black tabular-nums min-w-[60px] justify-center",
+                                                        !isCritical && isWarning && "border-amber-500 text-amber-600 bg-amber-50",
+                                                        !isCritical && !isWarning && "border-emerald-500 text-emerald-600 bg-emerald-50"
+                                                    )}
+                                                >
+                                                    {m.deviation > 0 ? '+' : ''}{m.deviation.toFixed(1)}%
+                                                </Badge>
                                             </td>
                                         </tr>
                                     );

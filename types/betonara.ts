@@ -16,6 +16,8 @@ export interface BetonaraProductionRecord {
     water: number;
     issuance_number?: string;
     materials: Record<string, number>; // { "01030073": 2500, ... }
+    target_materials?: Record<string, number>; // Theoretical amounts
+    target_water?: number;
 }
 
 export interface RecipeMapping {
@@ -31,6 +33,7 @@ export interface BetonaraStats {
     by_recipe: Record<string, number>;
     daily_production: Array<{ date: string, value: number }>;
     material_consumption: Record<string, number>;
+    material_targets: Record<string, number>;
 }
 
 export interface BetonaraImportHistory {

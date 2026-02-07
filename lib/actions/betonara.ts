@@ -6,11 +6,10 @@ import { revalidatePath } from 'next/cache';
 
 export async function saveProductionRecords(records: BetonaraProductionRecord[]) {
     const supabase = await createClient();
-    const CHUNK_SIZE = 500; // Smaller chunks for reliability
+    const CHUNK_SIZE = 500; 
     const existingIds = new Set<string>();
 
-    // 1. Check existing records in chunks
-    // Smanjujemo chunk size za provjeru jer su ID-ovi dugi, da ne opteretimo query string
+    // 1. Identifikujemo postojeće rekorde da bismo znali šta je NOVO a šta AŽURIRANO
     const CHECK_CHUNK_SIZE = 200;
     for (let i = 0; i < records.length; i += CHECK_CHUNK_SIZE) {
         const chunk = records.slice(i, i + CHECK_CHUNK_SIZE);
@@ -25,47 +24,43 @@ export async function saveProductionRecords(records: BetonaraProductionRecord[])
 
         if (fetchError) {
             console.error('Error checking existing records chunk:', fetchError);
-            throw new Error(`Baza podataka je javila grešku pri provjeri (chunk ${i}): ${fetchError.message}`);
+            throw new Error(`Greška pri provjeri postojanja: ${fetchError.message}`);
         }
 
         existingRecords?.forEach(r => existingIds.add(r.id));
     }
 
-    // 2. Filter records to only those that DON'T exist
-    const newRecords = records.filter(r => !existingIds.has(r.id));
-
-    if (newRecords.length === 0) {
-        return { success: true, added: 0, skipped: records.length, message: 'Svi zapisi već postoje u bazi.' };
-    }
-
-    // 3. Insert new records in chunks
-    let totalAdded = 0;
-    for (let i = 0; i < newRecords.length; i += CHUNK_SIZE) {
-        const chunk = newRecords.slice(i, i + CHUNK_SIZE);
+    // 2. Koristimo UPSERT da bismo dodali nove ili ažurirali postojeće (npr. ako se recept promijenio)
+    let totalProcessed = 0;
+    for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+        const chunk = records.slice(i, i + CHUNK_SIZE);
         const formattedRecords = chunk.map(r => ({
             ...r,
-            date: r.date.toISOString(),
+            date: r.date instanceof Date ? r.date.toISOString() : r.date,
         }));
 
-        const { error: insertError } = await supabase
+        const { error: upsertError } = await supabase
             .from('betonara_production')
-            .insert(formattedRecords);
+            .upsert(formattedRecords, { onConflict: 'id' });
 
-        if (insertError) {
-            console.error('Error saving production records chunk:', insertError);
-            throw new Error(`Failed to save records after adding ${totalAdded}`);
+        if (upsertError) {
+            console.error('Error upserting production records chunk:', upsertError);
+            throw new Error(`Neuspješno spašavanje podataka (procesirano ${totalProcessed}): ${upsertError.message}`);
         }
-        totalAdded += chunk.length;
+        totalProcessed += chunk.length;
     }
+
+    const updated = existingIds.size;
+    const added = totalProcessed - updated;
 
     revalidatePath('/betonara/dashboard');
     revalidatePath('/betonara/reports');
 
     return {
         success: true,
-        added: totalAdded,
-        skipped: existingIds.size,
-        message: `Uspješno dodano ${totalAdded} novih zapisa. ${existingIds.size} zapisa je preskočeno jer već postoje.`
+        added,
+        updated,
+        message: `Obrada završena: ${added} novih zapisa je dodano, a ${updated} postojećih je ažurirano (uključujući nova mapiranja recepata).`
     };
 }
 
@@ -168,7 +163,7 @@ export async function getProductionStats(filters: { from?: string, to?: string, 
 
     let query = supabase
         .from('betonara_production')
-        .select('total_quantity, plant, recipe_number, date, materials, water');
+        .select('total_quantity, plant, recipe_number, date, materials, water, target_materials, target_water');
 
     if (filters.from) query = query.gte('date', filters.from);
     if (filters.to) query = query.lte('date', filters.to);
@@ -184,11 +179,17 @@ export async function getProductionStats(filters: { from?: string, to?: string, 
             by_plant: {}, 
             by_recipe: {},
             daily_production: [],
-            material_consumption: {}
+            material_consumption: {},
+            material_targets: {}
         };
     }
 
     const dailyMap: Record<string, number> = {};
+    
+    // Koristimo Map za brojanje koliko puta se svaki materijal pojavljuje
+    const materialCounts: Record<string, number> = {};
+    const targetCounts: Record<string, number> = {};
+    
     const stats = {
         total_m3: 0,
         record_count: data.length,
@@ -196,18 +197,28 @@ export async function getProductionStats(filters: { from?: string, to?: string, 
         by_recipe: {} as Record<string, number>,
         daily_production: [] as Array<{ date: string, value: number }>,
         material_consumption: {} as Record<string, number>,
+        material_targets: {} as Record<string, number>,
     };
 
     data.forEach(r => {
         const qty = Number(r.total_quantity) || 0;
         const water = Number(r.water) || 0;
+        const targetWater = Number(r.target_water) || 0;
+        
         stats.total_m3 += qty;
         stats.by_plant[r.plant] = (stats.by_plant[r.plant] || 0) + qty;
         stats.by_recipe[r.recipe_number] = (stats.by_recipe[r.recipe_number] || 0) + qty;
         
-        // Add water to material consumption
+        // Actual Consumption (sabiranje za kasnije prosjek)
         if (water > 0) {
             stats.material_consumption['VODA'] = (stats.material_consumption['VODA'] || 0) + water;
+            materialCounts['VODA'] = (materialCounts['VODA'] || 0) + 1;
+        }
+        
+        // Target Consumption (sabiranje za kasnije prosjek)
+        if (targetWater > 0) {
+            stats.material_targets['VODA'] = (stats.material_targets['VODA'] || 0) + targetWater;
+            targetCounts['VODA'] = (targetCounts['VODA'] || 0) + 1;
         }
 
         // Daily grouping
@@ -216,13 +227,39 @@ export async function getProductionStats(filters: { from?: string, to?: string, 
             dailyMap[day] = (dailyMap[day] || 0) + qty;
         } catch (e) {}
 
-        // Material aggregation
+        // Actual Material aggregation (sabiranje za kasnije prosjek)
         if (r.materials && typeof r.materials === 'object') {
             Object.entries(r.materials).forEach(([code, amount]) => {
                 const val = Number(amount) || 0;
-                stats.material_consumption[code] = (stats.material_consumption[code] || 0) + val;
+                if (val > 0) {
+                    stats.material_consumption[code] = (stats.material_consumption[code] || 0) + val;
+                    materialCounts[code] = (materialCounts[code] || 0) + 1;
+                }
             });
         }
+
+        // Target Material aggregation (sabiranje za kasnije prosjek)
+        if (r.target_materials && typeof r.target_materials === 'object') {
+            Object.entries(r.target_materials).forEach(([code, amount]) => {
+                const val = Number(amount) || 0;
+                if (val > 0) {
+                    stats.material_targets[code] = (stats.material_targets[code] || 0) + val;
+                    targetCounts[code] = (targetCounts[code] || 0) + 1;
+                }
+            });
+        }
+    });
+
+    // Izračunavanje prosjeka za stvarnu potrošnju
+    Object.keys(stats.material_consumption).forEach(code => {
+        const count = materialCounts[code] || 1;
+        stats.material_consumption[code] = stats.material_consumption[code] / count;
+    });
+
+    // Izračunavanje prosjeka za teoretsku potrošnju
+    Object.keys(stats.material_targets).forEach(code => {
+        const count = targetCounts[code] || 1;
+        stats.material_targets[code] = stats.material_targets[code] / count;
     });
 
     stats.daily_production = Object.entries(dailyMap).map(([date, value]) => ({ date, value }));

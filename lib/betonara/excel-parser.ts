@@ -28,6 +28,10 @@ const MATERIAL_MAP: Record<string, string> = {
     'add3': '01044077',
     'add4': '01044077',
     'add5': '01044077',
+    // Generički prefiksi za SCADA sisteme
+    'agg': '01030073',
+    'cem': '01110045',
+    'add': '01044077',
 };
 
 export async function parseBetonaraExcel(
@@ -77,13 +81,19 @@ export async function parseBetonaraExcel(
 
                 // Mapiranje kolona
                 const colMap: Record<string, number> = {};
-                const materialCols: Record<string, number> = {};
+                const materialColGroups: Record<string, number[]> = {};
+                const targetMaterialColGroups: Record<string, number[]> = {};
+                const deviationColMap: Record<string, number[]> = {}; // Mapiranje koda materijala na njegovu kolonu postotka greške
+                
                 const waterCols: number[] = [];
+                const targetWaterCols: number[] = [];
+                const waterDevCols: number[] = []; // Procenti za vodu
 
                 headers.forEach((header, index) => {
                     const h = header.toLowerCase().trim();
                     if (!h) return;
 
+                    // Standardna polja
                     if (h.includes('datum pocetka') || h.includes('start date')) {
                         colMap['date'] = index;
                     } else if (h.includes('proizvodni zapis') || h === 'id' || h.includes('record no')) {
@@ -96,23 +106,61 @@ export async function parseBetonaraExcel(
                         colMap['quantity'] = index;
                     } else if (h.includes('prijemnica') || h.includes('receipt') || h.includes('izdatnica') || h.includes('prijem br')) {
                         colMap['issuance'] = index;
-                    } else if (
-                        (h.includes('voda') || h.includes('wat') || h.startsWith('su') || h.includes('water')) && 
-                        !h.includes('yuzde') && !h.includes('fark') && !h.includes('%') && !h.includes('diff')
-                    ) {
-                        waterCols.push(index);
+                    } 
+                    
+                    // Detekcija vode (Stvarno vs Cilj vs Procenat)
+                    if (h.includes('voda') || h.includes('wat') || h.startsWith('su') || h.includes('water')) {
+                        if (h.includes('yuzdefark') || h.includes('%') || h.includes('deviation')) {
+                            waterDevCols.push(index);
+                        } else if (h.includes('hesaplanan') || h.includes('target') || h.includes('plan') || h.includes('set') || h.includes('cilj')) {
+                            targetWaterCols.push(index);
+                        } else if (!h.includes('hata') && !h.includes('error') && !h.includes('fark')) {
+                            waterCols.push(index);
+                        }
                     }
 
-                    // Provjera materijala preko mape
-                    if (MATERIAL_MAP[h]) {
-                        materialCols[MATERIAL_MAP[h]] = index;
+                    // Detekcija materijala (Stvarno vs Cilj vs Procenat)
+                    const isExtraInfo = h.includes('hata') || h.includes('error') || h.includes('fark') || h.includes('yuzdefark') || h.includes('%') || h.includes('diff') || h.includes('devia');
+                    
+                    const sortedKeys = Object.keys(MATERIAL_MAP).sort((a, b) => b.length - a.length);
+                    for (const mapKey of sortedKeys) {
+                        const code = MATERIAL_MAP[mapKey];
+                        
+                        // Provjera za postotak greške (YuzdeFark)
+                        // Turski sistem koristi: Ag1YuzdeFark, Cim1YuzdeFark, Kat1YuzdeFark
+                        // Trebamo provjeriti i "ag1", "cim1", "kat1" varijante
+                        const turkishVariants = [
+                            mapKey.replace('agg', 'ag'),
+                            mapKey.replace('cem', 'cim'),
+                            mapKey.replace('add', 'kat')
+                        ];
+                        
+                        const matchesPercentage = (h.includes('yuzdefark') || h.includes('%')) && 
+                            (h.includes(mapKey) || turkishVariants.some(v => h.includes(v)));
+                        
+                        if (matchesPercentage) {
+                            if (!deviationColMap[code]) deviationColMap[code] = [];
+                            deviationColMap[code].push(index);
+                            break;
+                        }
+
+                        // Provjera za masu (Stvarno ili Cilj)
+                        if (h.includes(mapKey)) {
+                            if (h.includes('hesaplanan') || h.includes('target') || h.includes('plan') || h.includes('set') || h.includes('cilj')) {
+                                if (!targetMaterialColGroups[code]) targetMaterialColGroups[code] = [];
+                                targetMaterialColGroups[code].push(index);
+                            } else if (!isExtraInfo) {
+                                if (!materialColGroups[code]) materialColGroups[code] = [];
+                                materialColGroups[code].push(index);
+                            }
+                            break;
+                        }
                     }
                 });
 
                 // Čitanje redova sa podacima
                 for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
                     const row = jsonData[i];
-                    // Preskačemo prazne redove i TOTAL red
                     if (!row || row.length === 0 || !row[colMap['date']] || String(row[1]).includes('TOTAL')) continue;
 
                     const dateValue = row[colMap['date']];
@@ -121,7 +169,6 @@ export async function parseBetonaraExcel(
                     if (typeof dateValue === 'number') {
                         date = new Date((dateValue - 25569) * 86400 * 1000);
                     } else {
-                        // Format u fajlu je "30/01/2026 19:57"
                         const [dPart, tPart] = String(dateValue).split(/\s+/);
                         const [day, month, year] = dPart.split('/');
                         date = new Date(`${year}-${month}-${day}T${tPart || '00:00'}`);
@@ -134,26 +181,71 @@ export async function parseBetonaraExcel(
 
                     const workOrder = String(row[colMap['work_order']] || '');
                     const recordId = colMap['id'] !== undefined ? String(row[colMap['id']] || '') : workOrder;
-
-                    // Koristimo kombinaciju ID + Vrijeme + Betonara za 100% unikatan ključ
-                    // Ovo rješava problem kada isti 'Proizvodni zapis' ima više stavki u različito vrijeme
                     const id = `${recordId}_${date.getTime()}_${detectedPlant === 'Betonara 1' ? 'b1' : 'b2'}`;
 
-                    // Skupljanje materijala
+                    // Skupljanje materijala (Actual)
                     const materials: Record<string, number> = {};
-                    Object.entries(materialCols).forEach(([code, index]) => {
-                        const val = parseFloat(String(row[index] || 0));
-                        if (!isNaN(val) && val > 0) {
-                            materials[code] = (materials[code] || 0) + val;
-                        }
+                    Object.entries(materialColGroups).forEach(([code, indices]) => {
+                        let sum = 0;
+                        indices.forEach(idx => {
+                            const val = parseFloat(String(row[idx] || 0));
+                            if (!isNaN(val)) sum += val;
+                        });
+                        if (sum > 0) materials[code] = sum;
                     });
 
-                    // Voda - sabiramo sve kolone vode
+                    // Skupljanje materijala (Target ili Proračun iz %)
+                    const targetMaterials: Record<string, number> = {};
+                    
+                    // Prvo provjeravamo da li imamo direktne kolone za Target
+                    const hasDirectTargets = Object.keys(targetMaterialColGroups).length > 0;
+
+                    Object.keys(materialColGroups).forEach(code => {
+                        let targetSum = 0;
+                        
+                        // 1. Pokušaj naći u direktnim target kolonama
+                        if (targetMaterialColGroups[code]) {
+                            targetMaterialColGroups[code].forEach(idx => {
+                                const val = parseFloat(String(row[idx] || 0));
+                                if (!isNaN(val)) targetSum += val;
+                            });
+                        }
+                        
+                        // 2. Ako nismo našli (kao u vašem slučaju), izračunaj iz % greške (YuzdeFark)
+                        if (targetSum === 0 && deviationColMap[code] && materials[code]) {
+                            const actual = materials[code];
+                            // Uzimamo prvi procenat koji nađemo za taj kod
+                            const pctValue = parseFloat(String(row[deviationColMap[code][0]] || 0));
+                            if (!isNaN(pctValue)) {
+                                // Formula: Target = Actual / (1 + (Pct / 100))
+                                // npr. 166 / (1 + 0.0375) = 160
+                                targetSum = actual / (1 + (pctValue / 100));
+                            }
+                        }
+
+                        if (targetSum > 0) targetMaterials[code] = targetSum;
+                    });
+
+                    // Voda (Actual)
                     let waterSum = 0;
-                    waterCols.forEach(index => {
-                        const val = parseFloat(String(row[index] || 0));
+                    waterCols.forEach(idx => {
+                        const val = parseFloat(String(row[idx] || 0));
                         if (!isNaN(val)) waterSum += val;
                     });
+
+                    // Voda (Target ili Proračun)
+                    let targetWaterSum = 0;
+                    targetWaterCols.forEach(idx => {
+                        const val = parseFloat(String(row[idx] || 0));
+                        if (!isNaN(val)) targetWaterSum += val;
+                    });
+
+                    if (targetWaterSum === 0 && waterDevCols.length > 0 && waterSum > 0) {
+                        const pctValue = parseFloat(String(row[waterDevCols[0]] || 0));
+                        if (!isNaN(pctValue)) {
+                            targetWaterSum = waterSum / (1 + (pctValue / 100));
+                        }
+                    }
 
                     records.push({
                         id,
@@ -163,8 +255,10 @@ export async function parseBetonaraExcel(
                         recipe_number: recipeMapped,
                         total_quantity: parseFloat(String(row[colMap['quantity']] || 0)) || 0,
                         water: waterSum,
+                        target_water: targetWaterSum,
                         issuance_number: String(row[colMap['issuance']] || ''),
                         materials,
+                        target_materials: targetMaterials
                     });
                 }
 

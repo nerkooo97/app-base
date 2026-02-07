@@ -15,6 +15,7 @@ interface FileUploadTask {
     status: 'pending' | 'processing' | 'success' | 'error';
     error?: string;
     addedCount?: number;
+    updatedCount?: number;
     skippedCount?: number;
     plant?: string;
 }
@@ -70,16 +71,15 @@ export function BetonaraFileUploader() {
                 const maxDate = new Date(Math.max(...dates)).toISOString();
                 
                 let totalAdded = 0;
-                let totalSkipped = 0;
+                let totalUpdated = 0;
 
                 // Chunking na klijentskoj strani - šaljemo po 500 rekorda u jednom server action pozivu
-                // Ovo rješava "Payload Too Large" ili timeouts kod ogromnih fajlova (npr. "pojedinačno")
                 const CLIENT_CHUNK_SIZE = 500;
                 for (let i = 0; i < records.length; i += CLIENT_CHUNK_SIZE) {
                     const chunk = records.slice(i, i + CLIENT_CHUNK_SIZE);
                     const result = await saveProductionRecords(chunk);
                     totalAdded += result.added;
-                    totalSkipped += result.skipped;
+                    totalUpdated += (result as any).updated || 0;
                 }
 
                 // Log entry into history
@@ -87,7 +87,7 @@ export function BetonaraFileUploader() {
                     filename: task.file.name,
                     plant: plant,
                     added_count: totalAdded,
-                    skipped_count: totalSkipped,
+                    skipped_count: totalUpdated, // Stavljamo update-ovane u log kao obrađene
                     start_date: minDate,
                     end_date: maxDate
                 });
@@ -97,15 +97,15 @@ export function BetonaraFileUploader() {
                         ...t,
                         status: 'success',
                         addedCount: totalAdded,
-                        skippedCount: totalSkipped,
+                        updatedCount: totalUpdated,
                         plant: plant
                     } : t
                 ));
 
-                if (totalAdded > 0) {
-                    toast.success(`Uspješno: ${task.file.name}. Dodano ${totalAdded} novih.`);
+                if (totalAdded > 0 || totalUpdated > 0) {
+                    toast.success(`Uspješno: ${task.file.name}. ${totalAdded} novih, ${totalUpdated} ažuriranih.`);
                 } else {
-                    toast.info(`Dovršeno: ${task.file.name}. Svi zapisi već postoje.`);
+                    toast.info(`Dovršeno: ${task.file.name}. Nije bilo promjena.`);
                 }
             } catch (error: any) {
                 console.error(error);
@@ -179,7 +179,7 @@ export function BetonaraFileUploader() {
                                         {task.status === 'processing' && ' Obrađujem...'}
                                         {task.status === 'success' && (
                                             <span className="text-emerald-600 font-medium">
-                                                {task.addedCount} novih, {task.skippedCount} duplikata
+                                                {task.addedCount} novih, {task.updatedCount} ažuriranih
                                             </span>
                                         )}
                                         {task.status === 'error' && ` Greška: ${task.error}`}
