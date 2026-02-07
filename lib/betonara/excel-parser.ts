@@ -1,29 +1,30 @@
 import * as XLSX from 'xlsx';
 import { BetonaraProductionRecord } from '@/types/betonara';
 
-// Mapiranje naziva kolona iz Excela u jedinstvene šifre artikala
+// Mapiranje naziva kolona iz Excela u jedinstvene šifre artikala (bazirano na User Report specifikaciji)
 const MATERIAL_MAP: Record<string, string> = {
+    // BETONARA 2 (Bosanski/Hrvatski/Turski)
     'rijecna 0-4': '01030073',
     'drobljena 0-4': '01030063',
     '4-8': '01030074',
     '8-16': '01030075',
-    'cem i': '01110045_425',
-    'sf 16': '01044076',
+    'cem i': '01110045',
     'sika v': '01044077',
     'sika': '01044077',
-    // Tehnički nazivi (SCADA raw export)
+    
+    // BETONARA 1 (Engleski/Turski - SCADA)
     'agg1': '01030073',
     'agg2': '01030063',
     'agg3': '01030074',
     'agg4': '01030075',
-    'agg5': '01030075', // B2 variant
+    'agg5': '01030075',
     'agg6': '01030075',
-    'cem1': '01110045_425',
-    'cem2': '01110045_425',
-    'cem3': '01110045_425',
-    'cem4': '01110045_425',
+    'cem1': '01110045',
+    'cem2': '01110045',
+    'cem3': '01110045',
+    'cem4': '01110045',
     'add1': '01044076', // SF 16
-    'add2': '01044077', // Sika
+    'add2': '01044077', // Sika/FM 500
     'add3': '01044077',
     'add4': '01044077',
     'add5': '01044077',
@@ -89,17 +90,17 @@ export async function parseBetonaraExcel(
                         colMap['id'] = index;
                     } else if (h.includes('proizvodnja br') || h.includes('production no')) {
                         colMap['work_order'] = index;
-                    } else if (h.includes('re recept') || h.includes('recipe') || h.includes('recept br') || h === 'reçete') {
+                    } else if (h.includes('re recept') || h.includes('recipe') || h.includes('recept br') || h === 'reçete' || h === 'recept no') {
                         colMap['recipe'] = index;
-                    } else if (h === 'kolicina' || h === 'quantity' || h === 'm3' || h.includes('izdana kol')) {
+                    } else if (h === 'kolicina' || h === 'quantity' || h === 'm3' || h.includes('izdana kol') || h.includes('kolicina proizvedenog')) {
                         colMap['quantity'] = index;
-                    } else if (h.includes('prijemnica') || h.includes('receipt') || h.includes('izdatnica')) {
+                    } else if (h.includes('prijemnica') || h.includes('receipt') || h.includes('izdatnica') || h.includes('prijem br')) {
                         colMap['issuance'] = index;
-                    } else if (h.includes('voda') || h.includes('wat') || h.includes('su') || h.includes('_water')) {
-                        // Sabirat ćemo sve kolone koje sadrže ove ključne riječi, ali izbjegavamo procente ili razlike
-                        if (!h.includes('yuzde') && !h.includes('fark') && !h.includes('%') && !h.includes('diff')) {
-                            waterCols.push(index);
-                        }
+                    } else if (
+                        (h.includes('voda') || h.includes('wat') || h.startsWith('su') || h.includes('water')) && 
+                        !h.includes('yuzde') && !h.includes('fark') && !h.includes('%') && !h.includes('diff')
+                    ) {
+                        waterCols.push(index);
                     }
 
                     // Provjera materijala preko mape
