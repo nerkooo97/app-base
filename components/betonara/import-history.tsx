@@ -298,6 +298,12 @@ export function ImportHistory() {
                                                 )}>
                                                     {format(day, 'd')}
                                                 </span>
+                                                {totalAdded > 0 && (
+                                                    <div className="flex items-center gap-1 text-[10px] font-black text-emerald-600 dark:text-emerald-400">
+                                                        <PlusCircle className="h-3 w-3" />
+                                                        <span>{totalAdded} ZAPISA</span>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="space-y-2">
@@ -309,13 +315,6 @@ export function ImportHistory() {
                                                         </span>
                                                     </div>
                                                 ))}
-                                                
-                                                {totalAdded > 0 && (
-                                                    <div className="flex items-center gap-1 px-2 text-[10px] font-black text-emerald-600 dark:text-emerald-400">
-                                                        <PlusCircle className="h-3 w-3" />
-                                                        <span>{totalAdded} ZAPISA</span>
-                                                    </div>
-                                                )}
                                                 
                                                 {dayImports.length > 0 && (
                                                     <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
