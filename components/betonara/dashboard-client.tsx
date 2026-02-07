@@ -43,10 +43,11 @@ import {
     SelectTrigger, 
     SelectValue 
 } from '@/components/ui/select';
-import { format, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfYear } from 'date-fns';
+import { format, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfYear, parseISO, isValid } from 'date-fns';
 import { hr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, formatNumber } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface BetonaraDashboardClientProps {
     initialStats: BetonaraStats;
@@ -179,6 +180,27 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Header with Period Indicator */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-3xl font-black tracking-tighter text-foreground">Kontrolna tabla - Betonara</h1>
+                    <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                        Analitika i pregled proizvodnih procesa u realnom vremenu.
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-3 bg-card/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-emerald-500/10 shadow-sm self-start sm:self-center group">
+                    <div className="bg-emerald-500/10 p-2 rounded-xl group-hover:scale-110 transition-transform">
+                        <Calendar className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Izvještajni period</span>
+                        <span className="text-sm font-black tracking-tight text-foreground">
+                            {format(new Date(dateFrom), 'dd.MM.yyyy')} — {format(new Date(dateTo), 'dd.MM.yyyy')}
+                        </span>
+                    </div>
+                </div>
+            </div>
             {/* Filters Row */}
             <div className="flex flex-col gap-4 bg-card/40 backdrop-blur p-6 rounded-2xl border shadow-premium">
                 {/* Quick Range Buttons */}
@@ -247,20 +269,16 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1">
                         <div className="space-y-2">
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Od datuma</label>
-                            <Input 
-                                type="date" 
-                                value={dateFrom} 
-                                onChange={(e) => setDateFrom(e.target.value)} 
-                                className="bg-background/50 h-10"
+                            <DatePicker 
+                                date={parseISO(dateFrom)} 
+                                setDate={(d) => setDateFrom(format(d, 'yyyy-MM-dd'))} 
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Do datuma</label>
-                            <Input 
-                                type="date" 
-                                value={dateTo} 
-                                onChange={(e) => setDateTo(e.target.value)} 
-                                className="bg-background/50 h-10"
+                            <DatePicker 
+                                date={parseISO(dateTo)} 
+                                setDate={(d) => setDateTo(format(d, 'yyyy-MM-dd'))} 
                             />
                         </div>
                         <div className="space-y-2 col-span-2 md:col-span-1">
@@ -307,7 +325,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="p-6 pb-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Ukupna Proizvodnja</p>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-black tracking-tighter tabular-nums">{stats.total_m3.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+                                <span className="text-4xl font-black tracking-tighter tabular-nums">{formatNumber(stats.total_m3, { maximumFractionDigits: 1 })}</span>
                                 <span className="text-sm font-bold text-muted-foreground">m³</span>
                             </div>
                             <div className="flex items-center gap-1.5 mt-2">
@@ -344,7 +362,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="p-6 pb-2">
                             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Broj Zapisa</p>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-black tracking-tighter tabular-nums">{stats.record_count.toLocaleString()}</span>
+                                <span className="text-4xl font-black tracking-tighter tabular-nums">{formatNumber(stats.record_count)}</span>
                             </div>
                             <p className="text-[10px] mt-2 font-bold text-muted-foreground uppercase opacity-70">Unosa u periodu</p>
                         </div>
@@ -371,7 +389,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 1</p>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-3xl font-black tracking-tighter tabular-nums">
-                                            {(stats.by_plant['Betonara 1'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                            {formatNumber(stats.by_plant['Betonara 1'] || 0, { maximumFractionDigits: 1 })}
                                         </span>
                                         <span className="text-xs font-bold text-muted-foreground">m³</span>
                                     </div>
@@ -408,7 +426,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Betonara 2</p>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-3xl font-black tracking-tighter tabular-nums">
-                                            {(stats.by_plant['Betonara 2'] || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                                            {formatNumber(stats.by_plant['Betonara 2'] || 0, { maximumFractionDigits: 1 })}
                                         </span>
                                         <span className="text-xs font-bold text-muted-foreground">m³</span>
                                     </div>
@@ -465,7 +483,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     axisLine={false} 
                                     tickLine={false} 
                                     tick={{ fontSize: 10, fill: '#64748b' }}
-                                    tickFormatter={(val) => format(new Date(val), 'dd.MM')}
+                                    tickFormatter={(val) => format(new Date(val), 'dd.MM.yyyy')}
                                     minTickGap={20}
                                 />
                                 <YAxis 
@@ -552,7 +570,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                 <Tooltip 
                                     cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
-                                    formatter={(val: number | undefined) => [`${(val || 0).toLocaleString()} kg/l`, 'Količina']}
+                                    formatter={(val: number | undefined) => [`${formatNumber(val || 0)} kg/l`, 'Količina']}
                                 />
                                 <Bar 
                                     dataKey="value" 
@@ -600,7 +618,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                 <Tooltip 
                                     cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
-                                    formatter={(val: number | undefined) => [`${(val || 0).toLocaleString()} m³`, 'Ukupno']}
+                                    formatter={(val: number | undefined) => [`${formatNumber(val || 0)} m³`, 'Ukupno']}
                                 />
                                 <Bar 
                                     dataKey="value" 
@@ -721,13 +739,13 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <span className="font-black tabular-nums">
-                                                    {m.value.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                                    {formatNumber(m.value, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                                                 </span>
                                                 <span className="text-[10px] ml-1 text-muted-foreground uppercase font-bold">kg/l</span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <span className="font-medium tabular-nums text-muted-foreground">
-                                                    {m.target.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                                    {formatNumber(m.target, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
@@ -735,7 +753,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                                     "font-bold tabular-nums",
                                                     m.diff > 0 ? "text-amber-600" : m.diff < 0 ? "text-emerald-600" : "text-muted-foreground"
                                                 )}>
-                                                    {m.diff > 0 ? '+' : ''}{m.diff.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                                    {m.diff > 0 ? '+' : ''}{formatNumber(m.diff, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right">

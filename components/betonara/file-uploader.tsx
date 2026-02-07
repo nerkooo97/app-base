@@ -70,6 +70,14 @@ export function BetonaraFileUploader() {
                 const minDate = new Date(Math.min(...dates)).toISOString();
                 const maxDate = new Date(Math.max(...dates)).toISOString();
                 
+                // Track unique days that actually have records
+                const activeDays = Array.from(new Set(
+                    records.map(r => {
+                        const d = r.date;
+                        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    })
+                ));
+                
                 let totalAdded = 0;
                 let totalUpdated = 0;
 
@@ -89,7 +97,8 @@ export function BetonaraFileUploader() {
                     added_count: totalAdded,
                     skipped_count: totalUpdated, // Stavljamo update-ovane u log kao obrađene
                     start_date: minDate,
-                    end_date: maxDate
+                    end_date: maxDate,
+                    active_days: activeDays
                 });
 
                 setTasks(prev => prev.map(t =>

@@ -11,7 +11,7 @@ import { Loader2, Download, Table as TableIcon, Calendar as CalendarIcon, Chevro
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, formatNumber } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -322,17 +322,17 @@ export function BetonaraReportsClient() {
                                             {paginatedRecords.map((r) => (
                                                 <TableRow key={r.id} className="hover:bg-muted/10 transition-colors">
                                                     <TableCell className="font-mono text-[11px] text-muted-foreground">{r.work_order_number || '-'}</TableCell>
-                                                    <TableCell className="whitespace-nowrap text-xs font-medium">{format(r.date, 'dd.MM.yyyy')}</TableCell>
+                                                    <TableCell className="whitespace-nowrap text-xs font-medium">{format(r.date, 'dd.MM.yyyy.')}</TableCell>
                                                     <TableCell className="whitespace-nowrap text-xs">
                                                         <Badge variant="outline" className="font-semibold text-primary/80">{r.recipe_number}</Badge>
                                                     </TableCell>
                                                     {materials.map(m => (
                                                         <TableCell key={m.code} className="text-right font-mono text-[11px]">
-                                                            {(r.materials[m.code] || 0) > 0 ? r.materials[m.code].toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}
+                                                            {(r.materials[m.code] || 0) > 0 ? formatNumber(r.materials[m.code], { minimumFractionDigits: 2 }) : '-'}
                                                         </TableCell>
                                                     ))}
-                                                    <TableCell className="text-right font-mono text-xs text-blue-600/70">{r.water.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
-                                                    <TableCell className="text-right font-bold font-mono text-xs">{r.total_quantity.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                                                    <TableCell className="text-right font-mono text-xs text-blue-600/70">{formatNumber(r.water, { minimumFractionDigits: 2 })}</TableCell>
+                                                    <TableCell className="text-right font-bold font-mono text-xs">{formatNumber(r.total_quantity, { minimumFractionDigits: 2 })}</TableCell>
                                                     <TableCell className="text-right text-[11px] text-muted-foreground">{r.issuance_number || '-'}</TableCell>
                                                 </TableRow>
                                             ))}
@@ -340,12 +340,12 @@ export function BetonaraReportsClient() {
                                                 <TableCell colSpan={3} className="text-primary tracking-wider">UKUPNO ZA CIJELI MJESEC:</TableCell>
                                                 {materials.map(m => (
                                                     <TableCell key={m.code} className="text-right font-mono text-emerald-600">
-                                                        {totals[m.code]?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
+                                                        {totals[m.code] ? formatNumber(totals[m.code], { minimumFractionDigits: 2 }) : '0,00'}
                                                     </TableCell>
                                                 ))}
-                                                <TableCell className="text-right font-mono text-blue-600">{totals.water?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+                                                <TableCell className="text-right font-mono text-blue-600">{formatNumber(totals.water || 0, { minimumFractionDigits: 2 })}</TableCell>
                                                 <TableCell className="text-right font-mono font-black text-emerald-600 text-sm">
-                                                    {totals.total?.toLocaleString(undefined, { minimumFractionDigits: 2 })} <span className="text-[10px]">m³</span>
+                                                    {formatNumber(totals.total || 0, { minimumFractionDigits: 2 })} <span className="text-[10px]">m³</span>
                                                 </TableCell>
                                                 <TableCell />
                                             </TableRow>

@@ -44,6 +44,7 @@ export interface BetonaraImportHistory {
     skipped_count: number;
     start_date?: string;
     end_date?: string;
+    active_days?: string[];
     imported_by: string;
     import_date: string;
     profiles?: {

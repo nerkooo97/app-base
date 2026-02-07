@@ -314,7 +314,8 @@ export async function logImport(log: {
     added_count: number,
     skipped_count: number,
     start_date?: string,
-    end_date?: string
+    end_date?: string,
+    active_days?: string[]
 }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

@@ -93,6 +93,19 @@ export function ImportHistory() {
         const groups: Record<string, BetonaraImportHistory[]> = {};
         
         history.forEach(item => {
+            // New logic: Use active_days if available for precise mapping
+            if (item.active_days && item.active_days.length > 0) {
+                item.active_days.forEach(dayStr => {
+                    const dayKey = format(parseISO(dayStr), 'yyyy-MM-dd');
+                    if (!groups[dayKey]) groups[dayKey] = [];
+                    if (!groups[dayKey].find(g => g.id === item.id)) {
+                        groups[dayKey].push(item);
+                    }
+                });
+                return;
+            }
+
+            // Fallback for old records: Use production period interval
             const dateStart = item.start_date ? parseISO(item.start_date) : parseISO(item.import_date);
             const dateEnd = item.end_date ? parseISO(item.end_date) : parseISO(item.import_date);
             
@@ -249,7 +262,7 @@ export function ImportHistory() {
                                                     <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-xl border border-border">
                                                         <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                                                         <span className="text-[11px] font-black text-muted-foreground">
-                                                            PERIOD: {format(parseISO(item.start_date), 'dd.MM')} - {format(parseISO(item.end_date), 'dd.MM.yyyy')}
+                                                            PERIOD: {format(parseISO(item.start_date), 'dd.MM.yyyy')} - {format(parseISO(item.end_date), 'dd.MM.yyyy')}
                                                         </span>
                                                     </div>
                                                 )}

@@ -16,3 +16,8 @@ export function formatBytes(bytes: number, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
+
+export function formatNumber(value: number, options?: Intl.NumberFormatOptions) {
+  // de-DE locale consistently uses . for thousands and , for decimals
+  return new Intl.NumberFormat('de-DE', options).format(value);
+}
