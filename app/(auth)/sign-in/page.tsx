@@ -40,9 +40,6 @@ export default async function SignInPage(props: {
 
                 <div className="relative z-10 w-full p-16 flex flex-col justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                            <LayoutDashboard className="h-6 w-6 text-white" />
-                        </div>
                         <span className="text-2xl font-semibold text-white font-outfit tracking-tight">{appName}</span>
                     </div>
 
@@ -53,16 +50,6 @@ export default async function SignInPage(props: {
                         <p className="text-lg text-white/70 max-w-sm font-medium leading-relaxed">
                             U Baupartneru, gradnja nije samo posao – to je predanost preciznosti, sigurnosti i dugovječnosti.
                         </p>
-
-                        <div className="pt-8 flex items-center gap-6">
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="h-10 w-10 rounded-full border-2 border-primary bg-gray-100 flex items-center justify-center overflow-hidden">
-                                        <img src={`https://i.pravatar.cc/100?u=${i}`} alt="" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
                     </div>
 
                     <div className="flex items-center gap-4 text-white/40 text-[10px] font-semibold uppercase tracking-widest">
