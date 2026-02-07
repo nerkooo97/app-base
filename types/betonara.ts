@@ -29,4 +29,21 @@ export interface BetonaraStats {
     record_count: number;
     by_plant: Record<string, number>;
     by_recipe: Record<string, number>;
+    daily_production: Array<{ date: string, value: number }>;
+    material_consumption: Record<string, number>;
+}
+
+export interface BetonaraImportHistory {
+    id: string;
+    filename: string;
+    plant: string;
+    added_count: number;
+    skipped_count: number;
+    start_date?: string;
+    end_date?: string;
+    imported_by: string;
+    import_date: string;
+    profiles?: {
+        full_name: string;
+    };
 }

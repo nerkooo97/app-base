@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, FileSpreadsheet, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { parseBetonaraExcel } from '@/lib/betonara/excel-parser';
-import { saveProductionRecords, getRecipeMappings } from '@/lib/actions/betonara';
+import { saveProductionRecords, getRecipeMappings, logImport } from '@/lib/actions/betonara';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +65,10 @@ export function BetonaraFileUploader() {
                 if (records.length === 0) throw new Error('Fajl je prazan ili neispravan');
 
                 const plant = records[0].plant;
+                const dates = records.map(r => r.date.getTime());
+                const minDate = new Date(Math.min(...dates)).toISOString();
+                const maxDate = new Date(Math.max(...dates)).toISOString();
+                
                 let totalAdded = 0;
                 let totalSkipped = 0;
 
@@ -77,6 +81,16 @@ export function BetonaraFileUploader() {
                     totalAdded += result.added;
                     totalSkipped += result.skipped;
                 }
+
+                // Log entry into history
+                await logImport({
+                    filename: task.file.name,
+                    plant: plant,
+                    added_count: totalAdded,
+                    skipped_count: totalSkipped,
+                    start_date: minDate,
+                    end_date: maxDate
+                });
 
                 setTasks(prev => prev.map(t =>
                     t.id === task.id ? {
