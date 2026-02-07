@@ -286,11 +286,11 @@ export async function getImportHistory(filters?: {
             profiles(full_name)
         `, { count: 'exact' });
 
-    if (filters?.from) {
-        query = query.gte('import_date', filters.from);
-    }
-    if (filters?.to) {
-        query = query.lte('import_date', filters.to);
+    if (filters?.from && filters?.to) {
+        query = query.or(`import_date.gte.${filters.from},and(start_date.lte.${filters.to},end_date.gte.${filters.from})`);
+    } else {
+        if (filters?.from) query = query.gte('import_date', filters.from);
+        if (filters?.to) query = query.lte('import_date', filters.to);
     }
 
     const { data, error, count } = await query
