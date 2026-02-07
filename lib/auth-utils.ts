@@ -9,6 +9,8 @@ export interface UserWithProfileAndRoles {
     permissions: string[];
 }
 
+import { navigationConfig } from "@/config/navigation";
+
 /**
  * Check if the user has a specific permission.
  * This is a pure function safe for both server and client.
@@ -19,4 +21,21 @@ export function hasPermission(user: UserWithProfileAndRoles, permissionName: str
         return true;
     }
     return user.permissions.includes(permissionName);
+}
+
+/**
+ * Finds the first route the user has access to based on navigation config.
+ */
+export function getFirstAuthorizedRoute(user: UserWithProfileAndRoles): string {
+    for (const group of navigationConfig) {
+        for (const item of group.items) {
+            if (!item.requiredPermissions || item.requiredPermissions.length === 0) {
+                return item.href;
+            }
+            if (item.requiredPermissions.some(p => hasPermission(user, p))) {
+                return item.href;
+            }
+        }
+    }
+    return '/'; // Fallback to safe landing
 }

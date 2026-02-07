@@ -75,10 +75,16 @@ export default async function Verify2FAPage(props: {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
                 <div className="w-full max-w-md space-y-10">
                     <div className="text-left space-y-2">
-                        <Link href="/sign-in" className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-primary transition-colors mb-4 group">
-                            <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
-                            Nazad na prijavu
-                        </Link>
+                        <form action={async () => {
+                            'use server';
+                            const { signOut } = await import('../sign-out-action');
+                            await signOut();
+                        }}>
+                            <button type="submit" className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-primary transition-colors mb-4 group cursor-pointer">
+                                <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
+                                Odustani i nazad na prijavu
+                            </button>
+                        </form>
                         <h1 className="text-3xl font-semibold text-gray-900 font-outfit">Verifikacija</h1>
                         <p className="text-sm font-semibold text-gray-400">Unesite 6-cifreni kod iz vaše autentifikatorske aplikacije.</p>
                     </div>

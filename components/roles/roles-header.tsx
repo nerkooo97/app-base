@@ -18,14 +18,14 @@ export default function RolesHeader({ onNewRole, onNewPermission }: RolesHeaderP
                 </p>
             </div>
             <div className="flex items-center gap-3">
-                <Button
+{/*                 <Button
                     variant="outline"
                     onClick={onNewPermission}
                     className="h-10 px-4 text-xs font-bold border-gray-200 hover:bg-gray-50 hover:text-gray-900 shadow-none rounded-xl"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Nova dozvola
-                </Button>
+                </Button> */}
                 <Button
                     onClick={onNewRole}
                     className="h-10 px-6 text-xs font-bold shadow-sm rounded-xl transition-all active:scale-95"

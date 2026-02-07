@@ -8,6 +8,7 @@ export const PERMISSIONS = {
     COMPANIES_MANAGE: 'companies.manage',
     BETONARA_VIEW: 'betonara.view',
     BETONARA_MANAGE: 'betonara.manage',
+    BETONARA_IMPORT: 'betonara.import',
 } as const;
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];

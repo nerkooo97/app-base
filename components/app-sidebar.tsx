@@ -19,9 +19,10 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { navigationConfig } from "@/config/navigation"
-import { UserWithProfileAndRoles, hasPermission } from "@/lib/auth-utils"
+import { UserWithProfileAndRoles, hasPermission, getFirstAuthorizedRoute } from "@/lib/auth-utils"
 
 export function AppSidebar({ user, appName = "EdVision ERP", ...props }: React.ComponentProps<typeof Sidebar> & { user: UserWithProfileAndRoles, appName?: string }) {
+    const homeUrl = React.useMemo(() => getFirstAuthorizedRoute(user), [user]);
     const visibleNavMain = React.useMemo(() => {
         return navigationConfig.map(group => ({
             title: group.groupLabel,
@@ -30,7 +31,7 @@ export function AppSidebar({ user, appName = "EdVision ERP", ...props }: React.C
             items: group.items
                 .filter(item => {
                     if (!item.requiredPermissions || item.requiredPermissions.length === 0) return true;
-                    return item.requiredPermissions.every(p => hasPermission(user, p));
+                    return item.requiredPermissions.some(p => hasPermission(user, p));
                 })
                 .map(item => ({
                     title: item.label,
@@ -51,7 +52,7 @@ export function AppSidebar({ user, appName = "EdVision ERP", ...props }: React.C
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <a href="/">
+                            <a href={homeUrl}>
                                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                                     <Command className="size-4" />
                                 </div>

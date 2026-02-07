@@ -6,15 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getDashboardStats } from '@/lib/queries/dashboard';
 
+import { redirect } from 'next/navigation';
+import { hasPermission, getFirstAuthorizedRoute } from '@/lib/auth-utils';
+import { PERMISSIONS } from '@/config/permissions';
+
 export default async function DashboardPage() {
     const user = await getUserWithProfileAndRoles();
     const supabase = await createClient();
 
+    if (!user) return redirect('/sign-in');
+
+    // Provjera da li korisnik ima pravo na dashboard
+    if (!hasPermission(user, PERMISSIONS.DASHBOARD_VIEW)) {
+        const firstRoute = getFirstAuthorizedRoute(user);
+        if (firstRoute !== '/') {
+            return redirect(firstRoute);
+        }
+    }
+
     // Fetch stats via shared query
     const stats = await getDashboardStats(supabase);
-
-
-    if (!user) return null;
 
     return (
         <div className="space-y-10">

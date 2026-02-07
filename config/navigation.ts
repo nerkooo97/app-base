@@ -53,7 +53,7 @@ export const navigationConfig: NavGroup[] = [
                 label: 'Import',
                 href: '/betonara/import',
                 icon: 'FileUp',
-                requiredPermissions: [PERMISSIONS.BETONARA_MANAGE],
+                requiredPermissions: [PERMISSIONS.BETONARA_MANAGE, PERMISSIONS.BETONARA_IMPORT],
             },
             {
                 label: 'Izvještaji',

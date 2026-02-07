@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getRequiredPermissions } from '@/config/navigation';
-import { UserWithProfileAndRoles, hasPermission } from '@/lib/auth-utils';
+import { UserWithProfileAndRoles, hasPermission, getFirstAuthorizedRoute } from '@/lib/auth-utils';
 import { Loader2 } from 'lucide-react';
 
 interface RouteGuardProps {
@@ -21,11 +21,12 @@ export default function RouteGuard({ user, children }: RouteGuardProps) {
         setIsAuthorized(null);
 
         const required = getRequiredPermissions(pathname);
-        const authorized = !required || required.length === 0 || required.every(p => hasPermission(user, p));
+        const authorized = !required || required.length === 0 || required.some(p => hasPermission(user, p));
 
         if (!authorized) {
-            console.warn(`Unauthorized access attempt to ${pathname}. Redirecting to dashboard.`);
-            router.replace('/');
+            console.warn(`Unauthorized access attempt to ${pathname}. Redirecting to first authorized route.`);
+            const target = getFirstAuthorizedRoute(user);
+            router.replace(target);
         } else {
             setIsAuthorized(true);
         }
