@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
 import {
-    Loader2, ChevronLeft, ChevronRight, MoreHorizontal, ChevronRight as ChevronRightIcon
+    Loader2, ChevronLeft, ChevronRight, MoreHorizontal, ChevronRight as ChevronRightIcon,
+    Download, FileSpreadsheet, FileText
 } from 'lucide-react';
 import { BetonaraProductionRecord, BetonaraMaterial } from '@/types/betonara';
 import { getProductionRecords, getActiveMaterials } from '@/lib/actions/betonara';
@@ -199,7 +200,7 @@ export function BetonaraReportsClient() {
         setIsDialogOpen(true);
     };
     return (
-        <div className="space-y-6 w-full max-w-full p-1">
+        <div className="space-y-6 w-full max-w-full">
             <ReportsFilters
                 month={month}
                 year={year}
@@ -223,8 +224,9 @@ export function BetonaraReportsClient() {
                             <Table className="w-full border-separate border-spacing-0">
                                 <TableHeader className="bg-muted/90 backdrop-blur-md sticky top-0 z-20 shadow-sm border-b">
 
-                                    {/* Row 2: Item Codes - 16 columns total */}
+                                    {/* Row 2: Item Codes - 17 columns total */}
                                     <TableRow className="bg-muted/10 border-b">
+                                        <TableHead className="w-[50px] border-b" />
                                         <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
                                         <TableHead />
                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
@@ -242,8 +244,9 @@ export function BetonaraReportsClient() {
                                         <TableHead />
                                     </TableRow>
 
-                                    {/* Row 3: Column Names - exactly 16 columns (removed work order) */}
+                                    {/* Row 3: Column Names - exactly 17 columns */}
                                     <TableRow className="hover:bg-transparent bg-muted/20">
+                                        <TableHead className="w-[50px] border-b text-center">Export</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Datum</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Naziv recepture</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 GEOKOP)</TableHead>
@@ -298,6 +301,31 @@ export function BetonaraReportsClient() {
                                                                 setExpandedRows(newExpanded);
                                                             }}
                                                         >
+                                                            <TableCell className="w-[50px] py-1 text-center" onClick={(e) => e.stopPropagation()}>
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                                            <Download className="h-4 w-4 text-primary" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="start">
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => exportImelToExcel(r.records, plant, month, year)}
+                                                                            className="cursor-pointer"
+                                                                        >
+                                                                            <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
+                                                                            <span>Excel (.xlsx)</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => exportImelToPDF(r.records, plant, month, year, months)}
+                                                                            className="cursor-pointer"
+                                                                        >
+                                                                            <FileText className="mr-2 h-4 w-4 text-purple-600" />
+                                                                            <span>PDF (.pdf)</span>
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </TableCell>
                                                             <TableCell className="whitespace-nowrap text-[10px] py-1">{format(r.date, 'dd.MM.yyyy')}</TableCell>
                                                             <TableCell className="whitespace-nowrap text-[10px] py-1">
                                                                 {r.recipe_number}
@@ -327,7 +355,7 @@ export function BetonaraReportsClient() {
                                                         {/* Expanded details row */}
                                                         {isExpanded && (
                                                             <TableRow className="bg-muted/10">
-                                                                <TableCell colSpan={16} className="p-0">
+                                                                <TableCell colSpan={17} className="p-0">
                                                                     <div className="bg-muted/5 border-t border-b">
                                                                         <Table>
                                                                             <TableHeader>
@@ -377,7 +405,7 @@ export function BetonaraReportsClient() {
                                                 );
                                             })}
                                             <TableRow className="bg-primary hover:bg-primary font-bold border-t-2 sticky bottom-0 z-10 text-white shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
-                                                <TableCell colSpan={2} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
+                                                <TableCell colSpan={3} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
                                                 
                                                 {/* 8 material totals */}
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg1 || 0)}</TableCell>

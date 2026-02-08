@@ -23,7 +23,7 @@ export default function AppShell({ children, user, appName = 'EdVision ERP' }: A
         <SidebarProvider>
             <AppSidebar user={user} appName={appName} />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-1 sm:px-4">
                     <SidebarTrigger className="-ml-1" />
                     <Separator
                         orientation="vertical"
@@ -33,7 +33,7 @@ export default function AppShell({ children, user, appName = 'EdVision ERP' }: A
                         <Breadcrumbs />
                     </div>
                 </header>
-                <div className="flex flex-1 flex-col gap-4 p-4">
+                <div className="flex flex-1 flex-col gap-4 px-1 sm:px-4 py-4">
                     <RouteGuard user={user}>
                         {children}
                     </RouteGuard>
