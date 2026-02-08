@@ -37,6 +37,7 @@ export async function saveProductionRecords(records: BetonaraProductionRecord[])
         const formattedRecords = chunk.map(r => ({
             ...r,
             date: r.date instanceof Date ? r.date.toISOString() : r.date,
+            end_date: r.end_date instanceof Date ? r.end_date.toISOString() : r.end_date,
         }));
 
         const { error: upsertError } = await supabase
@@ -308,14 +309,106 @@ export async function getImportHistory(filters?: {
     };
 }
 
+export async function upsertManualProductionRecord(record: Partial<BetonaraProductionRecord> & { id: string }) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    // 1. Get previous data if editing
+    const { data: previousRecord } = await supabase
+        .from('betonara_production')
+        .select('*')
+        .eq('id', record.id)
+        .single();
+
+    // 2. Perform upsert
+    const formattedRecord = {
+        ...record,
+        date: record.date instanceof Date ? record.date.toISOString() : record.date,
+        end_date: record.end_date instanceof Date ? record.end_date.toISOString() : record.end_date,
+        updated_at: new Date().toISOString(),
+    };
+
+    const { error: upsertError } = await supabase
+        .from('betonara_production')
+        .upsert(formattedRecord);
+
+    if (upsertError) {
+        console.error('Error upserting manual record:', upsertError);
+        throw new Error(`Greška pri spašavanju: ${upsertError.message}`);
+    }
+
+    // 3. Log the action
+    const actionType = previousRecord ? 'MANUAL_EDIT' : 'MANUAL_ADD';
+    
+    await logImport({
+        filename: null,
+        plant: record.plant || 'Betonara 1',
+        added_count: actionType === 'MANUAL_ADD' ? 1 : 0,
+        skipped_count: 0,
+        action_type: actionType,
+        record_id: record.id,
+        previous_data: previousRecord,
+        current_data: formattedRecord
+    } as any);
+
+    revalidatePath('/betonara/dashboard');
+    revalidatePath('/betonara/reports');
+    return { success: true };
+}
+
+export async function deleteProductionRecord(id: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    // Get data before deletion for logging
+    const { data: previousRecord } = await supabase
+        .from('betonara_production')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (!previousRecord) throw new Error('Zapis nije pronađen');
+
+    const { error } = await supabase
+        .from('betonara_production')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting record:', error);
+        throw new Error('Failed to delete record');
+    }
+
+    // Log deletion
+    await logImport({
+        filename: null,
+        plant: previousRecord.plant,
+        added_count: 0,
+        skipped_count: 0,
+        action_type: 'MANUAL_DELETE',
+        record_id: id,
+        previous_data: previousRecord
+    } as any);
+
+    revalidatePath('/betonara/dashboard');
+    revalidatePath('/betonara/reports');
+    return { success: true };
+}
+
 export async function logImport(log: {
-    filename: string,
+    filename: string | null,
     plant: string,
     added_count: number,
     skipped_count: number,
     start_date?: string,
     end_date?: string,
-    active_days?: string[]
+    active_days?: string[],
+    action_type?: string,
+    record_id?: string,
+    previous_data?: any,
+    current_data?: any
 }) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

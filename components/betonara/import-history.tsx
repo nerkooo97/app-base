@@ -24,7 +24,9 @@ import {
     RotateCcw,
     Clock,
     PlusCircle,
-    Copy
+    Copy,
+    Edit2,
+    Trash2
 } from 'lucide-react';
 import { 
     format, 
@@ -217,11 +219,27 @@ export function ImportHistory() {
                                         <div key={item.id} className="group flex flex-col gap-4 p-5 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md hover:border-emerald-500/30 transition-all">
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="rounded-xl bg-emerald-500/10 p-3 ring-1 ring-emerald-500/20">
-                                                        <FileSpreadsheet className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                                                    <div className={cn(
+                                                        "rounded-xl p-3 ring-1",
+                                                        item.action_type === 'MANUAL_EDIT' ? "bg-blue-500/10 ring-blue-500/20 text-blue-600" :
+                                                        item.action_type === 'MANUAL_ADD' ? "bg-emerald-500/10 ring-emerald-500/20 text-emerald-600" :
+                                                        item.action_type === 'MANUAL_DELETE' ? "bg-red-500/10 ring-red-500/20 text-red-600" :
+                                                        "bg-emerald-500/10 ring-emerald-500/20 text-emerald-600"
+                                                    )}>
+                                                        {item.action_type === 'MANUAL_EDIT' ? <Edit2 className="h-6 w-6" /> :
+                                                         item.action_type === 'MANUAL_ADD' ? <PlusCircle className="h-6 w-6" /> :
+                                                         item.action_type === 'MANUAL_DELETE' ? <Trash2 className="h-6 w-6" /> :
+                                                         <FileSpreadsheet className="h-6 w-6" />}
                                                     </div>
                                                     <div>
-                                                        <p className="text-lg font-black tracking-tight text-foreground">{item.filename}</p>
+                                                        <p className="text-lg font-black tracking-tight text-foreground">
+                                                            {item.filename || (
+                                                                item.action_type === 'MANUAL_EDIT' ? 'Ručna izmjena' :
+                                                                item.action_type === 'MANUAL_ADD' ? 'Ručni unos' :
+                                                                item.action_type === 'MANUAL_DELETE' ? 'Brisanje zapisa' : 'Proizvodnja'
+                                                            )}
+                                                            {item.record_id && <span className="ml-2 text-[10px] text-muted-foreground font-mono">ID: {item.record_id}</span>}
+                                                        </p>
                                                         <div className="flex items-center gap-2 mt-0.5">
                                                             <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/5 text-emerald-600 border-emerald-500/20">
                                                                 {item.plant}
@@ -290,7 +308,7 @@ export function ImportHistory() {
 
                                     // Calculate summaries
                                     const uniquePlants = Array.from(new Set(dayImports.map(i => i.plant)));
-                                    const totalAdded = dayImports.reduce((acc, curr) => acc + curr.added_count, 0);
+                                    const totalAdded = dayImports.reduce((acc, curr) => acc + (curr.added_count || 0), 0);
 
                                     return (
                                         <div 

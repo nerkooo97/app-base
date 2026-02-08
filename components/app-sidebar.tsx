@@ -6,6 +6,7 @@ import {
     SquareTerminal,
 } from "lucide-react"
 import * as LucideIcons from "lucide-react"
+import { Logo } from "@/components/logo"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -17,11 +18,13 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
 import { navigationConfig } from "@/config/navigation"
 import { UserWithProfileAndRoles, hasPermission, getFirstAuthorizedRoute } from "@/lib/auth-utils"
 
 export function AppSidebar({ user, appName = "EdVision ERP", ...props }: React.ComponentProps<typeof Sidebar> & { user: UserWithProfileAndRoles, appName?: string }) {
+    const { state } = useSidebar();
     const homeUrl = React.useMemo(() => getFirstAuthorizedRoute(user), [user]);
     const visibleNavMain = React.useMemo(() => {
         return navigationConfig.map(group => ({
@@ -52,14 +55,14 @@ export function AppSidebar({ user, appName = "EdVision ERP", ...props }: React.C
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <a href={homeUrl}>
-                                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                                    <Command className="size-4" />
-                                </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{appName}</span>
-                                    <span className="truncate text-xs">ERP System</span>
-                                </div>
+                            <a href={homeUrl} className="flex items-center justify-center">
+                                {state === "collapsed" ? (
+                                    <span className="text-green-600 font-bold text-xl">
+                                        BP
+                                    </span>
+                                ) : (
+                                    <Logo height={48} className="w-full" />
+                                )}
                             </a>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

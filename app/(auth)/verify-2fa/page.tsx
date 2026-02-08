@@ -4,6 +4,7 @@ import { LayoutDashboard, ShieldCheck, ArrowLeft } from 'lucide-react';
 import MFAForm from '@/components/auth/mfa-form';
 import Link from 'next/link';
 import { getSystemName } from '@/lib/queries/settings';
+import { Logo } from '@/components/logo';
 
 export default async function Verify2FAPage(props: {
     searchParams: Promise<{ error?: string }>;
@@ -36,19 +37,16 @@ export default async function Verify2FAPage(props: {
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://placehold.co/1200x1600/536dfe/ffffff?text=Sigurnost+na+prvom+mestu\nDvo-faktorska+autentifikacija"
-                        alt="Security Visual"
-                        className="w-full h-full object-cover opacity-20 scale-110"
+                        src="/img-bg1.jpg"
+                        alt="Baupartner Background"
+                        className="w-full h-full object-cover object-left opacity-20"
                     />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/40 z-1" />
 
                 <div className="relative z-10 w-full p-16 flex flex-col justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                            <LayoutDashboard className="h-6 w-6 text-white" />
-                        </div>
-                        <span className="text-2xl font-semibold text-white font-outfit tracking-tight">{appName}</span>
+                        <Logo height={64} white className="brightness-0 invert" />
                     </div>
 
                     <div className="space-y-6">

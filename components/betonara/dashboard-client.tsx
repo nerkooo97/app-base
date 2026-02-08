@@ -641,7 +641,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
             </div>
 
             {/* Deviation Analysis Row */}
-            <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden">
+            {/* <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md overflow-hidden">
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                         <div>
@@ -691,10 +691,10 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         </BarChart>
                     </ResponsiveContainer>
                 </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Bottom Section: Detailed Material Table */}
-            <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
+            {/* <Card className="border-none shadow-premium bg-card/60 backdrop-blur-md">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
@@ -775,7 +775,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         </table>
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
         </div>
     );
 }

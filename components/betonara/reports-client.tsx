@@ -1,27 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
+import {
+    Loader2, ChevronLeft, ChevronRight, MoreHorizontal, ChevronRight as ChevronRightIcon
+} from 'lucide-react';
 import { BetonaraProductionRecord, BetonaraMaterial } from '@/types/betonara';
 import { getProductionRecords, getActiveMaterials } from '@/lib/actions/betonara';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, getDay } from 'date-fns';
-import { Loader2, Download, Table as TableIcon, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { cn, formatNumber } from '@/lib/utils';
-import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { BetonaraRecordDialog } from './record-dialog';
+import { ReportsFilters } from './reports-filters';
+import {
+    exportToExcel,
+    exportToPDF,
+    exportImelToExcel,
+    exportImelToPDF
+} from '@/lib/betonara/export-utils';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileSpreadsheet, FileText } from 'lucide-react';
 import {
     Pagination,
     PaginationContent,
@@ -41,6 +45,9 @@ export function BetonaraReportsClient() {
     const [year, setYear] = useState(now.getFullYear().toString());
     const [view, setView] = useState('table');
     const [currentPage, setCurrentPage] = useState(1);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState<BetonaraProductionRecord | null>(null);
+    const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const itemsPerPage = 50;
 
     const months = [
@@ -61,44 +68,93 @@ export function BetonaraReportsClient() {
     const currentYear = now.getFullYear();
     const years = Array.from({ length: 5 }, (_, i) => (currentYear - 2 + i).toString());
 
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const fromDate = new Date(parseInt(year), parseInt(month) - 1, 1).toISOString();
+            const toDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59).toISOString();
+
+            const [recordsData, materialsData] = await Promise.all([
+                getProductionRecords({ from: fromDate, to: toDate, plant }),
+                getActiveMaterials()
+            ]);
+
+            // @ts-ignore
+            setRecords(recordsData.map(r => ({ ...r, date: r.date ? new Date(r.date) : new Date() })));
+            setMaterials(materialsData);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const fromDate = new Date(parseInt(year), parseInt(month) - 1, 1).toISOString();
-                const toDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59).toISOString();
-
-                const [recordsData, materialsData] = await Promise.all([
-                    getProductionRecords({ from: fromDate, to: toDate, plant }),
-                    getActiveMaterials()
-                ]);
-
-                // @ts-ignore
-                setRecords(recordsData.map(r => ({ ...r, date: new Date(r.date) })));
-                setMaterials(materialsData);
-                setCurrentPage(1); // Reset page on filter change
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
     }, [plant, month, year]);
 
-    // Totals remain calculated from FULL records array
+    // Totals calculated from flattened material values
     const totals = records.reduce((acc, r) => {
-        materials.forEach(m => {
-            acc[m.code] = (acc[m.code] || 0) + (r.materials[m.code] || 0);
-        });
+        acc.agg1 = (acc.agg1 || 0) + ((r as any).agg1_actual || 0);
+        acc.agg2 = (acc.agg2 || 0) + ((r as any).agg2_actual || 0);
+        acc.agg3 = (acc.agg3 || 0) + ((r as any).agg3_actual || 0);
+        acc.agg4 = (acc.agg4 || 0) + ((r as any).agg4_actual || 0);
+        acc.cem1 = (acc.cem1 || 0) + ((r as any).cem1_actual || 0);
+        acc.cem2 = (acc.cem2 || 0) + ((r as any).cem2_actual || 0);
+        acc.add1 = (acc.add1 || 0) + ((r as any).add1_actual || 0);
+        acc.add2 = (acc.add2 || 0) + ((r as any).add2_actual || 0);
         acc.water = (acc.water || 0) + (r.water || 0);
         acc.total = (acc.total || 0) + (r.total_quantity || 0);
         return acc;
     }, {} as Record<string, number>);
 
-    // Pagination helper
-    const totalPages = Math.ceil(records.length / itemsPerPage);
-    const paginatedRecords = records.slice(
+    // Group records by date and recipe
+    const groupedRecords = records.reduce((acc, r) => {
+        const dateKey = format(r.date, 'yyyy-MM-dd');
+        const recipeKey = `${dateKey}_${r.recipe_number}`;
+        
+        if (!acc[recipeKey]) {
+            acc[recipeKey] = {
+                date: r.date,
+                recipe_number: r.recipe_number,
+                records: [], // Store original records
+                agg1_actual: 0,
+                agg2_actual: 0,
+                agg3_actual: 0,
+                agg4_actual: 0,
+                cem1_actual: 0,
+                cem2_actual: 0,
+                add1_actual: 0,
+                add2_actual: 0,
+                water1_actual: 0,
+                total_quantity: 0,
+                count: 0
+            };
+        }
+        
+        acc[recipeKey].records.push(r); // Add the full record
+        acc[recipeKey].agg1_actual += (r as any).agg1_actual || 0;
+        acc[recipeKey].agg2_actual += (r as any).agg2_actual || 0;
+        acc[recipeKey].agg3_actual += (r as any).agg3_actual || 0;
+        acc[recipeKey].agg4_actual += (r as any).agg4_actual || 0;
+        acc[recipeKey].cem1_actual += (r as any).cem1_actual || 0;
+        acc[recipeKey].cem2_actual += (r as any).cem2_actual || 0;
+        acc[recipeKey].add1_actual += (r as any).add1_actual || 0;
+        acc[recipeKey].add2_actual += (r as any).add2_actual || 0;
+        acc[recipeKey].water1_actual += (r as any).water1_actual || 0;
+        acc[recipeKey].total_quantity += r.total_quantity || 0;
+        acc[recipeKey].count += 1;
+        
+        return acc;
+    }, {} as Record<string, any>);
+
+    const groupedRecordsArray = Object.values(groupedRecords).sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    // Pagination helper - use grouped records
+    const totalPages = Math.ceil(groupedRecordsArray.length / itemsPerPage);
+    const paginatedRecords = groupedRecordsArray.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -118,187 +174,91 @@ export function BetonaraReportsClient() {
     }, {} as Record<string, number>);
 
     const handleExportExcel = () => {
-        const exportData = records.map(r => {
-            const row: any = {
-                'Radni nalog': r.work_order_number,
-                'Datum': format(r.date, 'dd.MM.yyyy HH:mm'),
-                'Receptura': r.recipe_number,
-            };
-            materials.forEach(m => {
-                row[m.name] = r.materials[m.code] || 0;
-            });
-            row['Voda'] = r.water;
-            row['Ukupno m3'] = r.total_quantity;
-            row['Izdatnica'] = r.issuance_number;
-            return row;
-        });
-
-        // Add Totals row
-        const totalsRow: any = {
-            'Radni nalog': 'UKUPNO',
-            'Datum': '',
-            'Receptura': '',
-        };
-        materials.forEach(m => {
-            totalsRow[m.name] = totals[m.code] || 0;
-        });
-        totalsRow['Voda'] = totals.water;
-        totalsRow['Ukupno m3'] = totals.total;
-        totalsRow['Izdatnica'] = '';
-        exportData.push(totalsRow);
-
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Izvještaj");
-        XLSX.writeFile(wb, `Betonara_Izvjestaj_${month}_${year}.xlsx`);
+        exportToExcel(groupedRecordsArray, totals, month, year);
     };
 
     const handleExportPDF = () => {
-        const doc = new jsPDF('l', 'mm', 'a4');
-        const title = `Izvjestaj proizvodnje - ${months.find(m => m.value === month)?.label} ${year}`;
-
-        doc.setFontSize(16);
-        doc.text(title, 14, 15);
-        doc.setFontSize(10);
-        doc.text(`Betonara: ${plant === 'all' ? 'Sve' : plant}`, 14, 22);
-
-        const headers = [
-            ['R. Nalog', 'Datum', 'Recept', ...materials.map(m => m.name), 'Voda', 'm3', 'Izdatnica']
-        ];
-
-        const data = records.map(r => [
-            r.work_order_number || '-',
-            format(r.date, 'dd.MM.yyyy'),
-            r.recipe_number,
-            ...materials.map(m => (r.materials[m.code] || 0).toFixed(2)),
-            r.water.toFixed(2),
-            r.total_quantity.toFixed(2),
-            r.issuance_number || '-'
-        ]);
-
-        // Add Totals row to PDF
-        data.push([
-            'UKUPNO', '', '',
-            ...materials.map(m => (totals[m.code] || 0).toFixed(2)),
-            (totals.water || 0).toFixed(2),
-            (totals.total || 0).toFixed(2),
-            ''
-        ]);
-
-        autoTable(doc, {
-            startY: 28,
-            head: headers,
-            body: data,
-            theme: 'striped',
-            headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-            styles: { fontSize: 7, cellPadding: 2 },
-            columnStyles: {
-                0: { cellWidth: 20 },
-                1: { cellWidth: 20 },
-            }
-        });
-
-        doc.save(`Betonara_Izvjestaj_${month}_${year}.pdf`);
+        exportToPDF(groupedRecordsArray, totals, month, year, months);
     };
 
+    const handleExportImelExcel = () => {
+        exportImelToExcel(records, plant, month, year);
+    };
+
+    const handleExportImelPDF = () => {
+        exportImelToPDF(records, plant, month, year, months);
+    };
+    
+    const openEdit = (record: BetonaraProductionRecord) => {
+        setSelectedRecord(record);
+        setIsDialogOpen(true);
+    };
+
+    const openAdd = () => {
+        setSelectedRecord(null);
+        setIsDialogOpen(true);
+    };
     return (
         <div className="space-y-6 w-full max-w-full p-1">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex flex-wrap items-center gap-3">
-                    <Select value={month} onValueChange={setMonth}>
-                        <SelectTrigger className="w-[140px] bg-card">
-                            <SelectValue placeholder="Mjesec" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {months.map(m => (
-                                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={year} onValueChange={setYear}>
-                        <SelectTrigger className="w-[100px] bg-card">
-                            <SelectValue placeholder="Godina" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {years.map(y => (
-                                <SelectItem key={y} value={y}>{y}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={plant} onValueChange={setPlant}>
-                        <SelectTrigger className="w-[180px] bg-card">
-                            <SelectValue placeholder="Betonara" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Sve betonare</SelectItem>
-                            <SelectItem value="Betonara 1">Betonara 1</SelectItem>
-                            <SelectItem value="Betonara 2">Betonara 2</SelectItem>
-                        </SelectContent>
-                    </Select>
-
-                    <div className="flex items-center gap-1 border rounded-lg p-1 bg-card">
-                        <Button
-                            variant={view === 'table' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 px-3"
-                            onClick={() => setView('table')}
-                        >
-                            <TableIcon className="h-4 w-4 mr-2" />
-                            Tabela
-                        </Button>
-                        <Button
-                            variant={view === 'calendar' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 px-3"
-                            onClick={() => setView('calendar')}
-                        >
-                            <CalendarIcon className="h-4 w-4 mr-2" />
-                            Kalendar
-                        </Button>
-                    </div>
-                </div>
-
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="bg-card w-full sm:w-auto">
-                            <Download className="mr-2 h-4 w-4" />
-                            Izvezi izvještaj
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[200px]">
-                        <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
-                            <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" />
-                            <span>Izvezi u Excel (.xlsx)</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
-                            <FileText className="mr-2 h-4 w-4 text-red-600" />
-                            <span>Izvezi u PDF (.pdf)</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+            <ReportsFilters
+                month={month}
+                year={year}
+                plant={plant}
+                view={view}
+                onMonthChange={setMonth}
+                onYearChange={setYear}
+                onPlantChange={setPlant}
+                onViewChange={setView}
+                onExportExcel={handleExportExcel}
+                onExportPDF={handleExportPDF}
+                onExportImelExcel={handleExportImelExcel}
+                onExportImelPDF={handleExportImelPDF}
+            />
 
             {view === 'table' ? (
                 <div className="grid grid-cols-1 min-w-0">
                     <Card className="border-none shadow-premium bg-card/50 backdrop-blur overflow-hidden">
-                        <div className="overflow-x-auto w-full scrollbar-thin max-h-[75vh]">
+                        <div className="overflow-auto w-full scrollbar-thin max-h-[75vh]">
                             <Table className="w-full border-separate border-spacing-0">
-                                <TableHeader className="bg-muted/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
-                                    <TableRow className="hover:bg-transparent">
-                                        <TableHead className="w-[120px] whitespace-nowrap bg-muted/50 border-b">Radni nalog</TableHead>
-                                        <TableHead className="w-[100px] whitespace-nowrap bg-muted/50 border-b">Datum</TableHead>
-                                        <TableHead className="whitespace-nowrap bg-muted/50 border-b">Receptura</TableHead>
-                                        {materials.map(m => (
-                                            <TableHead key={m.code} className="text-right whitespace-nowrap bg-muted/50 border-b">
-                                                <div className="text-[10px] text-muted-foreground">{m.code}</div>
-                                                <div>{m.name}</div>
-                                            </TableHead>
-                                        ))}
-                                        <TableHead className="text-right whitespace-nowrap bg-muted/50 border-b">Voda</TableHead>
-                                        <TableHead className="text-right font-bold whitespace-nowrap bg-muted/50 border-b">m³</TableHead>
-                                        <TableHead className="w-[120px] whitespace-nowrap text-right bg-muted/50 border-b">Izdatnica</TableHead>
+                                <TableHeader className="bg-muted/90 backdrop-blur-md sticky top-0 z-20 shadow-sm border-b">
+
+                                    {/* Row 2: Item Codes - 16 columns total */}
+                                    <TableRow className="bg-muted/10 border-b">
+                                        <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
+                                        <TableHead />
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01041928</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                    </TableRow>
+
+                                    {/* Row 3: Column Names - exactly 16 columns (removed work order) */}
+                                    <TableRow className="hover:bg-transparent bg-muted/20">
+                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Datum</TableHead>
+                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Naziv recepture</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 GEOKOP)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-4</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 4-8 GEOKOP2</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 GEOKOP</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 42,5 N</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 52,5 N</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">SF 16(AB)2</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Aditiv FM 500(ŠUPLJE)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Voda 1</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Količina proizvedenog betona</TableHead>
+                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Detalji</TableHead>
+                                        <TableHead className="border-b" />
+                                        <TableHead className="border-b" />
+                                        <TableHead className="w-[50px] border-b sticky right-0 z-30 bg-muted/20"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -319,34 +279,127 @@ export function BetonaraReportsClient() {
                                         </TableRow>
                                     ) : (
                                         <>
-                                            {paginatedRecords.map((r) => (
-                                                <TableRow key={r.id} className="hover:bg-muted/10 transition-colors">
-                                                    <TableCell className="font-mono text-[11px] text-muted-foreground">{r.work_order_number || '-'}</TableCell>
-                                                    <TableCell className="whitespace-nowrap text-xs font-medium">{format(r.date, 'dd.MM.yyyy.')}</TableCell>
-                                                    <TableCell className="whitespace-nowrap text-xs">
-                                                        <Badge variant="outline" className="font-semibold text-primary/80">{r.recipe_number}</Badge>
-                                                    </TableCell>
-                                                    {materials.map(m => (
-                                                        <TableCell key={m.code} className="text-right font-mono text-[11px]">
-                                                            {(r.materials[m.code] || 0) > 0 ? formatNumber(r.materials[m.code], { minimumFractionDigits: 2 }) : '-'}
-                                                        </TableCell>
-                                                    ))}
-                                                    <TableCell className="text-right font-mono text-xs text-blue-600/70">{formatNumber(r.water, { minimumFractionDigits: 2 })}</TableCell>
-                                                    <TableCell className="text-right font-bold font-mono text-xs">{formatNumber(r.total_quantity, { minimumFractionDigits: 2 })}</TableCell>
-                                                    <TableCell className="text-right text-[11px] text-muted-foreground">{r.issuance_number || '-'}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                            <TableRow className="bg-primary/5 hover:bg-primary/5 font-bold border-t-2">
-                                                <TableCell colSpan={3} className="text-primary tracking-wider">UKUPNO ZA CIJELI MJESEC:</TableCell>
-                                                {materials.map(m => (
-                                                    <TableCell key={m.code} className="text-right font-mono text-emerald-600">
-                                                        {totals[m.code] ? formatNumber(totals[m.code], { minimumFractionDigits: 2 }) : '0,00'}
-                                                    </TableCell>
-                                                ))}
-                                                <TableCell className="text-right font-mono text-blue-600">{formatNumber(totals.water || 0, { minimumFractionDigits: 2 })}</TableCell>
-                                                <TableCell className="text-right font-mono font-black text-emerald-600 text-sm">
-                                                    {formatNumber(totals.total || 0, { minimumFractionDigits: 2 })} <span className="text-[10px]">m³</span>
-                                                </TableCell>
+                                            {paginatedRecords.map((r, idx) => {
+                                                const rowKey = `${format(r.date, 'yyyy-MM-dd')}_${r.recipe_number}`;
+                                                const isExpanded = expandedRows.has(rowKey);
+                                                
+                                                return (
+                                                    <React.Fragment key={rowKey}>
+                                                        <TableRow 
+                                                            className="hover:bg-muted/5 transition-colors group cursor-pointer"
+                                                            onClick={() => {
+                                                                const newExpanded = new Set(expandedRows);
+                                                                if (isExpanded) {
+                                                                    newExpanded.delete(rowKey);
+                                                                } else {
+                                                                    newExpanded.add(rowKey);
+                                                                }
+                                                                setExpandedRows(newExpanded);
+                                                            }}
+                                                        >
+                                                            <TableCell className="whitespace-nowrap text-[10px] py-1">{format(r.date, 'dd.MM.yyyy')}</TableCell>
+                                                            <TableCell className="whitespace-nowrap text-[10px] py-1">
+                                                                {r.recipe_number}
+                                                                {r.count > 1 && <span className="ml-1 text-[8px] text-muted-foreground">({r.count}x)</span>}
+                                                            </TableCell>
+                                                            
+                                                            {/* Display flattened material values: Agg1-4, Cem1-2, Add1-2 */}
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg2_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg3_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg4_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem2_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.add1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.add2_actual || 0)}</TableCell>
+
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.water1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-bold text-[11px] py-1 px-2 border-l text-emerald-700">{formatNumber(r.total_quantity, { minimumFractionDigits: 1 })}</TableCell>
+                                                            <TableCell className="text-center text-[10px] py-1 border-l">
+                                                                <ChevronRight className={cn("h-4 w-4 inline-block transition-transform", isExpanded && "rotate-90")} />
+                                                            </TableCell>
+                                                            <TableCell colSpan={2} className="py-1" />
+                                                            <TableCell className="w-[50px] sticky right-0 z-30 bg-background/80 backdrop-blur py-1">
+                                                            </TableCell>
+                                                        </TableRow>
+                                                        
+                                                        {/* Expanded details row */}
+                                                        {isExpanded && (
+                                                            <TableRow className="bg-muted/10">
+                                                                <TableCell colSpan={16} className="p-0">
+                                                                    <div className="bg-muted/5 border-t border-b">
+                                                                        <Table>
+                                                                            <TableHeader>
+                                                                                <TableRow className="bg-muted/30">
+                                                                                    <TableHead className="text-[9px] py-2 px-2">R. Nalog</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-2">Datum</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-2">Recept</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg1</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg2</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg3</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg4</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Cem1</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Cem2</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Add1</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Add2</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Voda</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">m³</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-2">Izdatnica</TableHead>
+                                                                                </TableRow>
+                                                                            </TableHeader>
+                                                                            <TableBody>
+                                                                                {r.records.map((record: any, i: number) => (
+                                                                                    <TableRow key={i} className="hover:bg-muted/5">
+                                                                                        <TableCell className="text-[9px] py-1 px-2 font-mono">{record.work_order_number || '-'}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-2">{format(record.date, 'dd.MM.yyyy')}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-2">{record.recipe_number}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg1_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg2_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg3_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg4_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.cem1_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.cem2_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.add1_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.add2_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.water1_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono font-semibold">{formatNumber(record.total_quantity, { minimumFractionDigits: 1 })}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-2">{record.issuance_number || '-'}</TableCell>
+                                                                                    </TableRow>
+                                                                                ))}
+                                                                            </TableBody>
+                                                                        </Table>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                            <TableRow className="bg-primary hover:bg-primary font-bold border-t-2 sticky bottom-0 z-10 text-white shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+                                                <TableCell colSpan={2} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
+                                                
+                                                {/* 8 material totals */}
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg2 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg3 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg4 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem2 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.add1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.add2 || 0)}</TableCell>
+
+                                                {/* Water total */}
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.water || 0)}</TableCell>
+                                                
+                                                {/* Total quantity of produced concrete */}
+                                                <TableCell className="text-right font-bold text-white text-[11px] px-2">{formatNumber(totals.total || 0, { minimumFractionDigits: 1 })}</TableCell>
+                                                
+                                                {/* Empty cell for issuance number */}
+                                                <TableCell />
+                                                
+                                                {/* 3 empty columns at the end */}
+                                                <TableCell />
+                                                <TableCell />
                                                 <TableCell />
                                             </TableRow>
                                         </>
@@ -451,6 +504,14 @@ export function BetonaraReportsClient() {
                     </div>
                 </Card>
             )}
+
+            <BetonaraRecordDialog 
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                record={selectedRecord}
+                materials={materials}
+                onSuccess={fetchData}
+            />
         </div>
     );
 }

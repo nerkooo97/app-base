@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { LayoutDashboard, ShieldCheck, Mail, Lock } from 'lucide-react';
 import ForgotPasswordDialog from '@/components/auth/forgot-password-dialog';
 import { getSystemName } from '@/lib/queries/settings';
+import { Logo } from '@/components/logo';
 
 export default async function SignInPage(props: {
     searchParams: Promise<{ error?: string }>;
@@ -31,16 +32,16 @@ export default async function SignInPage(props: {
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://placehold.co/1200x1600/536dfe/ffffff?text=ERP+EdVision\nManagement+System"
-                        alt="ERP Visual"
-                        className="w-full h-full object-cover opacity-20 scale-110 active:scale-100 transition-transform duration-10000"
+                        src="/img-bg1.jpg"
+                        alt="Baupartner Background"
+                        className="w-full h-full object-cover object-left opacity-20"
                     />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-primary/40 z-1" />
 
                 <div className="relative z-10 w-full p-16 flex flex-col justify-between">
                     <div className="flex items-center gap-3">
-                        <span className="text-2xl font-semibold text-white font-outfit tracking-tight">{appName}</span>
+                        <Logo height={64} white className="brightness-0 invert" />
                     </div>
 
                     <div className="space-y-6">
@@ -65,10 +66,7 @@ export default async function SignInPage(props: {
                 <div className="w-full max-w-md space-y-10">
                     <div className="text-left space-y-2">
                         <div className="lg:hidden flex items-center gap-2 mb-8">
-                            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                                <LayoutDashboard className="h-4 w-4 text-white" />
-                            </div>
-                            <span className="font-semibold text-lg text-gray-900">{appName}</span>
+                            <Logo height={40} />
                         </div>
                         <h1 className="text-3xl font-semibold text-gray-900 font-outfit">Dobro došli nazad</h1>
                         <p className="text-sm font-semibold text-gray-400">Prijavite se na svoj nalog kako biste nastavili rad.</p>
