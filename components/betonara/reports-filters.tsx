@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Table as TableIcon, Download } from 'lucide-react';
+import { Calendar as CalendarIcon, Table as TableIcon, Download, Plus } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,6 +20,7 @@ interface ReportsFiltersProps {
     onYearChange: (value: string) => void;
     onPlantChange: (value: string) => void;
     onViewChange: (value: string) => void;
+    onAddRecord: () => void;
     onExportExcel: () => void;
     onExportPDF: () => void;
     onExportImelExcel: () => void;
@@ -53,6 +54,7 @@ export function ReportsFilters({
     onYearChange,
     onPlantChange,
     onViewChange,
+    onAddRecord,
     onExportExcel,
     onExportPDF,
     onExportImelExcel,
@@ -116,32 +118,44 @@ export function ReportsFilters({
                 </div>
             </div>
 
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-card">
-                        <Download className="mr-2 h-4 w-4" />
-                        Izvezi
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
-                    <DropdownMenuItem onClick={onExportExcel} className="cursor-pointer">
-                        <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" />
-                        <span>Izvezi u Excel (.xlsx)</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onExportPDF} className="cursor-pointer">
-                        <FileText className="mr-2 h-4 w-4 text-red-600" />
-                        <span>Izvezi u PDF (.pdf)</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onExportImelExcel} className="cursor-pointer">
-                        <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
-                        <span>IMEL Excel (.xlsx)</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onExportImelPDF} className="cursor-pointer">
-                        <FileText className="mr-2 h-4 w-4 text-purple-600" />
-                        <span>IMEL PDF (.pdf)</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex gap-2">
+                <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={onAddRecord} 
+                    className="bg-primary"
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Dodaj zapis
+                </Button>
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="bg-card">
+                            <Download className="mr-2 h-4 w-4" />
+                            Izvezi
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                        <DropdownMenuItem onClick={onExportExcel} className="cursor-pointer">
+                            <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" />
+                            <span>Izvezi u Excel (.xlsx)</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={onExportPDF} className="cursor-pointer">
+                            <FileText className="mr-2 h-4 w-4 text-red-600" />
+                            <span>Izvezi u PDF (.pdf)</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={onExportImelExcel} className="cursor-pointer">
+                            <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
+                            <span>IMEL Excel (.xlsx)</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={onExportImelPDF} className="cursor-pointer">
+                            <FileText className="mr-2 h-4 w-4 text-purple-600" />
+                            <span>IMEL PDF (.pdf)</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </div>
     );
 }

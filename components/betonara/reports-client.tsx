@@ -209,6 +209,7 @@ export function BetonaraReportsClient() {
                 onYearChange={setYear}
                 onPlantChange={setPlant}
                 onViewChange={setView}
+                onAddRecord={openAdd}
                 onExportExcel={handleExportExcel}
                 onExportPDF={handleExportPDF}
                 onExportImelExcel={handleExportImelExcel}

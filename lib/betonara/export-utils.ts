@@ -284,7 +284,7 @@ export function exportImelToPDF(
     ]];
 
     const data = records.map(r => [
-        r.work_order_number || '',
+        r.id ? r.id.split('_')[0] : '',
         r.date ? format(r.date, 'dd.MM.yyyy HH:mm') : '',
         r.recipe_number || '',
         r.total_quantity?.toFixed(2) || '0',
