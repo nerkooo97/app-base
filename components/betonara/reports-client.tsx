@@ -314,14 +314,41 @@ export function BetonaraReportsClient() {
                                                                             className="cursor-pointer"
                                                                         >
                                                                             <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
-                                                                            <span>Excel (.xlsx)</span>
+                                                                            <div className="flex flex-col">
+                                                                                <span>Excel - Ova receptura</span>
+                                                                                <span className="text-[10px] text-muted-foreground">{r.recipe_number}</span>
+                                                                            </div>
                                                                         </DropdownMenuItem>
                                                                         <DropdownMenuItem 
                                                                             onClick={() => exportImelToPDF(r.records, plant, month, year, months)}
                                                                             className="cursor-pointer"
                                                                         >
                                                                             <FileText className="mr-2 h-4 w-4 text-purple-600" />
-                                                                            <span>PDF (.pdf)</span>
+                                                                            <div className="flex flex-col">
+                                                                                <span>PDF - Ova receptura</span>
+                                                                                <span className="text-[10px] text-muted-foreground">{r.recipe_number}</span>
+                                                                            </div>
+                                                                        </DropdownMenuItem>
+                                                                        <div className="h-px bg-muted my-1" />
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => {
+                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
+                                                                                exportImelToExcel(dayRecords, plant, month, year);
+                                                                            }}
+                                                                            className="cursor-pointer"
+                                                                        >
+                                                                            <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" />
+                                                                            <span>Izvezi cijeli dan (Excel)</span>
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => {
+                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
+                                                                                exportImelToPDF(dayRecords, plant, month, year, months);
+                                                                            }}
+                                                                            className="cursor-pointer"
+                                                                        >
+                                                                            <FileText className="mr-2 h-4 w-4 text-emerald-600" />
+                                                                            <span>Izvezi cijeli dan (PDF)</span>
                                                                         </DropdownMenuItem>
                                                                     </DropdownMenuContent>
                                                                 </DropdownMenu>
@@ -507,9 +534,40 @@ export function BetonaraReportsClient() {
                                             {format(day, 'd')}
                                         </span>
                                         {totalOnDay && (
-                                            <Badge variant="default" className="bg-emerald-500 hover:bg-emerald-600 text-[10px] h-5">
-                                                {totalOnDay.toFixed(1)} m³
-                                            </Badge>
+                                            <div className="flex items-center gap-1">
+                                                <Badge variant="default" className="bg-emerald-500 hover:bg-emerald-600 text-[10px] h-5">
+                                                    {totalOnDay.toFixed(1)} m³
+                                                </Badge>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-muted">
+                                                            <Download className="h-3 w-3 text-primary" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem 
+                                                            onClick={() => {
+                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, day));
+                                                                exportImelToExcel(dayRecords, plant, month, year);
+                                                            }}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
+                                                            <span>Excel (.xlsx)</span>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem 
+                                                            onClick={() => {
+                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, day));
+                                                                exportImelToPDF(dayRecords, plant, month, year, months);
+                                                            }}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <FileText className="mr-2 h-4 w-4 text-purple-600" />
+                                                            <span>PDF (.pdf)</span>
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
                                         )}
                                     </div>
                                     <div className="flex-1">

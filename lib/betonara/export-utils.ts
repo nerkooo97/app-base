@@ -188,67 +188,107 @@ export function exportImelToExcel(
         "Su1YuzdeFark", "Su2YuzdeFark"
     ]];
 
-    const data = records.map(r => {
-        // Extract only the first number from ID (e.g., "66895_1738317840000_b1" -> "66895")
+    // Group records by date and recipe number before exporting
+    const groupedMap = records.reduce((acc, r) => {
+        const dateKey = format(r.date || new Date(), 'yyyy-MM-dd');
+        const recipeKey = r.recipe_number || r.recipe_no || 'Unknown';
+        const key = `${dateKey}_${recipeKey}`;
+
+        if (!acc[key]) {
+            acc[key] = {
+                ...r,
+                total_quantity: 0,
+                agg1_actual: 0, agg2_actual: 0, agg3_actual: 0, agg4_actual: 0, agg5_actual: 0, agg6_actual: 0,
+                cem1_actual: 0, cem2_actual: 0, cem3_actual: 0, cem4_actual: 0,
+                add1_actual: 0, add2_actual: 0, add3_actual: 0, add4_actual: 0,
+                water1_actual: 0, water1_target: 0, water2_actual: 0,
+                extra_water_1: 0, extra_water_2: 0,
+                count: 0
+            };
+        }
+        acc[key].total_quantity += (r.total_quantity || 0);
+        acc[key].agg1_actual += ((r as any).agg1_actual || 0);
+        acc[key].agg2_actual += ((r as any).agg2_actual || 0);
+        acc[key].agg3_actual += ((r as any).agg3_actual || 0);
+        acc[key].agg4_actual += ((r as any).agg4_actual || 0);
+        acc[key].agg5_actual += ((r as any).agg5_actual || 0);
+        acc[key].agg6_actual += ((r as any).agg6_actual || 0);
+        acc[key].cem1_actual += ((r as any).cem1_actual || 0);
+        acc[key].cem2_actual += ((r as any).cem2_actual || 0);
+        acc[key].cem3_actual += ((r as any).cem3_actual || 0);
+        acc[key].cem4_actual += ((r as any).cem4_actual || 0);
+        acc[key].add1_actual += ((r as any).add1_actual || 0);
+        acc[key].add2_actual += ((r as any).add2_actual || 0);
+        acc[key].add3_actual += ((r as any).add3_actual || 0);
+        acc[key].add4_actual += ((r as any).add4_actual || 0);
+        acc[key].water1_actual += ((r as any).water1_actual || 0);
+        acc[key].water2_actual += ((r as any).water2_actual || 0);
+        acc[key].extra_water_1 += ((r as any).extra_water_1 || 0);
+        acc[key].extra_water_2 += ((r as any).extra_water_2 || 0);
+        acc[key].count += 1;
+        return acc;
+    }, {} as Record<string, any>);
+
+    const data = Object.values(groupedMap).map(r => {
         const productionRecordNo = r.id ? r.id.split('_')[0] : '';
         
         return [
             productionRecordNo,
-        r.company || 'Baupartner',
-        r.customer || 'Baupartner',
-        r.date ? format(r.date, 'dd/MM/yyyy  HH:mm') : '',
-        r.end_date ? format(r.end_date, 'dd/MM/yyyy  HH:mm') : '',
-        r.production_no || '',
-        r.recipe_no || r.recipe_number || '',
-        r.issuance_number || '',
-        r.recipe_number || '',
-        r.total_quantity || 0,
-        r.target_quantity || r.total_quantity || 0,
-        r.return_concrete || 0,
-        r.return_concrete_note || '',
-        r.order_code || '',
-        r.jobsite || '',
-        r.driver || '',
-        r.extra_material_1 || '',
-        r.extra_material_1_qty || 0,
-        r.extra_material_2 || '',
-        r.extra_material_2_qty || 0,
-        r.shipping_zone || '',
-        r.vehicle || '',
-        (r as any).agg1_actual || 0,
-        (r as any).agg2_actual || 0,
-        (r as any).agg3_actual || 0,
-        (r as any).agg4_actual || 0,
-        (r as any).agg5_actual || 0,
-        (r as any).agg6_actual || 0,
-        (r as any).cem1_actual || 0,
-        (r as any).cem2_actual || 0,
-        (r as any).cem3_actual || 0,
-        (r as any).cem4_actual || 0,
-        (r as any).add1_actual || 0,
-        (r as any).add2_actual || 0,
-        (r as any).water1_actual || 0,
-        (r as any).water1_target || 0,
-        (r as any).water1_actual || 0,
-        (r as any).water2_actual || 0,
-        r.extra_water_1 || 0,
-        r.extra_water_2 || 0,
-        r.status || 2,
-        (r as any).agg1_pct || 0,
-        (r as any).agg2_pct || 0,
-        (r as any).agg3_pct || 0,
-        (r as any).agg4_pct || 0,
-        (r as any).cem1_pct || 0,
-        (r as any).cem2_pct || 0,
-        (r as any).cem3_pct || 0,
-        (r as any).cem4_pct || 0,
-        (r as any).add1_pct || 0,
-        (r as any).add2_pct || 0,
-        (r as any).add3_pct || 0,
-        (r as any).add4_pct || 0,
-        (r as any).water1_pct || 0,
-        (r as any).water2_pct || 0
-    ];
+            r.company || 'Baupartner',
+            r.customer || 'Baupartner',
+            r.date ? format(r.date, 'dd/MM/yyyy  HH:mm') : '',
+            r.end_date ? format(r.end_date, 'dd/MM/yyyy  HH:mm') : format(r.date || new Date(), 'dd/MM/yyyy  HH:mm'),
+            r.production_no || '',
+            r.recipe_no || r.recipe_number || '',
+            r.issuance_number || '',
+            r.recipe_number || '',
+            r.total_quantity || 0,
+            r.target_quantity || r.total_quantity || 0,
+            r.return_concrete || 0,
+            r.return_concrete_note || '',
+            r.order_code || '',
+            r.jobsite || '',
+            r.driver || '',
+            r.extra_material_1 || '',
+            r.extra_material_1_qty || 0,
+            r.extra_material_2 || '',
+            r.extra_material_2_qty || 0,
+            r.shipping_zone || '',
+            r.vehicle || '',
+            (r as any).agg1_actual || 0,
+            (r as any).agg2_actual || 0,
+            (r as any).agg3_actual || 0,
+            (r as any).agg4_actual || 0,
+            (r as any).agg5_actual || 0,
+            (r as any).agg6_actual || 0,
+            (r as any).cem1_actual || 0,
+            (r as any).cem2_actual || 0,
+            (r as any).cem3_actual || 0,
+            (r as any).cem4_actual || 0,
+            (r as any).add1_actual || 0,
+            (r as any).add2_actual || 0,
+            (r as any).water1_actual || 0,
+            (r as any).water1_target || 0,
+            (r as any).water1_actual || 0,
+            (r as any).water2_actual || 0,
+            (r as any).extra_water_1 || 0,
+            (r as any).extra_water_2 || 0,
+            r.status || 2,
+            (r as any).agg1_pct || 0,
+            (r as any).agg2_pct || 0,
+            (r as any).agg3_pct || 0,
+            (r as any).agg4_pct || 0,
+            (r as any).cem1_pct || 0,
+            (r as any).cem2_pct || 0,
+            (r as any).cem3_pct || 0,
+            (r as any).cem4_pct || 0,
+            (r as any).add1_pct || 0,
+            (r as any).add2_pct || 0,
+            (r as any).add3_pct || 0,
+            (r as any).add4_pct || 0,
+            (r as any).water1_pct || 0,
+            (r as any).water2_pct || 0
+        ];
     });
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
@@ -279,24 +319,49 @@ export function exportImelToPDF(
     }
 
     const headers = [[
-        'ID', 'Datum', 'Recept', 'Količina', 'Vozač', 'Vozilo',
+        'Datum', 'Recept', 'Količina', 'Br. mješ.',
         'Agg1', 'Agg2', 'Agg3', 'Agg4', 'Cem1', 'Add1', 'Voda'
     ]];
 
-    const data = records.map(r => [
-        r.id ? r.id.split('_')[0] : '',
-        r.date ? format(r.date, 'dd.MM.yyyy HH:mm') : '',
+    // Group records by date and recipe number before exporting
+    const groupedMap = records.reduce((acc, r) => {
+        const dateKey = format(r.date || new Date(), 'yyyy-MM-dd');
+        const recipeKey = r.recipe_number || r.recipe_no || 'Unknown';
+        const key = `${dateKey}_${recipeKey}`;
+
+        if (!acc[key]) {
+            acc[key] = {
+                ...r,
+                total_quantity: 0,
+                agg1_actual: 0, agg2_actual: 0, agg3_actual: 0, agg4_actual: 0,
+                cem1_actual: 0, add1_actual: 0, water1_actual: 0,
+                count: 0
+            };
+        }
+        acc[key].total_quantity += (r.total_quantity || 0);
+        acc[key].agg1_actual += ((r as any).agg1_actual || 0);
+        acc[key].agg2_actual += ((r as any).agg2_actual || 0);
+        acc[key].agg3_actual += ((r as any).agg3_actual || 0);
+        acc[key].agg4_actual += ((r as any).agg4_actual || 0);
+        acc[key].cem1_actual += ((r as any).cem1_actual || 0);
+        acc[key].add1_actual += ((r as any).add1_actual || 0);
+        acc[key].water1_actual += ((r as any).water1_actual || 0);
+        acc[key].count += 1;
+        return acc;
+    }, {} as Record<string, any>);
+
+    const data = Object.values(groupedMap).map(r => [
+        r.date ? format(r.date, 'dd.MM.yyyy') : '',
         r.recipe_number || '',
         r.total_quantity?.toFixed(2) || '0',
-        r.driver || '',
-        r.vehicle || '',
-        ((r as any).agg1_actual || 0).toFixed(0),
-        ((r as any).agg2_actual || 0).toFixed(0),
-        ((r as any).agg3_actual || 0).toFixed(0),
-        ((r as any).agg4_actual || 0).toFixed(0),
-        ((r as any).cem1_actual || 0).toFixed(0),
-        ((r as any).add1_actual || 0).toFixed(2),
-        ((r as any).water1_actual || 0).toFixed(0)
+        r.count.toString(),
+        (r.agg1_actual || 0).toFixed(0),
+        (r.agg2_actual || 0).toFixed(0),
+        (r.agg3_actual || 0).toFixed(0),
+        (r.agg4_actual || 0).toFixed(0),
+        (r.cem1_actual || 0).toFixed(0),
+        (r.add1_actual || 0).toFixed(2),
+        (r.water1_actual || 0).toFixed(0)
     ]);
 
     autoTable(doc, {
@@ -305,7 +370,7 @@ export function exportImelToPDF(
         body: data,
         theme: 'striped',
         headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-        styles: { fontSize: 6, cellPadding: 1.5 },
+        styles: { fontSize: 8, cellPadding: 2 },
     });
 
     doc.save(filename);
