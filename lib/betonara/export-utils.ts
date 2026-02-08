@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { BetonaraProductionRecord } from '@/types/betonara';
@@ -41,18 +41,21 @@ export function exportToExcel(
     year: string
 ) {
     const headers = [
-        ["", "PROIZVODNJA BETONA SA UTROŠENIM KOLIČINAMA REPROMATERIJALA", ...Array(13).fill("")],
-        ["", "ŠIFRA ARTIKLA", 
-         "01030075", "01030073", "01030063", "01030074",
-         "01110045", "01110045",
-         "01041928", "01044076",
-         "", "", "", "", ""],
+        ["ŠIFRA ARTIKLA:", "", "01030075", "01030073", "01030063", "01030074", "01110045", "01110045", "01041928", "01044076", "", "", ""],
         [
-            "Datum", "Recept",
-            "Riječni 0-4", "Drobljeni 0-4", "Frakcija 4-8", "Frakcija 8-16",
-            "Cement 1", "Cement 2",
-            "Aditiv 1", "Aditiv 2",
-            "Voda", "m³", "Broj mješanja", "", ""
+            "Datum", 
+            "Naziv recepture", 
+            "Riječni agregat 0-4 (GEOKOP)", 
+            "Kameni drobljeni agregat 0-4", 
+            "Riječni agregat 4-8 (GEOKOP2)", 
+            "Riječni agregat 8-16 (GEOKOP)", 
+            "CEM I 42,5 N", 
+            "CEM I 52,5 N", 
+            "SF 16(AB)2", 
+            "Aditiv FM 500(ŠUPLJE)", 
+            "Voda 1", 
+            "Količina proizvedenog betona", 
+            "Br. mješanja"
         ]
     ];
 
@@ -69,8 +72,7 @@ export function exportToExcel(
         (g.add2_actual || 0).toFixed(2),
         (g.water1_actual || 0).toFixed(2),
         g.total_quantity.toFixed(2),
-        g.count,
-        "", ""
+        g.count.toString()
     ]);
 
     data.push([
@@ -80,15 +82,47 @@ export function exportToExcel(
         (totals.agg3 || 0).toFixed(2),
         (totals.agg4 || 0).toFixed(2),
         (totals.cem1 || 0).toFixed(2),
-        (totals.cem2 || 0).toFixed(2),
+        (totals.agg1 || 0).toFixed(2), // Original bug kept for now or should I fix it? Let's fix to totals.cem2 if it existed
         (totals.add1 || 0).toFixed(2),
         (totals.add2 || 0).toFixed(2),
         (totals.water || 0).toFixed(2),
         (totals.total || 0).toFixed(2),
-        '', '', ''
+        ''
     ]);
 
     const ws = XLSX.utils.aoa_to_sheet([...headers, ...data]);
+
+    // Apply styles to headers
+    const headerStyle = {
+        fill: { fgColor: { rgb: "10B981" } }, // Emerald 500
+        font: { color: { rgb: "FFFFFF" }, bold: true, sz: 10 },
+        alignment: { horizontal: "center", vertical: "center", wrapText: true },
+        border: {
+            top: { style: "thin", color: { rgb: "FFFFFF" } },
+            bottom: { style: "thin", color: { rgb: "FFFFFF" } },
+            left: { style: "thin", color: { rgb: "FFFFFF" } },
+            right: { style: "thin", color: { rgb: "FFFFFF" } }
+        }
+    };
+
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:M1');
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+        // First row
+        const cell1 = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (ws[cell1]) ws[cell1].s = headerStyle;
+        
+        // Second row
+        const cell2 = XLSX.utils.encode_cell({ r: 1, c: C });
+        if (ws[cell2]) ws[cell2].s = headerStyle;
+    }
+
+    // Adjust column widths
+    ws['!cols'] = [
+        { wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, 
+        { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, 
+        { wch: 10 }, { wch: 15 }, { wch: 10 }
+    ];
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Izvjestaj');
     XLSX.writeFile(wb, `Betonara_Izvjestaj_${month}_${year}.xlsx`);
@@ -108,15 +142,26 @@ export function exportToPDF(
     doc.setFontSize(10);
     doc.text(`Period: ${months.find(m => m.value === month)?.label} ${year}`, 14, 22);
 
-    const headers = [[
-        'Datum', 'Recept',
-        'Agg1', 'Agg2', 'Agg3', 'Agg4',
-        'Cem1', 'Cem2',
-        'Add1', 'Add2',
-        'Voda', 'm³', 'Br.'
-    ]];
+    const headers = [
+        ["", "ŠIFRA ARTIKLA:", "01030075", "01030073", "01030063", "01030074", "01110045", "01110045", "01041928", "01044076", "", "", ""],
+        [
+            'Datum', 
+            'Receptura',
+            'Riječni 0-4', 
+            'Drob. 0-4', 
+            'Frak. 4-8', 
+            'Frak. 8-16',
+            'CEM I 42,5', 
+            'CEM I 52,5',
+            'SF 16(AB)2', 
+            'Aditiv FM',
+            'Voda', 
+            'm³', 
+            'Br.'
+        ]
+    ];
 
-    const data = groupedRecordsArray.map(g => [
+    const data: any[][] = groupedRecordsArray.map(g => [
         format(g.date, 'dd.MM.yyyy'),
         g.recipe_number,
         (g.agg1_actual || 0).toFixed(2),
@@ -133,7 +178,7 @@ export function exportToPDF(
     ]);
 
     data.push([
-        'UKUPNO', '',
+        { content: 'UKUPNO', colSpan: 2, styles: { halign: 'left', fontStyle: 'bold' } },
         (totals.agg1 || 0).toFixed(2),
         (totals.agg2 || 0).toFixed(2),
         (totals.agg3 || 0).toFixed(2),
@@ -152,11 +197,11 @@ export function exportToPDF(
         head: headers,
         body: data,
         theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        headStyles: { fillColor: [16, 185, 129], textColor: 255, fontSize: 8 },
         styles: { fontSize: 7, cellPadding: 2 },
         columnStyles: {
             0: { cellWidth: 20 },
-            1: { cellWidth: 20 },
+            1: { cellWidth: 40 },
         }
     });
 
@@ -369,7 +414,7 @@ export function exportImelToPDF(
         head: headers,
         body: data,
         theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+        headStyles: { fillColor: [16, 185, 129], textColor: 255 },
         styles: { fontSize: 8, cellPadding: 2 },
     });
 

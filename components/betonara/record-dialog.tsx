@@ -112,218 +112,169 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                     </DialogDescription>
                 </DialogHeader>
 
-                <Tabs defaultValue="general" className="flex-1 flex flex-col min-h-0">
-                    <div className="px-6 border-b">
-                        <TabsList className="bg-transparent w-full justify-start rounded-none h-12 gap-6 overflow-x-auto scrollbar-none">
-                            <TabsTrigger value="general" className="data-[state=active]:border-b-2 border-primary rounded-none bg-transparent px-0 pb-3 pt-2 whitespace-nowrap">Osnovni podaci</TabsTrigger>
-                            <TabsTrigger value="materials" className="data-[state=active]:border-b-2 border-primary rounded-none bg-transparent px-0 pb-3 pt-2 whitespace-nowrap">Materijali (Zbirno)</TabsTrigger>
-                            <TabsTrigger value="advanced" className="data-[state=active]:border-b-2 border-primary rounded-none bg-transparent px-0 pb-3 pt-2 whitespace-nowrap">Vage (Detaljno)</TabsTrigger>
-                        </TabsList>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
-                        <TabsContent value="general" className="mt-0 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Betonara</Label>
-                                    <Select 
-                                        value={formData.plant} 
-                                        onValueChange={(val: any) => setFormData(v => ({ ...v, plant: val }))}
-                                    >
-                                        <SelectTrigger className="h-9">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Betonara 1">Betonara 1</SelectItem>
-                                            <SelectItem value="Betonara 2">Betonara 2</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Datum i vrijeme</Label>
-                                    <Input 
-                                        className="h-9"
-                                        type="datetime-local" 
-                                        value={formData.date ? format(new Date(formData.date), "yyyy-MM-dd'T'HH:mm") : ''}
-                                        onChange={(e) => setFormData(v => ({ ...v, date: new Date(e.target.value) }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Radni nalog</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.work_order_number || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, work_order_number: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Receptura (Ime)</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.recipe_number || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, recipe_number: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Recept br.</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.recipe_no || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, recipe_no: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Otpremnica / Prijemnica</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.issuance_number || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, issuance_number: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Količina m³ (Stvarna)</Label>
-                                    <Input 
-                                        className="h-9"
-                                        type="number" step="0.01"
-                                        value={formData.total_quantity || 0} 
-                                        onChange={(e) => setFormData(v => ({ ...v, total_quantity: parseFloat(e.target.value) || 0 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Količina m³ (Ciljna)</Label>
-                                    <Input 
-                                        className="h-9"
-                                        type="number" step="0.01"
-                                        value={formData.target_quantity || 0} 
-                                        onChange={(e) => setFormData(v => ({ ...v, target_quantity: parseFloat(e.target.value) || 0 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Voda (L)</Label>
-                                    <Input 
-                                        className="h-9"
-                                        type="number" step="0.1"
-                                        value={formData.water || 0} 
-                                        onChange={(e) => setFormData(v => ({ ...v, water: parseFloat(e.target.value) || 0 }))}
-                                    />
-                                </div>
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin space-y-8">
+                    {/* Section 1: Basic Info */}
+                    <section className="space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Osnovni podaci</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                                <Label>Datum i vrijeme</Label>
+                                <Input 
+                                    className="h-10 border-primary/20 focus:border-primary"
+                                    type="datetime-local" 
+                                    value={formData.date ? format(new Date(formData.date), "yyyy-MM-dd'T'HH:mm") : ''}
+                                    onChange={(e) => setFormData(v => ({ ...v, date: new Date(e.target.value) }))}
+                                />
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-                                <div className="space-y-2">
-                                    <Label>Kupac</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.customer || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, customer: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Gradilište</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.jobsite || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, jobsite: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Vozač</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.driver || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, driver: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Vozilo</Label>
-                                    <Input 
-                                        className="h-9"
-                                        value={formData.vehicle || ''} 
-                                        onChange={(e) => setFormData(v => ({ ...v, vehicle: e.target.value }))}
-                                    />
-                                </div>
+                            <div className="space-y-2">
+                                <Label>Naziv recepture</Label>
+                                <Input 
+                                    className="h-10 border-primary/20 focus:border-primary"
+                                    placeholder="npr. MD 60..."
+                                    value={formData.recipe_number || ''} 
+                                    onChange={(e) => setFormData(v => ({ ...v, recipe_number: e.target.value }))}
+                                />
                             </div>
-                        </TabsContent>
-
-                        <TabsContent value="materials" className="mt-0">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                                {materials.map(m => (
-                                    <div key={m.code} className="flex items-center gap-3">
-                                        <div className="flex-1 min-w-0">
-                                            <Label className="text-xs truncate" title={m.name}>{m.name}</Label>
-                                            <div className="text-[10px] text-muted-foreground">{m.code}</div>
-                                        </div>
-                                        <Input 
-                                            className="w-32 h-8 text-right font-mono"
-                                            type="number" step="0.01"
-                                            value={formData.materials?.[m.code] || 0}
-                                            onChange={(e) => updateMaterial(m.code, e.target.value)}
-                                        />
-                                    </div>
-                                ))}
+                            <div className="space-y-2">
+                                <Label>Ukupna količina (m³)</Label>
+                                <Input 
+                                    className="h-10 border-primary/20 focus:border-primary font-bold text-emerald-600"
+                                    type="number" step="0.01"
+                                    value={formData.total_quantity || 0} 
+                                    onChange={(e) => setFormData(v => ({ ...v, total_quantity: parseFloat(e.target.value) || 0 }))}
+                                />
                             </div>
-                        </TabsContent>
+                        </div>
+                    </section>
 
-                        <TabsContent value="advanced" className="mt-0 space-y-8">
-                            {/* Aggregates */}
-                            <div className="space-y-3">
-                                <h3 className="font-semibold text-sm border-b pb-1">Agregati</h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    {[1, 2, 3, 4, 5, 6].map(i => (
-                                        <div key={`agg${i}`} className="grid grid-cols-5 gap-2 items-end">
-                                            <div className="text-xs font-bold pb-2">Vaga {i}</div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Actual</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`agg${i}_actual`] || 0} onChange={e => setFormData(v => ({...v, [`agg${i}_actual`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Target</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`agg${i}_target`] || 0} onChange={e => setFormData(v => ({...v, [`agg${i}_target`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Hata (Error)</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`agg${i}_error`] || 0} onChange={e => setFormData(v => ({...v, [`agg${i}_error`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">%</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`agg${i}_pct`] || 0} onChange={e => setFormData(v => ({...v, [`agg${i}_pct`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                    {/* Section 2: Aggregates */}
+                    <section className="space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Agregati (kg)</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Riječni 0-4 (Agg1)</Label>
+                                <Input 
+                                    className="h-9 font-mono" type="number"
+                                    value={formData.agg1_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, agg1_actual: parseFloat(e.target.value) || 0}))}
+                                />
                             </div>
-
-                            {/* Cements */}
-                            <div className="space-y-3">
-                                <h3 className="font-semibold text-sm border-b pb-1 text-blue-600">Cementi</h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    {[1, 2, 3, 4].map(i => (
-                                        <div key={`cem${i}`} className="grid grid-cols-5 gap-2 items-end">
-                                            <div className="text-xs font-bold pb-2">Cem {i}</div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Actual</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`cem${i}_actual`] || 0} onChange={e => setFormData(v => ({...v, [`cem${i}_actual`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Target</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`cem${i}_target`] || 0} onChange={e => setFormData(v => ({...v, [`cem${i}_target`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">Error</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`cem${i}_error`] || 0} onChange={e => setFormData(v => ({...v, [`cem${i}_error`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[10px]">%</Label>
-                                                <Input className="h-7 text-xs" type="number" value={(formData as any)[`cem${i}_pct`] || 0} onChange={e => setFormData(v => ({...v, [`cem${i}_pct`]: parseFloat(e.target.value)}))}/>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Drobljeni 0-4 (Agg2)</Label>
+                                <Input 
+                                    className="h-9 font-mono" type="number"
+                                    value={formData.agg2_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, agg2_actual: parseFloat(e.target.value) || 0}))}
+                                />
                             </div>
-                        </TabsContent>
-                    </div>
-                </Tabs>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Frakcija 4-8 (Agg3)</Label>
+                                <Input 
+                                    className="h-9 font-mono" type="number"
+                                    value={formData.agg3_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, agg3_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Frakcija 8-16 (Agg4)</Label>
+                                <Input 
+                                    className="h-9 font-mono" type="number"
+                                    value={formData.agg4_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, agg4_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                        </div>
+                    </section>
 
+                    {/* Section 3: Cements & Additives */}
+                    <section className="space-y-4">
+                        <div className="flex items-center justify-between border-b pb-2">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Cementi i Aditivi (kg)</h3>
+                            <div className="text-xs text-blue-600 font-semibold">Voda (L)</div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Cement 1 (Cem1)</Label>
+                                <Input 
+                                    className="h-9 font-mono text-blue-700" type="number"
+                                    value={formData.cem1_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, cem1_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Cement 2 (Cem2)</Label>
+                                <Input 
+                                    className="h-9 font-mono text-blue-700" type="number"
+                                    value={formData.cem2_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, cem2_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Aditiv 1 (Add1)</Label>
+                                <Input 
+                                    className="h-9 font-mono text-purple-700" type="number"
+                                    value={formData.add1_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, add1_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px]">Aditiv 2 (Add2)</Label>
+                                <Input 
+                                    className="h-9 font-mono text-purple-700" type="number"
+                                    value={formData.add2_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, add2_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[11px] font-bold text-blue-600">Voda (L)</Label>
+                                <Input 
+                                    className="h-9 font-mono border-blue-200 bg-blue-50/30" type="number"
+                                    value={formData.water1_actual || 0} 
+                                    onChange={e => setFormData(v => ({...v, water1_actual: parseFloat(e.target.value) || 0}))}
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Section 4: Logistics & Extra */}
+                    <section className="space-y-4">
+                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Logistika i ostalo</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="space-y-2">
+                                <Label>Kupac</Label>
+                                <Input 
+                                    className="h-9"
+                                    value={formData.customer || ''} 
+                                    onChange={(e) => setFormData(v => ({ ...v, customer: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Gradilište</Label>
+                                <Input 
+                                    className="h-9"
+                                    value={formData.jobsite || ''} 
+                                    onChange={(e) => setFormData(v => ({ ...v, jobsite: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Vozač</Label>
+                                <Input 
+                                    className="h-9"
+                                    value={formData.driver || ''} 
+                                    onChange={(e) => setFormData(v => ({ ...v, driver: e.target.value }))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Vozilo</Label>
+                                <Input 
+                                    className="h-9"
+                                    value={formData.vehicle || ''} 
+                                    onChange={(e) => setFormData(v => ({ ...v, vehicle: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                    </section>
+                </div>
                 <DialogFooter className="p-6 pt-2 gap-2 border-t mt-auto">
                     {record && (
                         <Button 

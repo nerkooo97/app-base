@@ -153,6 +153,10 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
             case '15d':
                 from = subDays(now, 15);
                 break;
+            case 'cm':
+                from = startOfMonth(now);
+                to = now;
+                break;
             case '1m':
                 from = subMonths(now, 1);
                 break;
@@ -206,6 +210,14 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                 {/* Quick Range Buttons */}
                 <div className="flex flex-wrap gap-2">
                     <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest self-center mr-2">Brzi period:</span>
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setQuickRange('cm')}
+                        className="h-8 text-xs font-bold bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10"
+                    >
+                        Trenutni mjesec
+                    </Button>
                     <Button 
                         variant="outline" 
                         size="sm" 
