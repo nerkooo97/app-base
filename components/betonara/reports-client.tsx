@@ -226,36 +226,36 @@ export function BetonaraReportsClient() {
 
                                     {/* Row 2: Item Codes - 17 columns total */}
                                     <TableRow className="bg-muted/10 border-b">
-                                        <TableHead className="w-[50px] border-b" />
-                                        <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
-                                        <TableHead />
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01041928</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
-                                    </TableRow>
+                                         <TableHead className="w-[50px] border-b" />
+                                         <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
+                                         <TableHead />
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
+                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044077</TableHead>
+                                         <TableHead />
+                                         <TableHead />
+                                         <TableHead />
+                                         <TableHead />
+                                         <TableHead />
+                                     </TableRow>
 
                                     {/* Row 3: Column Names - exactly 17 columns */}
                                     <TableRow className="hover:bg-transparent bg-muted/20">
                                         <TableHead className="w-[50px] border-b text-center">Export</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Datum</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Naziv recepture</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 (GEOKOP)</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 (GEOKOP)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-3</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-4</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 4-8 (GEOKOP2)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 (GEOKOP)</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 42,5 N</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 52,5 N</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">SF 16(AB)2</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 52,5 N (FILER)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">SIKA V</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Aditiv FM 500(ŠUPLJE)</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Voda 1</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Količina proizvedenog betona</TableHead>

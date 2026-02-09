@@ -41,17 +41,17 @@ export function exportToExcel(
     year: string
 ) {
     const headers = [
-        ["ŠIFRA ARTIKLA:", "", "01030075", "01030073", "01030063", "01030074", "01110045", "01110045", "01041928", "01044076", "", "", ""],
+        ["ŠIFRA ARTIKLA:", "", "01030073", "01030063", "01030074", "01030075", "01110045", "01110045", "01044076", "01044077", "", "", ""],
         [
             "Datum", 
             "Naziv recepture", 
-            "Riječni agregat 8-16 (GEOKOP)", 
             "Riječni agregat 0-4 (GEOKOP)", 
-            "Kameni drobljeni agregat 0-3", 
+            "Kameni drobljeni agregat 0-4", 
             "Riječni agregat 4-8 (GEOKOP2)", 
+            "Riječni agregat 8-16 (GEOKOP)", 
             "CEM I 42,5 N", 
-            "CEM I 52,5 N", 
-            "SF 16(AB)2", 
+            "CEM I 52,5 N (FILER)", 
+            "SIKA V", 
             "Aditiv FM 500(ŠUPLJE)", 
             "Voda 1", 
             "Količina proizvedenog betona", 
@@ -143,17 +143,17 @@ export function exportToPDF(
     doc.text(`Period: ${months.find(m => m.value === month)?.label} ${year}`, 14, 22);
 
     const headers = [
-        ["", "ŠIFRA ARTIKLA:", "01030075", "01030073", "01030063", "01030074", "01110045", "01110045", "01041928", "01044076", "", "", ""],
+        ["", "ŠIFRA ARTIKLA:", "01030073", "01030063", "01030074", "01030075", "01110045", "01110045", "01044076", "01044077", "", "", ""],
         [
             'Datum', 
             'Receptura',
-            'Frak. 8-16',
-            'Riječni 0-4', 
+            'Rijecna 0-4', 
             'Drob. 0-4', 
             'Frak. 4-8', 
+            'Frak. 8-16',
             'CEM I 42,5', 
-            'CEM I 52,5',
-            'SF 16(AB)2', 
+            'FILER 52,5',
+            'SIKA V', 
             'Aditiv FM',
             'Voda', 
             'm³', 
@@ -224,7 +224,7 @@ export function exportImelToExcel(
         "Kolicina koja ce se proizvesti", "Povratni beton", "Povratni beleske",
         "Sifra porudzbe", "Gradiliste", "Vozac", "Ek Madde", "Ek Maddenin Miktarı",
         "Ek Madde 2", "Ek Maddenin Miktarı 2", "Nakliyat Bölgesi", "Vozilo",
-        "8-16", "Rijecna 0-4", "Drobljena 0-4", "4-8", "", "", "CEM I", "FILER",
+        "Rijecna 0-4", "Drobljena 0-4", "4-8", "8-16", "", "", "CEM I", "FILER",
         "", "", "SIKA V", "SIKA Š", "Su1", "Su1", "VODA 1", "VODA 2",
         "Dodatna voda1", "Dodatna voda2", "Statu",
         "Ag1YuzdeFark", "Ag2YuzdeFark", "Ag3YuzdeFark", "Ag4YuzdeFark",
