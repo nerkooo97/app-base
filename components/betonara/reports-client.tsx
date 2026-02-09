@@ -360,10 +360,10 @@ export function BetonaraReportsClient() {
                                                             </TableCell>
                                                             
                                                             {/* Display flattened material values: Agg1-4, Cem1-2, Add1-2 */}
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg1_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg2_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg3_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg4_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg1_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem1_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem2_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.add1_actual || 0)}</TableCell>

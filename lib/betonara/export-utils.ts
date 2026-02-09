@@ -62,10 +62,10 @@ export function exportToExcel(
     const data = groupedRecordsArray.map(g => [
         format(g.date, 'dd.MM.yyyy'),
         g.recipe_number,
-        (g.agg1_actual || 0).toFixed(2),
         (g.agg2_actual || 0).toFixed(2),
         (g.agg3_actual || 0).toFixed(2),
         (g.agg4_actual || 0).toFixed(2),
+        (g.agg1_actual || 0).toFixed(2),
         (g.cem1_actual || 0).toFixed(2),
         (g.cem2_actual || 0).toFixed(2),
         (g.add1_actual || 0).toFixed(2),
@@ -77,10 +77,10 @@ export function exportToExcel(
 
     data.push([
         'UKUPNO', '',
-        (totals.agg1 || 0).toFixed(2),
         (totals.agg2 || 0).toFixed(2),
         (totals.agg3 || 0).toFixed(2),
         (totals.agg4 || 0).toFixed(2),
+        (totals.agg1 || 0).toFixed(2),
         (totals.cem1 || 0).toFixed(2),
         (totals.cem2 || 0).toFixed(2),
         (totals.add1 || 0).toFixed(2),
@@ -164,10 +164,10 @@ export function exportToPDF(
     const data: any[][] = groupedRecordsArray.map(g => [
         format(g.date, 'dd.MM.yyyy'),
         g.recipe_number,
-        (g.agg1_actual || 0).toFixed(2),
         (g.agg2_actual || 0).toFixed(2),
         (g.agg3_actual || 0).toFixed(2),
         (g.agg4_actual || 0).toFixed(2),
+        (g.agg1_actual || 0).toFixed(2),
         (g.cem1_actual || 0).toFixed(2),
         (g.cem2_actual || 0).toFixed(2),
         (g.add1_actual || 0).toFixed(2),
@@ -179,10 +179,10 @@ export function exportToPDF(
 
     data.push([
         { content: 'UKUPNO', colSpan: 2, styles: { halign: 'left', fontStyle: 'bold' } },
-        (totals.agg1 || 0).toFixed(2),
         (totals.agg2 || 0).toFixed(2),
         (totals.agg3 || 0).toFixed(2),
         (totals.agg4 || 0).toFixed(2),
+        (totals.agg1 || 0).toFixed(2),
         (totals.cem1 || 0).toFixed(2),
         (totals.cem2 || 0).toFixed(2),
         (totals.add1 || 0).toFixed(2),

@@ -13,10 +13,10 @@ const MATERIAL_MAP: Record<string, string> = {
     'sika': '01044076',
     
     // BETONARA 2 (Engleski/Turski - SCADA)
-    'agg1': '01030073',
-    'agg2': '01030063',
-    'agg3': '01030074',
-    'agg4': '01030075',
+    'agg1': '01030075', // 8-16
+    'agg2': '01030073', // Rijecna 0-4
+    'agg3': '01030063', // Drobljena 0-4
+    'agg4': '01030074', // 4-8
     'agg5': '01030075',
     'agg6': '01030075',
     'cem1': '01110045',
@@ -29,7 +29,7 @@ const MATERIAL_MAP: Record<string, string> = {
     'add4': '01044077',
     'add5': '01044077',
     // Generički prefiksi za SCADA sisteme
-    'agg': '01030073',
+    'agg': '01030075',
     'cem': '01110045',
     'add': '01044076',
 };
@@ -136,10 +136,10 @@ export async function parseBetonaraExcel(
                     
                     // BETONARA 2: Exact column name mapping (descriptive names)
                     const betonara2ColumnMap: Record<string, string> = {
-                        'rijecna 0-4': 'agg1_actual',
-                        'drobljena 0-4': 'agg2_actual',
-                        '4-8': 'agg3_actual',
-                        '8-16': 'agg4_actual',
+                        '8-16': 'agg1_actual',
+                        'rijecna 0-4': 'agg2_actual',
+                        'drobljena 0-4': 'agg3_actual',
+                        '4-8': 'agg4_actual',
                         'cem i': 'cem1_actual',
                         'sf 16': 'add1_actual',
                         'sika': 'add2_actual',
