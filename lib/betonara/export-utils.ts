@@ -45,10 +45,10 @@ export function exportToExcel(
         [
             "Datum", 
             "Naziv recepture", 
-            "Riječni agregat 0-4 (GEOKOP)", 
-            "Kameni drobljeni agregat 0-4", 
-            "Riječni agregat 4-8 (GEOKOP2)", 
             "Riječni agregat 8-16 (GEOKOP)", 
+            "Riječni agregat 0-4 (GEOKOP)", 
+            "Kameni drobljeni agregat 0-3", 
+            "Riječni agregat 4-8 (GEOKOP2)", 
             "CEM I 42,5 N", 
             "CEM I 52,5 N", 
             "SF 16(AB)2", 
@@ -82,7 +82,7 @@ export function exportToExcel(
         (totals.agg3 || 0).toFixed(2),
         (totals.agg4 || 0).toFixed(2),
         (totals.cem1 || 0).toFixed(2),
-        (totals.agg1 || 0).toFixed(2), // Original bug kept for now or should I fix it? Let's fix to totals.cem2 if it existed
+        (totals.cem2 || 0).toFixed(2),
         (totals.add1 || 0).toFixed(2),
         (totals.add2 || 0).toFixed(2),
         (totals.water || 0).toFixed(2),
@@ -147,10 +147,10 @@ export function exportToPDF(
         [
             'Datum', 
             'Receptura',
+            'Frak. 8-16',
             'Riječni 0-4', 
             'Drob. 0-4', 
             'Frak. 4-8', 
-            'Frak. 8-16',
             'CEM I 42,5', 
             'CEM I 52,5',
             'SF 16(AB)2', 
@@ -224,7 +224,7 @@ export function exportImelToExcel(
         "Kolicina koja ce se proizvesti", "Povratni beton", "Povratni beleske",
         "Sifra porudzbe", "Gradiliste", "Vozac", "Ek Madde", "Ek Maddenin Miktarı",
         "Ek Madde 2", "Ek Maddenin Miktarı 2", "Nakliyat Bölgesi", "Vozilo",
-        "Rijecna 0-4", "Drobljena 0-4", "4-8", "8-16", "", "", "CEM I", "FILER",
+        "8-16", "Rijecna 0-4", "Drobljena 0-4", "4-8", "", "", "CEM I", "FILER",
         "", "", "SIKA V", "SIKA Š", "Su1", "Su1", "VODA 1", "VODA 2",
         "Dodatna voda1", "Dodatna voda2", "Statu",
         "Ag1YuzdeFark", "Ag2YuzdeFark", "Ag3YuzdeFark", "Ag4YuzdeFark",
@@ -276,7 +276,16 @@ export function exportImelToExcel(
 
     const data = Object.values(groupedMap).map(r => {
         const productionRecordNo = r.id ? r.id.split('_')[0] : '';
+        const isSpecialRecipe = (r.recipe_number || r.recipe_no) === 'SIKA SUPLJA PLOCA' || (r.recipe_number || r.recipe_no) === 'MB 60 ŠP';
         
+        // Logical routing based on user requirements
+        // For special: Cem2 -> CEM I, Cem1 -> FILER, add1 -> SIKA Š
+        // For normal: Cem1 -> CEM I, cem2 -> FILER, add1 -> SIKA V
+        const cemIVal = isSpecialRecipe ? ((r as any).cem2_actual || 0) : ((r as any).cem1_actual || 0);
+        const filerVal = isSpecialRecipe ? ((r as any).cem1_actual || 0) : ((r as any).cem2_actual || 0);
+        const sikaVVal = isSpecialRecipe ? 0 : ((r as any).add1_actual || 0);
+        const sikaSVal = isSpecialRecipe ? ((r as any).add1_actual || 0) : ((r as any).add2_actual || 0);
+
         return [
             productionRecordNo,
             r.company || 'Baupartner',
@@ -306,12 +315,12 @@ export function exportImelToExcel(
             (r as any).agg4_actual || 0,
             (r as any).agg5_actual || 0,
             (r as any).agg6_actual || 0,
-            (r as any).cem1_actual || 0,
-            (r as any).cem2_actual || 0,
+            cemIVal,
+            filerVal,
             (r as any).cem3_actual || 0,
             (r as any).cem4_actual || 0,
-            (r as any).add1_actual || 0,
-            (r as any).add2_actual || 0,
+            sikaVVal,
+            sikaSVal,
             (r as any).water1_actual || 0,
             (r as any).water1_target || 0,
             (r as any).water1_actual || 0,

@@ -249,10 +249,10 @@ export function BetonaraReportsClient() {
                                         <TableHead className="w-[50px] border-b text-center">Export</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Datum</TableHead>
                                         <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Naziv recepture</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 GEOKOP)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-4</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 4-8 GEOKOP2</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 GEOKOP</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 (GEOKOP)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 (GEOKOP)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-3</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 4-8 (GEOKOP2)</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 42,5 N</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 52,5 N</TableHead>
                                         <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">SF 16(AB)2</TableHead>
