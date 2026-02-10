@@ -136,13 +136,13 @@ export async function parseBetonaraExcel(
                     
                     // BETONARA 2: Exact column name mapping (descriptive names)
                     const betonara2ColumnMap: Record<string, string> = {
-                        '8-16': 'agg1_actual',
                         'rijecna 0-4': 'agg2_actual',
                         'drobljena 0-4': 'agg3_actual',
                         '4-8': 'agg4_actual',
+                        '8-16': 'agg1_actual',
                         'cem i': 'cem1_actual',
                         'sf 16': 'add1_actual',
-                        'sika': 'add2_actual',
+                        'sika': 'add1_actual',
                         'su1': 'water1_actual',
                         'voda 1': 'water1_actual',
                         'voda 2': 'water2_actual'
@@ -178,7 +178,22 @@ export async function parseBetonaraExcel(
                                     
                                     // PRIORITY 1: Exact match (e.g., "agg1" with nothing after)
                                     if (afterPrefix === '' || afterPrefix.match(/^\s*$/)) {
-                                        flattenedColMap[`${p.key}${i}_actual`] = index;
+                                        // Special mapping for Betonara 1
+                                        if (detectedPlant === 'Betonara 1') {
+                                            if (p.key === 'cem') {
+                                                if (i === 1) flattenedColMap[`cem2_actual`] = index; // Cem1 -> FILER
+                                                else if (i === 2) flattenedColMap[`cem1_actual`] = index; // Cem2 -> CEM I
+                                                else flattenedColMap[`${p.key}${i}_actual`] = index;
+                                            } else if (p.key === 'add') {
+                                                if (i === 1) flattenedColMap[`add2_actual`] = index; // Add1 -> FM 500
+                                                else if (i === 2) flattenedColMap[`add1_actual`] = index; // Add2 -> SIKA V
+                                                else flattenedColMap[`${p.key}${i}_actual`] = index;
+                                            } else {
+                                                flattenedColMap[`${p.key}${i}_actual`] = index;
+                                            }
+                                        } else {
+                                            flattenedColMap[`${p.key}${i}_actual`] = index;
+                                        }
                                         break;
                                     }
                                     

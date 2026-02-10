@@ -390,14 +390,14 @@ export function BetonaraReportsClient() {
                                                                                     <TableHead className="text-[9px] py-2 px-2">R. Nalog</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-2">Datum</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-2">Recept</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg1</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg2</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg3</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Agg4</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">0-4</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Drob</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">4-8</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">8-16</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-1 text-right">Cem1</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-1 text-right">Cem2</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Add1</TableHead>
-                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Add2</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">Sika V</TableHead>
+                                                                                    <TableHead className="text-[9px] py-2 px-1 text-right">FM 500</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-1 text-right">Voda</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-1 text-right">m³</TableHead>
                                                                                     <TableHead className="text-[9px] py-2 px-2">Izdatnica</TableHead>
@@ -409,10 +409,10 @@ export function BetonaraReportsClient() {
                                                                                         <TableCell className="text-[9px] py-1 px-2 font-mono">{record.work_order_number || '-'}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-2">{format(record.date, 'dd.MM.yyyy')}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-2">{record.recipe_number}</TableCell>
-                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg1_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg2_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg3_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg4_actual || 0)}</TableCell>
+                                                                                        <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.agg1_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.cem1_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.cem2_actual || 0)}</TableCell>
                                                                                         <TableCell className="text-[9px] py-1 px-1 text-right font-mono">{formatNumber(record.add1_actual || 0)}</TableCell>
@@ -435,10 +435,10 @@ export function BetonaraReportsClient() {
                                                 <TableCell colSpan={3} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
                                                 
                                                 {/* 8 material totals */}
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg1 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg2 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg3 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg4 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg1 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem1 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem2 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.add1 || 0)}</TableCell>

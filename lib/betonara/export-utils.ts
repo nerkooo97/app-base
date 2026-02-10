@@ -278,13 +278,11 @@ export function exportImelToExcel(
         const productionRecordNo = r.id ? r.id.split('_')[0] : '';
         const isSpecialRecipe = (r.recipe_number || r.recipe_no) === 'SIKA SUPLJA PLOCA' || (r.recipe_number || r.recipe_no) === 'MB 60 ŠP';
         
-        // Logical routing based on user requirements
-        // For special: Cem2 -> CEM I, Cem1 -> FILER, add1 -> SIKA Š
-        // For normal: Cem1 -> CEM I, cem2 -> FILER, add1 -> SIKA V
-        const cemIVal = isSpecialRecipe ? ((r as any).cem2_actual || 0) : ((r as any).cem1_actual || 0);
-        const filerVal = isSpecialRecipe ? ((r as any).cem1_actual || 0) : ((r as any).cem2_actual || 0);
+        // Logical routing based on normalized parser data
+        const cemIVal = ((r as any).cem1_actual || 0);
+        const filerVal = ((r as any).cem2_actual || 0);
         const sikaVVal = isSpecialRecipe ? 0 : ((r as any).add1_actual || 0);
-        const sikaSVal = isSpecialRecipe ? ((r as any).add1_actual || 0) : ((r as any).add2_actual || 0);
+        const sikaSVal = isSpecialRecipe ? ((r as any).add2_actual || 0) : 0;
 
         return [
             productionRecordNo,
