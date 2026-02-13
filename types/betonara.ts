@@ -54,6 +54,20 @@ export interface ProizvodnjaBetona {
 
     raw_data?: any;
     created_at?: string;
+
+    // Virtualna polja dodana u backendu za lakši rad na klijentu
+    date?: Date;
+    recipe_number?: string;
+    total_quantity?: number;
+    work_order_number?: string;
+    customer?: string;
+    jobsite?: string;
+    driver?: string;
+    vehicle?: string;
+    recipe_no?: string;
+    issuance_number?: string;
+    production_no?: string;
+    company?: string;
 }
 
 export type BetonaraProductionRecord = ProizvodnjaBetona;

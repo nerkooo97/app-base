@@ -147,3 +147,73 @@ export async function getUnifiedProductionStats(filters: { from?: string, to?: s
     stats.daily_production = Object.entries(daily).sort().map(([date, value]) => ({ date, value }));
     return stats;
 }
+
+export async function upsertManualProizvodnjaBetona(record: any) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    const dbRecord: any = {
+        id: record.id,
+        betonara_id: record.plant || 'Betonara 1',
+        proizvodni_zapis_br: record.work_order_number ? parseInt(record.work_order_number) : Math.floor(Date.now() / 1000),
+        datum_pocetka: record.date instanceof Date ? record.date.toISOString() : record.date,
+        recept_naziv: record.recipe_number,
+        kolicina_m3: Number(record.total_quantity || 0),
+        kupac: record.customer,
+        gradiliste: record.jobsite,
+        vozac: record.driver,
+        vozilo: record.vehicle,
+        agg1_kg: Number(record.agg1_actual || 0),
+        agg2_kg: Number(record.agg2_actual || 0),
+        agg3_kg: Number(record.agg3_actual || 0),
+        agg4_kg: Number(record.agg4_actual || 0),
+        agg5_kg: Number(record.agg5_actual || 0),
+        agg6_kg: Number(record.agg6_actual || 0),
+        cem1_kg: Number(record.cem1_actual || 0),
+        cem2_kg: Number(record.cem2_actual || 0),
+        cem3_kg: Number(record.cem3_actual || 0),
+        cem4_kg: Number(record.cem4_actual || 0),
+        add1_kg: Number(record.add1_actual || 0),
+        add2_kg: Number(record.add2_actual || 0),
+        add3_kg: Number(record.add3_actual || 0),
+        add4_kg: Number(record.add4_actual || 0),
+        add5_kg: Number(record.add5_actual || 0),
+        wat1_kg: Number(record.water1_actual || 0),
+        wat2_kg: Number(record.water2_actual || 0),
+        created_at: record.created_at || new Date().toISOString()
+    };
+
+    const { error } = await supabase
+        .from('proizvodnja_betona')
+        .upsert(dbRecord);
+
+    if (error) {
+        console.error('Error upserting manual record:', error);
+        throw new Error(`Greška pri spašavanju: ${error.message}`);
+    }
+
+    revalidatePath('/betonara/dashboard');
+    revalidatePath('/betonara/reports');
+    return { success: true };
+}
+
+export async function deleteProizvodnjaBetonaRecord(id: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    const { error } = await supabase
+        .from('proizvodnja_betona')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting record:', error);
+        throw new Error('Failed to delete record');
+    }
+
+    revalidatePath('/betonara/dashboard');
+    revalidatePath('/betonara/reports');
+    return { success: true };
+}
