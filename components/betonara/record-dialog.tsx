@@ -58,7 +58,7 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
             // Generate ID if it's a new record
             const timestamp = new Date(formData.date).getTime();
             const recordId = record?.id || `manual_${timestamp}_${Math.random().toString(36).substr(2, 5)}`;
-            
+
             await upsertManualProductionRecord({
                 ...formData,
                 id: recordId,
@@ -119,28 +119,28 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-2">
                                 <Label>Datum i vrijeme</Label>
-                                <Input 
+                                <Input
                                     className="h-10 border-primary/20 focus:border-primary"
-                                    type="datetime-local" 
+                                    type="datetime-local"
                                     value={formData.date ? format(new Date(formData.date), "yyyy-MM-dd'T'HH:mm") : ''}
                                     onChange={(e) => setFormData(v => ({ ...v, date: new Date(e.target.value) }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Naziv recepture</Label>
-                                <Input 
+                                <Input
                                     className="h-10 border-primary/20 focus:border-primary"
                                     placeholder="npr. MD 60..."
-                                    value={formData.recipe_number || ''} 
+                                    value={formData.recipe_number || ''}
                                     onChange={(e) => setFormData(v => ({ ...v, recipe_number: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Ukupna količina (m³)</Label>
-                                <Input 
+                                <Input
                                     className="h-10 border-primary/20 focus:border-primary font-bold text-emerald-600"
                                     type="number" step="0.01"
-                                    value={formData.total_quantity || 0} 
+                                    value={formData.total_quantity || 0}
                                     onChange={(e) => setFormData(v => ({ ...v, total_quantity: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
@@ -153,34 +153,34 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Riječni 0-4 (Agg1)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono" type="number"
-                                    value={formData.agg1_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, agg1_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.agg1_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, agg1_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Drobljeni 0-4 (Agg2)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono" type="number"
-                                    value={formData.agg2_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, agg2_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.agg2_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, agg2_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Frakcija 4-8 (Agg3)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono" type="number"
-                                    value={formData.agg3_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, agg3_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.agg3_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, agg3_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Frakcija 8-16 (Agg4)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono" type="number"
-                                    value={formData.agg4_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, agg4_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.agg4_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, agg4_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                         </div>
@@ -195,42 +195,42 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Cement 1 (Cem1)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono text-blue-700" type="number"
-                                    value={formData.cem1_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, cem1_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.cem1_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, cem1_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Cement 2 (Cem2)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono text-blue-700" type="number"
-                                    value={formData.cem2_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, cem2_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.cem2_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, cem2_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Aditiv 1 (Add1)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono text-purple-700" type="number"
-                                    value={formData.add1_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, add1_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.add1_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, add1_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px]">Aditiv 2 (Add2)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono text-purple-700" type="number"
-                                    value={formData.add2_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, add2_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.add2_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, add2_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[11px] font-bold text-blue-600">Voda (L)</Label>
-                                <Input 
+                                <Input
                                     className="h-9 font-mono border-blue-200 bg-blue-50/30" type="number"
-                                    value={formData.water1_actual || 0} 
-                                    onChange={e => setFormData(v => ({...v, water1_actual: parseFloat(e.target.value) || 0}))}
+                                    value={formData.water1_actual || 0}
+                                    onChange={e => setFormData(v => ({ ...v, water1_actual: parseFloat(e.target.value) || 0 }))}
                                 />
                             </div>
                         </div>
@@ -242,33 +242,33 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="space-y-2">
                                 <Label>Kupac</Label>
-                                <Input 
+                                <Input
                                     className="h-9"
-                                    value={formData.customer || ''} 
+                                    value={formData.customer || ''}
                                     onChange={(e) => setFormData(v => ({ ...v, customer: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Gradilište</Label>
-                                <Input 
+                                <Input
                                     className="h-9"
-                                    value={formData.jobsite || ''} 
+                                    value={formData.jobsite || ''}
                                     onChange={(e) => setFormData(v => ({ ...v, jobsite: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Vozač</Label>
-                                <Input 
+                                <Input
                                     className="h-9"
-                                    value={formData.driver || ''} 
+                                    value={formData.driver || ''}
                                     onChange={(e) => setFormData(v => ({ ...v, driver: e.target.value }))}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <Label>Vozilo</Label>
-                                <Input 
+                                <Input
                                     className="h-9"
-                                    value={formData.vehicle || ''} 
+                                    value={formData.vehicle || ''}
                                     onChange={(e) => setFormData(v => ({ ...v, vehicle: e.target.value }))}
                                 />
                             </div>
@@ -277,8 +277,8 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                 </div>
                 <DialogFooter className="p-6 pt-2 gap-2 border-t mt-auto">
                     {record && (
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             className="text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50"
                             onClick={handleDelete}
                             disabled={loading}

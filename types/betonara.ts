@@ -57,4 +57,20 @@ export interface ProizvodnjaBetona {
 }
 
 export type BetonaraProductionRecord = ProizvodnjaBetona;
-export type BetonaraMaterial = any; // Will be refined if needed, but fixes current imports
+export type BetonaraMaterial = {
+    code: string;
+    name: string;
+    unit: string;
+    is_active: boolean;
+    display_order: number;
+};
+
+export interface BetonaraStats {
+    total_m3: number;
+    record_count: number;
+    by_plant: Record<string, number>;
+    by_recipe: Record<string, number>;
+    daily_production: Array<{ date: string, value: number }>;
+    material_consumption: Record<string, number>;
+    material_targets: Record<string, number>;
+}

@@ -106,93 +106,109 @@ export async function parseBetonaraExcelV2(
                 }
                 console.log(`[ExcelParser] Plant: ${plant}, Format: ${format}, Header index: ${hIdx}`);
 
-                // Sinonimi za svaki format
+                // Sinonimi za svaki format - mapiranje na kolone u bazi (ProizvodnjaBetona)
                 const synonymsByFormat: Record<FormatType, Record<string, string[]>> = {
                     'B1_SCADA': {
-                        id: ['production record no'],
-                        date: ['start date'],
-                        recipe: ['recete'],
-                        qty: ['quantity'],
-                        // VAŽNO: TAČNO MAPIRANJE prema stvarnim Excel podacima!
-                        // Excel → DB (prema MB 60 ŠP analizi):
-                        // Agg1 (pos 22) = 9.040 → agg1 (01030075 - 8-16)
-                        // Agg2 (pos 23) = 13.490 → agg2 (01030073 - Riječni 0-4)
-                        // Agg3 (pos 24) = 4.871 → agg3 (01030063 - Drobljeni 0-4)
-                        // Agg4 (pos 25) = 6.466 → agg4 (01030074 - 4-8)
-                        agg1: ['agg1'],                          // 01030075 (8-16)
-                        agg2: ['agg2'],                           // 01030073 (Riječni 0-4)
-                        agg3: ['agg3'],                          // 01030063 (Drobljeni 0-4)
-                        agg4: ['agg4'],                          // 01030074 (4-8)
-                        // Cem1 (Excel) = 52.5 N (FILER) → cem2
-                        // Cem2 (Excel) = 42.5 N → cem1
-                        cem2: ['cem1'],                          // 01110045 (52.5 FILER)
-                        cem1: ['cem2'],                          // 01110045 (42.5)
-                        // Add1 (Excel) = Aditiv FM 500 (ŠUPLJE) → add2
-                        // Add2 (Excel) = SIKA V → add1
-                        add2: ['add1'],                          // 01044077 (FM 500)
-                        add1: ['add2'],                          // 01044076 (SIKA V)
-                        wat1: ['wat1']
+                        proizvodni_zapis_br: ['production record no'],
+                        datum_pocetka: ['start date'],
+                        recept_naziv: ['recete'],
+                        kolicina_m3: ['quantity'],
+                        kupac: ['customer', 'company'],
+                        gradiliste: ['jobsite'],
+                        vozac: ['driver'],
+                        vozilo: ['vehicle'],
+                        agg1_kg: ['agg1'],
+                        agg2_kg: ['agg2'],
+                        agg3_kg: ['agg3'],
+                        agg4_kg: ['agg4'],
+                        cem1_kg: ['cem2'],
+                        cem2_kg: ['cem1'],
+                        add1_kg: ['add2'],
+                        add2_kg: ['add1'],
+                        wat1_kg: ['wat1']
                     },
                     'B2_SCADA': {
-                        id: ['proizvodni zapis br'],
-                        date: ['datum pocetka'],
-                        recipe: ['recete', 'prijemnica'],
-                        qty: ['kolicina'],
-                        // VAŽNO: Mapiranje prema šiframa artikala iz izvještaja!
-                        // 01030073 = Riječni agregat 0-4 (GEOKOP) → Riječna 0-4
-                        // 01030063 = Kameni drobljeni agregat 0-4 → Drobljena 0-4
-                        // 01030074 = 4-8
-                        // 01030075 = Riječni agregat 8-16 (GEOKOP) → 8-16
-                        agg2: ['rijecna 0-4', 'agg1'],           // 01030073 (Riječna 0-4)
-                        agg3: ['drobljena 0-4', 'agg2'],         // 01030063 (Drobljena 0-4)
-                        agg4: ['4-8', 'agg3'],                   // 01030074 (4-8)
-                        agg1: ['8-16', 'agg4'],                  // 01030075 (8-16)
-                        cem1: ['cem i', 'cem1'],                 // 01110045
-                        cem2: ['cem2'],                          // 01110045 (52.5)
-                        add1: ['sf 16', 'add1'],                 // 01044076 (SF 16 / SIKA V)
-                        add2: ['sika', 'sika s', 'add2'],        // 01044077 (SIKA / SIKA Š)
-                        wat1: ['voda 1', 'wat1']
+                        proizvodni_zapis_br: ['proizvodni zapis br'],
+                        datum_pocetka: ['datum pocetka', 'datum'],
+                        recept_br: ['recept br'],
+                        recept_naziv: ['recete', 'reçete', 'recept'],
+                        kolicina_m3: ['kolicina', 'quantity'],
+                        kupac: ['kupac'],
+                        gradiliste: ['gradiliste'],
+                        vozac: ['vozac'],
+                        vozilo: ['vozilo'],
+                        // Agregati (B2: Rijecna 0-4->agg2, Drobljena 0-4->agg3, 4-8->agg4, 8-16->agg1)
+                        agg2_kg: ['rijecna 0-4'],
+                        agg3_kg: ['drobljena 0-4', 'agg3'],
+                        agg4_kg: ['4-8', 'agg4'],
+                        agg1_kg: ['8-16', 'agg1'],
+                        // Cementi
+                        cem1_kg: ['cem i', 'cem1'],
+                        cem2_kg: ['cem2'],
+                        // Aditivi
+                        add1_kg: ['sf 16', 'sika'],
+                        add2_kg: [],
+                        wat1_kg: ['voda 1', 'wat1', 'voda']
                     },
                     'B2_LEGACY': {
-                        id: ['datum'],
-                        date: ['datum'],
-                        recipe: ['naziv recepture'],
-                        qty: ['kolicina proizvedenog'],
-                        agg1: ['agregat 0-4', 'geokop'],
-                        agg2: ['kameni drobljeni', 'drobljeni agregat'],
-                        agg3: ['agregat 4-8', 'geokop2'],
-                        agg4: ['agregat 8-16'],
-                        cem1: ['42,5'],
-                        cem2: ['52,5'],
-                        add1: ['sika v'],
-                        add2: ['fm 500'],
-                        wat1: ['voda 1']
+                        proizvodni_zapis_br: ['datum'],
+                        datum_pocetka: ['datum'],
+                        recept_naziv: ['naziv recepture'],
+                        kolicina_m3: ['kolicina proizvedenog'],
+                        agg1_kg: ['agregat 8-16'],
+                        agg2_kg: ['agregat 0-4', 'geokop'],
+                        agg3_kg: ['kameni drobljeni', 'drobljeni agregat'],
+                        agg4_kg: ['agregat 4-8', 'geokop2'],
+                        cem1_kg: ['42,5'],
+                        cem2_kg: ['52,5'],
+                        add1_kg: ['sika v'],
+                        add2_kg: ['fm 500'],
+                        wat1_kg: ['voda 1']
                     }
                 };
 
                 const synonyms = synonymsByFormat[format];
                 const hRowNorm = jsonData[hIdx].map((s: any) => norm(s));
                 console.log('[ExcelParser] Header row (normalized):', hRowNorm);
-                const ci: Record<string, number> = {};
+
+                // Mapa: ključ u bazi -> lista indeksa kolona u Excelu
+                const ci: Record<string, number[]> = {};
 
                 Object.entries(synonyms).forEach(([dbK, words]) => {
-                    ci[dbK] = hRowNorm.findIndex(h => {
-                        const skip = ['target', 'zadano', 'ciljna', 'planirana', 'hesaplanan', 'fark', 'hata',
-                            'koja ce se proizvesti', 'kolicina koja'];
-                        return words.some(w => h.includes(norm(w))) && !skip.some(s => h.includes(s));
-                    });
-                });
-                console.log('[ExcelParser] Column indices:', JSON.stringify(ci));
+                    const indices: number[] = [];
+                    // Za ove kolone koristimo strogo poklapanje da ne bismo sabrali "Add 1 Qty" u "Total Qty"
+                    const strictKeys = ['kolicina_m3', 'recept_naziv', 'datum_pocetka', 'proizvodni_zapis_br'];
+                    const isStrict = strictKeys.includes(dbK);
 
-                // Provjera: da li su kriticne kolone pronadjene
-                const missing = ['recipe', 'qty', 'date'].filter(k => ci[k] === -1);
+                    hRowNorm.forEach((h, colIdx) => {
+                        if (h === '') return;
+
+                        const skip = [
+                            'target', 'zadano', 'ciljna', 'planirana', 'hesaplanan',
+                            'fark', 'hata', 'koja ce se proizvesti', 'kolicina koja',
+                            'error', 'difference', 'deviation', 'zadato',
+                            'hedef', 'ayar', 'setpoint', 'set', 'deger', 'miktari'
+                        ];
+
+                        const normalizedWords = words.map(w => norm(w));
+                        const isMatch = isStrict
+                            ? normalizedWords.some(w => h === w || h.startsWith(w + ' ('))
+                            : normalizedWords.some(w => h.includes(w));
+
+                        if (isMatch && !skip.some(s => h.includes(s))) {
+                            indices.push(colIdx);
+                        }
+                    });
+                    ci[dbK] = indices;
+                });
+
+                const mandatory = ['recept_naziv', 'kolicina_m3', 'datum_pocetka'];
+                const missing = mandatory.filter(k => !ci[k] || ci[k].length === 0);
                 if (missing.length > 0) {
-                    console.error(`[ExcelParser] ❌ Nedostaju kriticne kolone: ${missing.join(', ')}`);
-                    console.error('[ExcelParser] Dostupne kolone:', hRowNorm.filter(h => h !== ''));
-                    throw new Error(`Ne mogu pronaci kolone: ${missing.join(', ')}. Format: ${format}`);
+                    throw new Error(`Ne mogu pronaci kolone: ${missing.join(', ')}`);
                 }
 
-                const result: any[] = [];
+                const result: ProizvodnjaBetona[] = [];
                 let lastDate: string | null = null;
 
                 for (let i = hIdx + 1; i < jsonData.length; i++) {
@@ -200,56 +216,47 @@ export async function parseBetonaraExcelV2(
                     if (!row || row.length < 5) continue;
 
                     const rowS = row.join(' ').toLowerCase();
-                    const recipe = String(row[ci.recipe] || '');
+                    const getRaw = (key: string) => {
+                        const idxs = ci[key] || [];
+                        return idxs.length > 0 ? row[idxs[0]] : null;
+                    };
 
-                    // FILTRIRANJE
-                    if (rowS.includes('ukupno') || rowS.includes('total')) continue;
-                    if (recipe.includes('Nepoznato(') || recipe === '') continue;
+                    const recipeName = String(getRaw('recept_naziv') || '');
+                    if (rowS.includes('ukupno') || rowS.includes('total') || recipeName === '') continue;
 
-                    const dVal = parseDate(row[ci.date]);
-                    const qVal = parseNum(row[ci.qty], format);
-                    const idVal = String(row[ci.id] || '').trim();
-
+                    const dVal = parseDate(getRaw('datum_pocetka'));
+                    const qVal = parseNum(getRaw('kolicina_m3'), format);
                     if (dVal) lastDate = dVal;
                     if (!lastDate || qVal <= 0) continue;
 
-                    result.push({
+                    const record: any = {
                         betonara_id: plant,
-                        proizvodni_zapis_br: parseInt(idVal) || i,
+                        proizvodni_zapis_br: parseInt(String(getRaw('proizvodni_zapis_br') || '')) || i,
                         datum_pocetka: lastDate,
-                        recept_naziv: recipe,
-                        kolicina_m3: qVal,
-                        agg1_kg: parseNum(row[ci.agg1], format),
-                        agg2_kg: parseNum(row[ci.agg2], format),
-                        agg3_kg: parseNum(row[ci.agg3], format),
-                        agg4_kg: parseNum(row[ci.agg4], format),
-                        cem1_kg: parseNum(row[ci.cem1], format),
-                        cem2_kg: parseNum(row[ci.cem2], format),
-                        add1_kg: parseNum(row[ci.add1], format),
-                        add2_kg: parseNum(row[ci.add2], format),
-                        wat1_kg: parseNum(row[ci.wat1], format)
+                        recept_naziv: recipeName
+                    };
+
+                    Object.keys(ci).forEach(key => {
+                        const indices = ci[key];
+                        if (key.endsWith('_kg') || key.endsWith('_m3')) {
+                            record[key] = indices.reduce((sum: number, idx: number) => sum + parseNum(row[idx], format), 0);
+                        } else if (key === 'datum_pocetka') {
+                            // already handled
+                        } else {
+                            const val = indices.length > 0 ? row[indices[0]] : '';
+                            record[key] = String(val || '').trim();
+                        }
                     });
 
-                    // Debug: log first 3 records
-                    if (result.length <= 3) {
-                        console.log(`[ExcelParser] Record #${result.length}:`, {
-                            recept: recipe,
-                            qty: qVal,
-                            agg1: parseNum(row[ci.agg1], format),
-                            agg2: parseNum(row[ci.agg2], format),
-                            agg3: parseNum(row[ci.agg3], format),
-                            agg4: parseNum(row[ci.agg4], format),
-                            cem1: parseNum(row[ci.cem1], format),
-                            cem2: parseNum(row[ci.cem2], format),
-                            wat1: parseNum(row[ci.wat1], format)
-                        });
-                    }
+                    result.push(record as ProizvodnjaBetona);
                 }
 
-                console.log(`[ExcelParser] ✅ Parsed ${result.length} records for ${plant} (${format})`);
+                console.log(`[ExcelParser] ✅ Parsed ${result.length} records for ${plant}`);
 
                 resolve(result.map(r => {
-                    if (recipeMappings[r.recept_naziv]) r.recept_naziv = recipeMappings[r.recept_naziv];
+                    if (r.recept_naziv && recipeMappings[r.recept_naziv]) {
+                        r.recept_naziv = recipeMappings[r.recept_naziv];
+                    }
                     return r as ProizvodnjaBetona;
                 }));
             } catch (err) { reject(err); }
