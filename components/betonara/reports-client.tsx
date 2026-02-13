@@ -7,7 +7,8 @@ import {
     Download, FileSpreadsheet, FileText
 } from 'lucide-react';
 import { BetonaraProductionRecord, BetonaraMaterial } from '@/types/betonara';
-import { getProductionRecords, getActiveMaterials } from '@/lib/actions/betonara';
+import { getActiveMaterials } from '@/lib/actions/betonara';
+import { getUnifiedProductionRecords } from '@/lib/actions/betonara-v2';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,8 @@ export function BetonaraReportsClient() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState<BetonaraProductionRecord | null>(null);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-    const itemsPerPage = 50;
+    const [recipeFilter, setRecipeFilter] = useState('');
+    const itemsPerPage = 150;
 
     const months = [
         { value: '1', label: 'Januar' },
@@ -76,7 +78,7 @@ export function BetonaraReportsClient() {
             const toDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59).toISOString();
 
             const [recordsData, materialsData] = await Promise.all([
-                getProductionRecords({ from: fromDate, to: toDate, plant }),
+                getUnifiedProductionRecords({ from: fromDate, to: toDate, plant }),
                 getActiveMaterials()
             ]);
 
@@ -95,61 +97,76 @@ export function BetonaraReportsClient() {
     }, [plant, month, year]);
 
     // Totals calculated from flattened material values
-    const totals = records.reduce((acc, r) => {
-        acc.agg1 = (acc.agg1 || 0) + ((r as any).agg1_actual || 0);
-        acc.agg2 = (acc.agg2 || 0) + ((r as any).agg2_actual || 0);
-        acc.agg3 = (acc.agg3 || 0) + ((r as any).agg3_actual || 0);
-        acc.agg4 = (acc.agg4 || 0) + ((r as any).agg4_actual || 0);
-        acc.cem1 = (acc.cem1 || 0) + ((r as any).cem1_actual || 0);
-        acc.cem2 = (acc.cem2 || 0) + ((r as any).cem2_actual || 0);
-        acc.add1 = (acc.add1 || 0) + ((r as any).add1_actual || 0);
-        acc.add2 = (acc.add2 || 0) + ((r as any).add2_actual || 0);
-        acc.water = (acc.water || 0) + (r.water || 0);
-        acc.total = (acc.total || 0) + (r.total_quantity || 0);
-        return acc;
-    }, {} as Record<string, number>);
+    const totals = useMemo(() => {
+        return records.reduce((acc, r) => {
+            acc.agg2 = (acc.agg2 || 0) + Number((r as any).agg2_actual || 0); // 01030073
+            acc.agg3 = (acc.agg3 || 0) + Number((r as any).agg3_actual || 0); // 01030063
+            acc.agg4 = (acc.agg4 || 0) + Number((r as any).agg4_actual || 0); // 01030074
+            acc.agg1 = (acc.agg1 || 0) + Number((r as any).agg1_actual || 0); // 01030075
+            acc.cem1 = (acc.cem1 || 0) + Number((r as any).cem1_actual || 0); // 01110045 (42.5)
+            acc.cem2 = (acc.cem2 || 0) + Number((r as any).cem2_actual || 0); // 01110045 (52.5)
+            acc.add1 = (acc.add1 || 0) + Number((r as any).add1_actual || 0); // 01044076
+            acc.add2 = (acc.add2 || 0) + Number((r as any).add2_actual || 0); // 01044077
+            acc.water = (acc.water || 0) + Number((r as any).water1_actual || 0);
+            acc.total = (acc.total || 0) + Number(r.total_quantity || 0);
+            return acc;
+        }, {
+            agg1: 0, agg2: 0, agg3: 0, agg4: 0,
+            cem1: 0, cem2: 0, add1: 0, add2: 0,
+            water: 0, total: 0
+        });
+    }, [records]);
 
-    // Group records by date and recipe
-    const groupedRecords = records.reduce((acc, r) => {
-        const dateKey = format(r.date, 'yyyy-MM-dd');
-        const recipeKey = `${dateKey}_${r.recipe_number}`;
-        
-        if (!acc[recipeKey]) {
-            acc[recipeKey] = {
-                date: r.date,
-                recipe_number: r.recipe_number,
-                records: [], // Store original records
-                agg1_actual: 0,
-                agg2_actual: 0,
-                agg3_actual: 0,
-                agg4_actual: 0,
-                cem1_actual: 0,
-                cem2_actual: 0,
-                add1_actual: 0,
-                add2_actual: 0,
-                water1_actual: 0,
-                total_quantity: 0,
-                count: 0
-            };
-        }
-        
-        acc[recipeKey].records.push(r); // Add the full record
-        acc[recipeKey].agg1_actual += (r as any).agg1_actual || 0;
-        acc[recipeKey].agg2_actual += (r as any).agg2_actual || 0;
-        acc[recipeKey].agg3_actual += (r as any).agg3_actual || 0;
-        acc[recipeKey].agg4_actual += (r as any).agg4_actual || 0;
-        acc[recipeKey].cem1_actual += (r as any).cem1_actual || 0;
-        acc[recipeKey].cem2_actual += (r as any).cem2_actual || 0;
-        acc[recipeKey].add1_actual += (r as any).add1_actual || 0;
-        acc[recipeKey].add2_actual += (r as any).add2_actual || 0;
-        acc[recipeKey].water1_actual += (r as any).water1_actual || 0;
-        acc[recipeKey].total_quantity += r.total_quantity || 0;
-        acc[recipeKey].count += 1;
-        
-        return acc;
-    }, {} as Record<string, any>);
+    // Aggregate records by date and recipe
+    const aggregatedRecords = useMemo(() => {
+        // Filter by recipe first
+        const filteredRecords = recipeFilter.trim()
+            ? records.filter(r => r.recept_naziv?.toLowerCase().includes(recipeFilter.toLowerCase()))
+            : records;
 
-    const groupedRecordsArray = Object.values(groupedRecords).sort((a, b) => 
+        const grouped = filteredRecords.reduce((acc, r) => {
+            const dateKey = format(r.date, 'yyyy-MM-dd');
+            const recipeKey = `${dateKey}_${r.recipe_number}`;
+
+            if (!acc[recipeKey]) {
+                acc[recipeKey] = {
+                    date: r.date,
+                    recipe_number: r.recipe_number,
+                    records: [],
+                    agg1_actual: 0,
+                    agg2_actual: 0,
+                    agg3_actual: 0,
+                    agg4_actual: 0,
+                    cem1_actual: 0,
+                    cem2_actual: 0,
+                    add1_actual: 0,
+                    add2_actual: 0,
+                    water1_actual: 0,
+                    total_quantity: 0,
+                    count: 0
+                };
+            }
+
+            acc[recipeKey].records.push(r);
+            acc[recipeKey].agg1_actual += Number((r as any).agg1_actual || 0);
+            acc[recipeKey].agg2_actual += Number((r as any).agg2_actual || 0);
+            acc[recipeKey].agg3_actual += Number((r as any).agg3_actual || 0);
+            acc[recipeKey].agg4_actual += Number((r as any).agg4_actual || 0);
+            acc[recipeKey].cem1_actual += Number((r as any).cem1_actual || 0);
+            acc[recipeKey].cem2_actual += Number((r as any).cem2_actual || 0);
+            acc[recipeKey].add1_actual += Number((r as any).add1_actual || 0);
+            acc[recipeKey].add2_actual += Number((r as any).add2_actual || 0);
+            acc[recipeKey].water1_actual += Number((r as any).water1_actual || 0);
+            acc[recipeKey].total_quantity += Number(r.total_quantity || 0);
+            acc[recipeKey].count += 1;
+
+            return acc;
+        }, {} as Record<string, any>);
+
+        return grouped;
+    }, [records, recipeFilter]);
+
+    const groupedRecordsArray = Object.values(aggregatedRecords).sort((a, b) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
     );
 
@@ -189,7 +206,7 @@ export function BetonaraReportsClient() {
     const handleExportImelPDF = () => {
         exportImelToPDF(records, plant, month, year, months);
     };
-    
+
     const openEdit = (record: BetonaraProductionRecord) => {
         setSelectedRecord(record);
         setIsDialogOpen(true);
@@ -206,10 +223,12 @@ export function BetonaraReportsClient() {
                 year={year}
                 plant={plant}
                 view={view}
+                recipeFilter={recipeFilter}
                 onMonthChange={setMonth}
                 onYearChange={setYear}
                 onPlantChange={setPlant}
                 onViewChange={setView}
+                onRecipeFilterChange={setRecipeFilter}
                 onAddRecord={openAdd}
                 onExportExcel={handleExportExcel}
                 onExportPDF={handleExportPDF}
@@ -226,23 +245,23 @@ export function BetonaraReportsClient() {
 
                                     {/* Row 2: Item Codes - 17 columns total */}
                                     <TableRow className="bg-muted/10 border-b">
-                                         <TableHead className="w-[50px] border-b" />
-                                         <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
-                                         <TableHead />
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
-                                         <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044077</TableHead>
-                                         <TableHead />
-                                         <TableHead />
-                                         <TableHead />
-                                         <TableHead />
-                                         <TableHead />
-                                     </TableRow>
+                                        <TableHead className="w-[50px] border-b" />
+                                        <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
+                                        <TableHead />
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044077</TableHead>
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                        <TableHead />
+                                    </TableRow>
 
                                     {/* Row 3: Column Names - exactly 17 columns */}
                                     <TableRow className="hover:bg-transparent bg-muted/20">
@@ -286,10 +305,10 @@ export function BetonaraReportsClient() {
                                             {paginatedRecords.map((r, idx) => {
                                                 const rowKey = `${format(r.date, 'yyyy-MM-dd')}_${r.recipe_number}`;
                                                 const isExpanded = expandedRows.has(rowKey);
-                                                
+
                                                 return (
                                                     <React.Fragment key={rowKey}>
-                                                        <TableRow 
+                                                        <TableRow
                                                             className="hover:bg-muted/5 transition-colors group cursor-pointer"
                                                             onClick={() => {
                                                                 const newExpanded = new Set(expandedRows);
@@ -309,7 +328,7 @@ export function BetonaraReportsClient() {
                                                                         </Button>
                                                                     </DropdownMenuTrigger>
                                                                     <DropdownMenuContent align="start">
-                                                                        <DropdownMenuItem 
+                                                                        <DropdownMenuItem
                                                                             onClick={() => exportImelToExcel(r.records, plant, month, year)}
                                                                             className="cursor-pointer"
                                                                         >
@@ -319,7 +338,7 @@ export function BetonaraReportsClient() {
                                                                                 <span className="text-[10px] text-muted-foreground">{r.recipe_number}</span>
                                                                             </div>
                                                                         </DropdownMenuItem>
-                                                                        <DropdownMenuItem 
+                                                                        <DropdownMenuItem
                                                                             onClick={() => exportImelToPDF(r.records, plant, month, year, months)}
                                                                             className="cursor-pointer"
                                                                         >
@@ -330,7 +349,7 @@ export function BetonaraReportsClient() {
                                                                             </div>
                                                                         </DropdownMenuItem>
                                                                         <div className="h-px bg-muted my-1" />
-                                                                        <DropdownMenuItem 
+                                                                        <DropdownMenuItem
                                                                             onClick={() => {
                                                                                 const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
                                                                                 exportImelToExcel(dayRecords, plant, month, year);
@@ -340,7 +359,7 @@ export function BetonaraReportsClient() {
                                                                             <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" />
                                                                             <span>Izvezi cijeli dan (Excel)</span>
                                                                         </DropdownMenuItem>
-                                                                        <DropdownMenuItem 
+                                                                        <DropdownMenuItem
                                                                             onClick={() => {
                                                                                 const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
                                                                                 exportImelToPDF(dayRecords, plant, month, year, months);
@@ -358,7 +377,7 @@ export function BetonaraReportsClient() {
                                                                 {r.recipe_number}
                                                                 {r.count > 1 && <span className="ml-1 text-[8px] text-muted-foreground">({r.count}x)</span>}
                                                             </TableCell>
-                                                            
+
                                                             {/* Display flattened material values: Agg1-4, Cem1-2, Add1-2 */}
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg2_actual || 0)}</TableCell>
                                                             <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg3_actual || 0)}</TableCell>
@@ -378,7 +397,7 @@ export function BetonaraReportsClient() {
                                                             <TableCell className="w-[50px] sticky right-0 z-30 bg-background/80 backdrop-blur py-1">
                                                             </TableCell>
                                                         </TableRow>
-                                                        
+
                                                         {/* Expanded details row */}
                                                         {isExpanded && (
                                                             <TableRow className="bg-muted/10">
@@ -433,7 +452,7 @@ export function BetonaraReportsClient() {
                                             })}
                                             <TableRow className="bg-primary hover:bg-primary font-bold border-t-2 sticky bottom-0 z-10 text-white shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
                                                 <TableCell colSpan={3} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
-                                                
+
                                                 {/* 8 material totals */}
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg2 || 0)}</TableCell>
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg3 || 0)}</TableCell>
@@ -446,13 +465,13 @@ export function BetonaraReportsClient() {
 
                                                 {/* Water total */}
                                                 <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.water || 0)}</TableCell>
-                                                
+
                                                 {/* Total quantity of produced concrete */}
                                                 <TableCell className="text-right font-bold text-white text-[11px] px-2">{formatNumber(totals.total || 0, { minimumFractionDigits: 1 })}</TableCell>
-                                                
+
                                                 {/* Empty cell for issuance number */}
                                                 <TableCell />
-                                                
+
                                                 {/* 3 empty columns at the end */}
                                                 <TableCell />
                                                 <TableCell />
@@ -545,7 +564,7 @@ export function BetonaraReportsClient() {
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem 
+                                                        <DropdownMenuItem
                                                             onClick={() => {
                                                                 const dayRecords = records.filter(rec => isSameDay(rec.date, day));
                                                                 exportImelToExcel(dayRecords, plant, month, year);
@@ -555,7 +574,7 @@ export function BetonaraReportsClient() {
                                                             <FileSpreadsheet className="mr-2 h-4 w-4 text-blue-600" />
                                                             <span>Excel (.xlsx)</span>
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem 
+                                                        <DropdownMenuItem
                                                             onClick={() => {
                                                                 const dayRecords = records.filter(rec => isSameDay(rec.date, day));
                                                                 exportImelToPDF(dayRecords, plant, month, year, months);
@@ -592,7 +611,7 @@ export function BetonaraReportsClient() {
                 </Card>
             )}
 
-            <BetonaraRecordDialog 
+            <BetonaraRecordDialog
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 record={selectedRecord}

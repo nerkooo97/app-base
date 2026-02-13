@@ -2,7 +2,8 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Table as TableIcon, Download, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Calendar as CalendarIcon, Table as TableIcon, Download, Plus, Search } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,10 +17,12 @@ interface ReportsFiltersProps {
     year: string;
     plant: string;
     view: string;
+    recipeFilter: string;
     onMonthChange: (value: string) => void;
     onYearChange: (value: string) => void;
     onPlantChange: (value: string) => void;
     onViewChange: (value: string) => void;
+    onRecipeFilterChange: (value: string) => void;
     onAddRecord: () => void;
     onExportExcel: () => void;
     onExportPDF: () => void;
@@ -50,10 +53,12 @@ export function ReportsFilters({
     year,
     plant,
     view,
+    recipeFilter,
     onMonthChange,
     onYearChange,
     onPlantChange,
     onViewChange,
+    onRecipeFilterChange,
     onAddRecord,
     onExportExcel,
     onExportPDF,
@@ -116,13 +121,24 @@ export function ReportsFilters({
                         Kalendar
                     </Button>
                 </div>
+
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="text"
+                        placeholder="Filtriraj po receptu..."
+                        value={recipeFilter}
+                        onChange={(e) => onRecipeFilterChange(e.target.value)}
+                        className="pl-9 w-[200px] bg-card"
+                    />
+                </div>
             </div>
 
             <div className="flex gap-2">
-                <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={onAddRecord} 
+                <Button
+                    variant="default"
+                    size="sm"
+                    onClick={onAddRecord}
                     className="bg-primary"
                 >
                     <Plus className="mr-2 h-4 w-4" />

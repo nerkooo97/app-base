@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BetonaraStats, BetonaraMaterial } from '@/types/betonara';
-import { getProductionStats } from '@/lib/actions/betonara';
+import { getUnifiedProductionStats } from '@/lib/actions/betonara-v2';
 import {
     BarChart,
     Bar,
@@ -22,13 +22,13 @@ import {
     Line,
     ReferenceLine
 } from 'recharts';
-import { 
-    Factory, 
-    TrendingUp, 
-    Layers, 
-    Calendar, 
-    FlaskConical, 
-    Activity, 
+import {
+    Factory,
+    TrendingUp,
+    Layers,
+    Calendar,
+    FlaskConical,
+    Activity,
     ArrowUpRight,
     ArrowDownRight,
     Loader2,
@@ -36,12 +36,12 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
 import { format, subDays, subMonths, subYears, startOfMonth, startOfYear, endOfYear, parseISO, isValid } from 'date-fns';
 import { hr } from 'date-fns/locale';
@@ -70,7 +70,7 @@ const MATERIAL_NAMES: Record<string, string> = {
 export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDashboardClientProps) {
     const [stats, setStats] = useState<BetonaraStats>(initialStats);
     const [loading, setLoading] = useState(false);
-    
+
     // Filters
     const now = new Date();
     const [dateFrom, setDateFrom] = useState(format(subDays(now, 90), 'yyyy-MM-dd')); // Last 90 days
@@ -80,10 +80,10 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
     const fetchStats = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await getProductionStats({ 
-                from: dateFrom ? new Date(dateFrom).toISOString() : undefined, 
-                to: dateTo ? new Date(dateTo).toISOString() : undefined, 
-                plant 
+            const data = await getUnifiedProductionStats({
+                from: dateFrom ? new Date(dateFrom).toISOString() : undefined,
+                to: dateTo ? new Date(dateTo).toISOString() : undefined,
+                plant
             });
             setStats(data);
         } catch (error) {
@@ -127,13 +127,13 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                 target: stats.material_targets[code] || 0
             }))
     ]
-    .map(m => {
-        const diff = m.value - m.target;
-        const deviation = m.target > 0 ? (diff / m.target) * 100 : 0;
-        return { ...m, diff, deviation };
-    })
-    .filter(m => m.value > 0 || m.target > 0)
-    .sort((a, b) => b.value - a.value);
+        .map(m => {
+            const diff = m.value - m.target;
+            const deviation = m.target > 0 ? (diff / m.target) * 100 : 0;
+            return { ...m, diff, deviation };
+        })
+        .filter(m => m.value > 0 || m.target > 0)
+        .sort((a, b) => b.value - a.value);
 
     // Filtered data specifically for deviation chart (only items with targets)
     const deviationData = materialData
@@ -210,65 +210,65 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                 {/* Quick Range Buttons */}
                 <div className="flex flex-wrap gap-2">
                     <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest self-center mr-2">Brzi period:</span>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('cm')}
                         className="h-8 text-xs font-bold bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10"
                     >
                         Trenutni mjesec
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('7d')}
                         className="h-8 text-xs font-bold"
                     >
                         7 dana
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('15d')}
                         className="h-8 text-xs font-bold"
                     >
                         15 dana
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('1m')}
                         className="h-8 text-xs font-bold"
                     >
                         1 mjesec
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('3m')}
                         className="h-8 text-xs font-bold"
                     >
                         3 mjeseca
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('6m')}
                         className="h-8 text-xs font-bold"
                     >
                         6 mjeseci
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('cy')}
                         className="h-8 text-xs font-bold"
                     >
                         Trenutna godina
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => setQuickRange('ly')}
                         className="h-8 text-xs font-bold"
                     >
@@ -281,16 +281,16 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1">
                         <div className="space-y-2">
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Od datuma</label>
-                            <DatePicker 
-                                date={parseISO(dateFrom)} 
-                                setDate={(d) => setDateFrom(format(d, 'yyyy-MM-dd'))} 
+                            <DatePicker
+                                date={parseISO(dateFrom)}
+                                setDate={(d) => setDateFrom(format(d, 'yyyy-MM-dd'))}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Do datuma</label>
-                            <DatePicker 
-                                date={parseISO(dateTo)} 
-                                setDate={(d) => setDateTo(format(d, 'yyyy-MM-dd'))} 
+                            <DatePicker
+                                date={parseISO(dateTo)}
+                                setDate={(d) => setDateTo(format(d, 'yyyy-MM-dd'))}
                             />
                         </div>
                         <div className="space-y-2 col-span-2 md:col-span-1">
@@ -308,17 +308,17 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
+                        <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={handleReset}
                             className="h-10 w-10 text-muted-foreground hover:text-destructive"
                             title="Poništi filtere"
                         >
                             <FilterX className="h-4 w-4" />
                         </Button>
-                        <Button 
-                            onClick={fetchStats} 
+                        <Button
+                            onClick={fetchStats}
                             disabled={loading}
                             className="h-10 px-6 font-bold tracking-tight shadow-md"
                         >
@@ -348,18 +348,18 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="h-[60px] w-full mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={stats.daily_production.slice(-14)}>
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="value" 
-                                        stroke="#3b82f6" 
-                                        strokeWidth={2} 
-                                        fill="url(#colorTotal)" 
+                                    <Area
+                                        type="monotone"
+                                        dataKey="value"
+                                        stroke="#3b82f6"
+                                        strokeWidth={2}
+                                        fill="url(#colorTotal)"
                                         isAnimationActive={true}
                                     />
                                     <defs>
                                         <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                 </AreaChart>
@@ -381,9 +381,9 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="h-[60px] w-full mt-2 opacity-40 group-hover:opacity-80 transition-opacity">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={stats.daily_production.slice(-14)}>
-                                    <Bar 
-                                        dataKey="value" 
-                                        fill="#8b5cf6" 
+                                    <Bar
+                                        dataKey="value"
+                                        fill="#8b5cf6"
                                         radius={[2, 2, 0, 0]}
                                     />
                                 </BarChart>
@@ -416,7 +416,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         </div>
                         <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                                     style={{ width: `${((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0}%` }}
                                 />
@@ -453,7 +453,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         </div>
                         <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full bg-orange-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.3)]"
                                     style={{ width: `${((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0}%` }}
                                 />
@@ -485,36 +485,36 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                             <AreaChart data={stats.daily_production}>
                                 <defs>
                                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
-                                <XAxis 
-                                    dataKey="date" 
-                                    axisLine={false} 
-                                    tickLine={false} 
+                                <XAxis
+                                    dataKey="date"
+                                    axisLine={false}
+                                    tickLine={false}
                                     tick={{ fontSize: 10, fill: '#64748b' }}
                                     tickFormatter={(val) => format(new Date(val), 'dd.MM.yyyy')}
                                     minTickGap={20}
                                 />
-                                <YAxis 
-                                    axisLine={false} 
-                                    tickLine={false} 
+                                <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
                                     tick={{ fontSize: 10, fill: '#64748b' }}
                                     unit="m³"
                                 />
-                                <Tooltip 
+                                <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                                     labelFormatter={(val) => format(new Date(val), 'dd. MMMM yyyy.', { locale: hr })}
                                 />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="value" 
-                                    stroke="#3b82f6" 
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#3b82f6"
                                     strokeWidth={3}
-                                    fillOpacity={1} 
-                                    fill="url(#colorValue)" 
+                                    fillOpacity={1}
+                                    fill="url(#colorValue)"
                                     name="Proizvedeno"
                                 />
                             </AreaChart>
@@ -547,7 +547,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     ))}
                                 </Pie>
                                 <Tooltip />
-                                <Legend verticalAlign="bottom" height={36}/>
+                                <Legend verticalAlign="bottom" height={36} />
                             </PieChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -565,36 +565,36 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     </CardHeader>
                     <CardContent className="h-[500px] pt-4 px-2">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart 
-                                data={materialData} 
-                                layout="vertical" 
+                            <BarChart
+                                data={materialData}
+                                layout="vertical"
                                 margin={{ left: 10, right: 60, top: 0, bottom: 0 }}
                             >
                                 <XAxis type="number" hide />
-                                <YAxis 
-                                    dataKey="name" 
-                                    type="category" 
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
                                     width={140}
-                                    axisLine={false} 
+                                    axisLine={false}
                                     tickLine={false}
                                     tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
                                 />
-                                <Tooltip 
+                                <Tooltip
                                     cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
                                     formatter={(val: number | undefined) => [`${formatNumber(val || 0)} kg/l`, 'Količina']}
                                 />
-                                <Bar 
-                                    dataKey="value" 
-                                    radius={4} 
+                                <Bar
+                                    dataKey="value"
+                                    radius={4}
                                     barSize={16}
                                     background={{ fill: '#f1f5f9' }}
                                     animationDuration={1500}
                                 >
                                     {materialData.map((entry, index) => (
-                                        <Cell 
-                                            key={`cell-${index}`} 
-                                            fill={COLORS[index % COLORS.length]} 
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={COLORS[index % COLORS.length]}
                                         />
                                     ))}
                                 </Bar>
@@ -613,36 +613,36 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     </CardHeader>
                     <CardContent className="h-[500px] pt-4 px-2">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart 
-                                data={recipeData} 
-                                layout="vertical" 
+                            <BarChart
+                                data={recipeData}
+                                layout="vertical"
                                 margin={{ left: 10, right: 60, top: 0, bottom: 0 }}
                             >
                                 <XAxis type="number" hide />
-                                <YAxis 
-                                    dataKey="name" 
-                                    type="category" 
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
                                     width={140}
-                                    axisLine={false} 
+                                    axisLine={false}
                                     tickLine={false}
                                     tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
                                 />
-                                <Tooltip 
+                                <Tooltip
                                     cursor={{ fill: 'rgba(0,0,0,0.03)' }}
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
                                     formatter={(val: number | undefined) => [`${formatNumber(val || 0)} m³`, 'Ukupno']}
                                 />
-                                <Bar 
-                                    dataKey="value" 
-                                    radius={4} 
+                                <Bar
+                                    dataKey="value"
+                                    radius={4}
                                     barSize={16}
                                     background={{ fill: '#f1f5f9' }}
                                     animationDuration={1500}
                                 >
                                     {recipeData.map((entry, index) => (
-                                        <Cell 
-                                            key={`cell-${index}`} 
-                                            fill={COLORS[(index + 4) % COLORS.length]} 
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={COLORS[(index + 4) % COLORS.length]}
                                         />
                                     ))}
                                 </Bar>

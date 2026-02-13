@@ -1,9 +1,10 @@
-import { getProductionStats, getActiveMaterials } from '@/lib/actions/betonara';
+import { getActiveMaterials } from '@/lib/actions/betonara';
+import { getUnifiedProductionStats } from '@/lib/actions/betonara-v2';
 import { BetonaraDashboardClient } from '@/components/betonara/dashboard-client';
 
 export default async function BetonaraDashboardPage() {
     const [stats, materials] = await Promise.all([
-        getProductionStats({}),
+        getUnifiedProductionStats({}),
         getActiveMaterials()
     ]);
 

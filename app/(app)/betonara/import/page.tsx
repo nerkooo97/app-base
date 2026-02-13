@@ -1,4 +1,4 @@
-import { BetonaraFileUploader } from '@/components/betonara/file-uploader';
+import { BetonaraFileUploaderV2 } from '@/components/betonara/file-uploader-v2';
 import { RecipeMappingList } from '@/components/betonara/recipe-mapping-list';
 import { getRecipeMappings } from '@/lib/actions/betonara';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +11,12 @@ export default async function BetonaraImportPage() {
     const supabase = await createClient();
 
     // Provjera permisija: Import (specijalna) ili Manage (admin/manager)
-    const { data: canImport } = await supabase.rpc('authorize', { 
-        requested_permission: 'betonara.import' 
+    const { data: canImport } = await supabase.rpc('authorize', {
+        requested_permission: 'betonara.import'
     });
 
-    const { data: canManage } = await supabase.rpc('authorize', { 
-        requested_permission: 'betonara.manage' 
+    const { data: canManage } = await supabase.rpc('authorize', {
+        requested_permission: 'betonara.manage'
     });
 
     if (!canImport && !canManage) {
@@ -47,9 +47,9 @@ export default async function BetonaraImportPage() {
         <div className="flex flex-col gap-6 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-bold tracking-tight">Import podataka</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Import podataka (V2)</h1>
                     <p className="text-muted-foreground">
-                        Upravljajte uvozom podataka iz betonara i mapiranjem receptura.
+                        Nova logika uvoza podataka direktno u unificiranu tabelu proizvodnje.
                     </p>
                 </div>
                 <ImportHistory />
@@ -60,12 +60,12 @@ export default async function BetonaraImportPage() {
                     <CardHeader>
                         <CardTitle>Uvoz fajlova</CardTitle>
                         <CardDescription>
-                            Odaberite Excel fajlove iz Betonare 1 i Betonare 2.
-                            Sistem će automatski prepoznati kolone i mapirati recepture.
+                            Odaberite Excel fajlove. Sistem automatski prepoznaje da li se radi o Betonari 1 ili 2
+                            na osnovu naziva kolona i sprema podatke prema novoj unificiranoj specifikaciji.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <BetonaraFileUploader />
+                        <BetonaraFileUploaderV2 />
                     </CardContent>
                 </Card>
 
