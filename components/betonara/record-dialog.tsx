@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { BetonaraProductionRecord, BetonaraMaterial } from '@/types/betonara';
-import { upsertManualProizvodnjaBetona, deleteProizvodnjaBetonaRecord } from '@/lib/actions/betonara-v2';
+import { BetonaraProductionRecord, BetonaraMaterial, BetonaraRecipe } from '@/types/betonara';
+import { upsertManualProizvodnjaBetona, deleteProizvodnjaBetonaRecord, getBetonaraRecipes } from '@/lib/actions/betonara-v2';
 import {
     Dialog,
     DialogContent,
@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
-import { Loader2, Save, Trash2 } from 'lucide-react';
+import { Loader2, Save, Trash2, ChevronDown, ChevronRight, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface RecordDialogProps {
@@ -30,6 +30,14 @@ interface RecordDialogProps {
 export function BetonaraRecordDialog({ open, onOpenChange, record, materials, onSuccess }: RecordDialogProps) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<any>({});
+    const [recipes, setRecipes] = useState<BetonaraRecipe[]>([]);
+    const [showAggregates, setShowAggregates] = useState(false);
+    const [showCementsAdditives, setShowCementsAdditives] = useState(false);
+    const [showLogistics, setShowLogistics] = useState(false);
+
+    useEffect(() => {
+        getBetonaraRecipes().then(setRecipes);
+    }, []);
 
     useEffect(() => {
         if (record) {
@@ -62,8 +70,7 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
         setLoading(true);
         try {
             // Generate ID if it's a new record
-            const timestamp = new Date(formData.date).getTime();
-            const recordId = record?.id || `manual_${timestamp}_${Math.random().toString(36).substr(2, 5)}`;
+            const recordId = record?.id;
 
             await upsertManualProizvodnjaBetona({
                 ...formData,
@@ -95,6 +102,58 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
         } finally {
             setLoading(false);
         }
+    };
+
+    const hasMaterialData = (data: any) => {
+        const fields = [
+            'agg1_actual', 'agg2_actual', 'agg3_actual', 'agg4_actual', 'agg5_actual', 'agg6_actual',
+            'cem1_actual', 'cem2_actual', 'cem3_actual', 'cem4_actual',
+            'add1_actual', 'add2_actual', 'add3_actual', 'add4_actual', 'add5_actual',
+            'water1_actual', 'water2_actual'
+        ];
+        return fields.some(f => (data[f] || 0) > 0);
+    };
+
+    const calculateMaterials = (recipeName: string, qty: number) => {
+        const recipe = recipes.find(r => r.naziv === recipeName);
+        if (!recipe) return {};
+
+        return {
+            agg1_actual: (recipe.agg1_kg || 0) * qty,
+            agg2_actual: (recipe.agg2_kg || 0) * qty,
+            agg3_actual: (recipe.agg3_kg || 0) * qty,
+            agg4_actual: (recipe.agg4_kg || 0) * qty,
+            agg5_actual: (recipe.agg5_kg || 0) * qty,
+            agg6_actual: (recipe.agg6_kg || 0) * qty,
+            cem1_actual: (recipe.cem1_kg || 0) * qty,
+            cem2_actual: (recipe.cem2_kg || 0) * qty,
+            cem3_actual: (recipe.cem3_kg || 0) * qty,
+            cem4_actual: (recipe.cem4_kg || 0) * qty,
+            add1_actual: (recipe.add1_kg || 0) * qty,
+            add2_actual: (recipe.add2_kg || 0) * qty,
+            add3_actual: (recipe.add3_kg || 0) * qty,
+            add4_actual: (recipe.add4_kg || 0) * qty,
+            add5_actual: (recipe.add5_kg || 0) * qty,
+            water1_actual: (recipe.wat1_kg || 0) * qty,
+            water2_actual: (recipe.wat2_kg || 0) * qty,
+        };
+    };
+
+    const handleRecalculate = () => {
+        if (!formData.recipe_number || !formData.total_quantity) {
+            toast.error('Odaberite recepturu i unesite količinu');
+            return;
+        }
+
+        if (hasMaterialData(formData)) {
+            if (!confirm('Ova akcija će pregaziti postojeće unešene količine materijala. Želite li nastaviti?')) {
+                return;
+            }
+        }
+
+        const newMats = calculateMaterials(formData.recipe_number, formData.total_quantity);
+        setFormData((prev: any) => ({ ...prev, ...newMats }));
+        toast.success('Količine preračunate prema recepturi');
     };
 
     return (
@@ -147,12 +206,21 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                             </div>
                             <div className="space-y-2">
                                 <Label>Naziv recepture</Label>
-                                <Input
-                                    className="h-10 border-primary/20 focus:border-primary"
-                                    placeholder="npr. MD 60..."
-                                    value={formData.recipe_number || ''}
-                                    onChange={(e) => setFormData((v: any) => ({ ...v, recipe_number: e.target.value }))}
-                                />
+                                <Select
+                                    value={formData.recipe_number}
+                                    onValueChange={(val) => setFormData((prev: any) => ({ ...prev, recipe_number: val }))}
+                                >
+                                    <SelectTrigger className="h-10 w-full border-primary/20 bg-background">
+                                        <SelectValue placeholder="Odaberi recepturu" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {recipes.map(r => (
+                                            <SelectItem key={r.id} value={r.naziv}>
+                                                {r.naziv}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <Label>Ukupna količina (m³)</Label>
@@ -164,107 +232,147 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                                 />
                             </div>
                         </div>
+                        <div className="flex justify-end">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleRecalculate}
+                                className="text-xs gap-2 border-dashed"
+                            >
+                                <RefreshCw className="h-3.5 w-3.5" />
+                                Preračunaj stavke
+                            </Button>
+                        </div>
                     </section>
 
                     {/* Section 2: Aggregates */}
-                    <section className="space-y-4">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Agregati (kg)</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                            {[1, 2, 3, 4, 5, 6].map(num => (
-                                <div key={num} className="space-y-2">
-                                    <Label className="text-[11px]">Agg{num}</Label>
-                                    <Input
-                                        className="h-9 font-mono" type="number"
-                                        value={formData[`agg${num}_actual`] || 0}
-                                        onChange={e => setFormData((v: any) => ({ ...v, [`agg${num}_actual`]: parseFloat(e.target.value) || 0 }))}
-                                    />
-                                </div>
-                            ))}
-                        </div>
+                    <section className="space-y-4 border rounded-lg p-4">
+                        <button
+                            type="button"
+                            className="flex items-center justify-between w-full"
+                            onClick={() => setShowAggregates(!showAggregates)}
+                        >
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Agregati (kg)</h3>
+                            {showAggregates ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+
+                        {showAggregates && (
+                            <div className="grid grid-cols-3 gap-4 pt-2">
+                                {[1, 2, 3, 4, 5, 6].map(num => (
+                                    <div key={num} className="space-y-2">
+                                        <Label className="text-[11px]">Agg{num}</Label>
+                                        <Input
+                                            className="h-9 font-mono" type="number"
+                                            value={formData[`agg${num}_actual`] || 0}
+                                            onChange={e => setFormData((v: any) => ({ ...v, [`agg${num}_actual`]: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </section>
 
                     {/* Section 3: Cements & Additives */}
-                    <section className="space-y-4">
-                        <div className="flex items-center justify-between border-b pb-2">
+                    <section className="space-y-4 border rounded-lg p-4">
+                        <button
+                            type="button"
+                            className="flex items-center justify-between w-full"
+                            onClick={() => setShowCementsAdditives(!showCementsAdditives)}
+                        >
                             <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Cementi, Aditivi i Voda</h3>
-                        </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-                            {[1, 2, 3, 4].map(num => (
-                                <div key={num} className="space-y-1.5">
-                                    <Label className="text-[10px]">Cem{num}</Label>
+                            {showCementsAdditives ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+
+                        {showCementsAdditives && (
+                            <div className="grid grid-cols-4 gap-4 pt-2">
+                                {[1, 2, 3, 4].map(num => (
+                                    <div key={num} className="space-y-1.5">
+                                        <Label className="text-[10px]">Cem{num}</Label>
+                                        <Input
+                                            className="h-8 text-[11px] font-mono" type="number"
+                                            value={formData[`cem${num}_actual`] || 0}
+                                            onChange={e => setFormData((v: any) => ({ ...v, [`cem${num}_actual`]: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                    </div>
+                                ))}
+                                {[1, 2, 3, 4, 5].map(num => (
+                                    <div key={num} className="space-y-1.5">
+                                        <Label className="text-[10px]">Add{num}</Label>
+                                        <Input
+                                            className="h-8 text-[11px] font-mono" type="number"
+                                            value={formData[`add${num}_actual`] || 0}
+                                            onChange={e => setFormData((v: any) => ({ ...v, [`add${num}_actual`]: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                    </div>
+                                ))}
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-blue-600">Wat1</Label>
                                     <Input
-                                        className="h-8 text-[11px] font-mono text-blue-700" type="number"
-                                        value={formData[`cem${num}_actual`] || 0}
-                                        onChange={e => setFormData((v: any) => ({ ...v, [`cem${num}_actual`]: parseFloat(e.target.value) || 0 }))}
+                                        className="h-8 text-[11px] font-mono border-primary/20" type="number"
+                                        value={formData.water1_actual || 0}
+                                        onChange={e => setFormData((v: any) => ({ ...v, water1_actual: parseFloat(e.target.value) || 0 }))}
                                     />
                                 </div>
-                            ))}
-                            {[1, 2, 3, 4, 5].map(num => (
-                                <div key={num} className="space-y-1.5">
-                                    <Label className="text-[10px]">Add{num}</Label>
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-bold text-blue-600">Wat2</Label>
                                     <Input
-                                        className="h-8 text-[11px] font-mono text-purple-700" type="number"
-                                        value={formData[`add${num}_actual`] || 0}
-                                        onChange={e => setFormData((v: any) => ({ ...v, [`add${num}_actual`]: parseFloat(e.target.value) || 0 }))}
+                                        className="h-8 text-[11px] font-mono border-primary/20" type="number"
+                                        value={formData.water2_actual || 0}
+                                        onChange={e => setFormData((v: any) => ({ ...v, water2_actual: parseFloat(e.target.value) || 0 }))}
                                     />
                                 </div>
-                            ))}
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] font-bold text-blue-600">Wat1</Label>
-                                <Input
-                                    className="h-8 text-[11px] font-mono border-blue-200 bg-blue-50/20" type="number"
-                                    value={formData.water1_actual || 0}
-                                    onChange={e => setFormData((v: any) => ({ ...v, water1_actual: parseFloat(e.target.value) || 0 }))}
-                                />
                             </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] font-bold text-blue-600">Wat2</Label>
-                                <Input
-                                    className="h-8 text-[11px] font-mono border-blue-200 bg-blue-50/20" type="number"
-                                    value={formData.water2_actual || 0}
-                                    onChange={e => setFormData((v: any) => ({ ...v, water2_actual: parseFloat(e.target.value) || 0 }))}
-                                />
-                            </div>
-                        </div>
+                        )}
                     </section>
 
                     {/* Section 4: Logistics & Extra */}
-                    <section className="space-y-4">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Logistika i ostalo</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="space-y-2">
-                                <Label>Kupac</Label>
-                                <Input
-                                    className="h-9"
-                                    value={formData.customer || ''}
-                                    onChange={(e) => setFormData((v: any) => ({ ...v, customer: e.target.value }))}
-                                />
+                    <section className="space-y-4 border rounded-lg p-4">
+                        <button
+                            type="button"
+                            className="flex items-center justify-between w-full"
+                            onClick={() => setShowLogistics(!showLogistics)}
+                        >
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Logistika i ostalo</h3>
+                            {showLogistics ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+
+                        {showLogistics && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                                <div className="space-y-2">
+                                    <Label>Kupac</Label>
+                                    <Input
+                                        className="h-9"
+                                        value={formData.customer || ''}
+                                        onChange={(e) => setFormData((v: any) => ({ ...v, customer: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Gradilište</Label>
+                                    <Input
+                                        className="h-9"
+                                        value={formData.jobsite || ''}
+                                        onChange={(e) => setFormData((v: any) => ({ ...v, jobsite: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Vozač</Label>
+                                    <Input
+                                        className="h-9"
+                                        value={formData.driver || ''}
+                                        onChange={(e) => setFormData((v: any) => ({ ...v, driver: e.target.value }))}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Vozilo</Label>
+                                    <Input
+                                        className="h-9"
+                                        value={formData.vehicle || ''}
+                                        onChange={(e) => setFormData((v: any) => ({ ...v, vehicle: e.target.value }))}
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Gradilište</Label>
-                                <Input
-                                    className="h-9"
-                                    value={formData.jobsite || ''}
-                                    onChange={(e) => setFormData((v: any) => ({ ...v, jobsite: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Vozač</Label>
-                                <Input
-                                    className="h-9"
-                                    value={formData.driver || ''}
-                                    onChange={(e) => setFormData((v: any) => ({ ...v, driver: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Vozilo</Label>
-                                <Input
-                                    className="h-9"
-                                    value={formData.vehicle || ''}
-                                    onChange={(e) => setFormData((v: any) => ({ ...v, vehicle: e.target.value }))}
-                                />
-                            </div>
-                        </div>
+                        )}
                     </section>
                 </div>
                 <DialogFooter className="p-6 pt-2 gap-2 border-t mt-auto">
@@ -287,7 +395,7 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                         Spremi
                     </Button>
                 </DialogFooter>
-            </DialogContent>
-        </Dialog>
+            </DialogContent >
+        </Dialog >
     );
 }

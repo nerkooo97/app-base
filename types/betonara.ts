@@ -89,3 +89,14 @@ export interface BetonaraStats {
     material_targets: Record<string, number>;
     last_import_date?: string;
 }
+
+export interface BetonaraRecipe {
+    id: string;
+    naziv: string;
+    opis?: string;
+    agg1_kg: number; agg2_kg: number; agg3_kg: number; agg4_kg: number; agg5_kg: number; agg6_kg: number;
+    cem1_kg: number; cem2_kg: number; cem3_kg: number; cem4_kg: number;
+    add1_kg: number; add2_kg: number; add3_kg: number; add4_kg: number; add5_kg: number;
+    wat1_kg: number; wat2_kg: number;
+    created_at?: string;
+}
