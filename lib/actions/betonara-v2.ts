@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { ProizvodnjaBetona, BetonaraRecipe } from '@/types/betonara';
+import { logImport } from '@/lib/actions/betonara';
 import { revalidatePath } from 'next/cache';
 
 export async function getBetonaraRecipes(): Promise<BetonaraRecipe[]> {
@@ -250,26 +251,18 @@ export async function upsertManualProizvodnjaBetona(record: any) {
             const actionType = record.id ? 'MANUAL_EDIT' : 'MANUAL_ADD';
             const dateStr = dateObj.toISOString().split('T')[0];
 
-            console.log('Logging history with standard client...');
-
-            const { error: historyError } = await supabase.from('betonara_import_history').insert({
+            await logImport({
                 filename: `Ručni unos - ${record.plant || 'Betonara 1'} (${dateStr})`,
                 plant: record.plant || 'Betonara 1',
-                import_date: new Date().toISOString(),
-                start_date: dateObj.toISOString(),
-                end_date: dateObj.toISOString(),
-                status: 'SUCCESS',
                 added_count: 1,
                 skipped_count: 0,
-                imported_by: user.id,
+                start_date: dateObj.toISOString(),
+                end_date: dateObj.toISOString(),
+                active_days: [dateStr],
                 action_type: actionType,
-                record_id: savedRecord?.id,
-                active_days: [dateStr]
+                record_id: savedRecord?.id
             });
-
-            if (historyError) {
-                console.error('History Error:', historyError);
-            }
+            console.log('History logged successfully via logImport');
         } catch (logError) {
             console.error('Exception logging history:', logError);
         }
