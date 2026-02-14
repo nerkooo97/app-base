@@ -99,7 +99,7 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+            <DialogContent className="w-[95vw] max-w-[95vw] max-h-[90vh] flex flex-col p-0 overflow-hidden">
                 <DialogHeader className="p-6 pb-2">
                     <DialogTitle>{record ? 'Uredi proizvodni zapis' : 'Novi proizvodni zapis'}</DialogTitle>
                     <DialogDescription>
@@ -107,12 +107,12 @@ export function BetonaraRecordDialog({ open, onOpenChange, record, materials, on
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin space-y-8">
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin space-y-6">
                     {/* Section 1: Basic Info */}
                     <section className="space-y-4">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground border-b pb-2">Osnovni podaci</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                            <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2 col-span-2">
                                 <Label>Betonara</Label>
                                 <Select
                                     value={formData.plant}

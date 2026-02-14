@@ -125,7 +125,7 @@ export function BetonaraReportsClient() {
             : records;
 
         const grouped = filteredRecords.reduce((acc, r) => {
-            const dateKey = format(r.date, 'yyyy-MM-dd');
+            const dateKey = format(r.date || new Date(), 'yyyy-MM-dd');
             const recipeKey = `${dateKey}_${r.recipe_number}`;
 
             if (!acc[recipeKey]) {
@@ -186,8 +186,8 @@ export function BetonaraReportsClient() {
 
     // Production days heatmap
     const productionByDay = records.reduce((acc, r) => {
-        const dayKey = format(r.date, 'yyyy-MM-dd');
-        acc[dayKey] = (acc[dayKey] || 0) + r.total_quantity;
+        const dayKey = format(r.date || new Date(), 'yyyy-MM-dd');
+        acc[dayKey] = (acc[dayKey] || 0) + (r.total_quantity || 0);
         return acc;
     }, {} as Record<string, number>);
 
@@ -239,55 +239,55 @@ export function BetonaraReportsClient() {
             {view === 'table' ? (
                 <div className="grid grid-cols-1 min-w-0">
                     <Card className="border-none shadow-premium bg-card/50 backdrop-blur overflow-hidden">
-                        <div className="overflow-auto w-full scrollbar-thin max-h-[75vh]">
+                        <div className="relative w-full overflow-auto scrollbar-thin max-h-[75vh]">
                             <Table className="w-full border-separate border-spacing-0">
-                                <TableHeader className="bg-muted/90 backdrop-blur-md sticky top-0 z-20 shadow-sm border-b">
-
+                                <TableHeader>
                                     {/* Row 2: Item Codes - 17 columns total */}
-                                    <TableRow className="bg-muted/10 border-b">
-                                        <TableHead className="w-[50px] border-b" />
-                                        <TableHead className="text-[10px] items-center py-2 font-bold">ŠIFRA ARTIKLA:</TableHead>
-                                        <TableHead />
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030073</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030063</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030074</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01030075</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01110045</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044076</TableHead>
-                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground">01044077</TableHead>
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
-                                        <TableHead />
+                                    <TableRow className="bg-muted hover:bg-muted border-none divide-x divide-muted-foreground/10">
+                                        <TableHead className="w-[50px] sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="text-[10px] items-center py-1.5 font-bold sticky top-0 z-30 bg-muted border-b">ŠIFRA ARTIKLA:</TableHead>
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01030073</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01030063</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01030074</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01030075</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01110045</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01044076</TableHead>
+                                        <TableHead className="text-center text-[10px] font-mono font-bold text-muted-foreground sticky top-0 z-30 bg-muted border-b">01044077</TableHead>
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="sticky top-0 z-30 bg-muted border-b" />
+                                        <TableHead className="w-[40px] sticky top-0 right-0 z-[40] bg-muted border-b" />
                                     </TableRow>
 
                                     {/* Row 3: Column Names - exactly 17 columns */}
-                                    <TableRow className="hover:bg-transparent bg-muted/20">
-                                        <TableHead className="w-[50px] border-b text-center">Export</TableHead>
-                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Datum</TableHead>
-                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Naziv recepture</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 0-4 (GEOKOP)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Kameni drobljeni agregat 0-4</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 4-8 (GEOKOP2)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Riječni agregat 8-16 (GEOKOP)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 42,5 N</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">CEM I 52,5 N (FILER)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">SIKA V</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Aditiv FM 500(ŠUPLJE)</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Voda 1</TableHead>
-                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2">Količina proizvedenog betona</TableHead>
-                                        <TableHead className="whitespace-nowrap font-bold text-[11px] border-b">Detalji</TableHead>
-                                        <TableHead className="border-b" />
-                                        <TableHead className="border-b" />
-                                        <TableHead className="w-[50px] border-b sticky right-0 z-30 bg-muted/20"></TableHead>
+                                    <TableRow className="hover:bg-transparent bg-background border-none divide-x divide-muted-foreground/10">
+                                        <TableHead className="w-[50px] border-b text-center text-[10px] sticky top-[33px] z-30 bg-background">Export</TableHead>
+                                        <TableHead className="whitespace-nowrap font-bold text-[10px] border-b py-2 sticky top-[33px] z-30 bg-background">Datum</TableHead>
+                                        <TableHead className="whitespace-nowrap font-bold text-[10px] border-b py-2 sticky top-[33px] z-30 bg-background">Naziv recepture</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Riječni agregat 0-4 (GEOKOP)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Kameni drobljeni agregat 0-4</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Riječni agregat 4-8 (GEOKOP2)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Riječni agregat 8-16 (GEOKOP)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">CEM I 42,5 N</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">CEM I 52,5 N (FILER)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">SIKA V</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Aditiv FM 500(ŠUPLJE)</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Voda 1</TableHead>
+                                        <TableHead className="text-center whitespace-nowrap font-bold text-[10px] border-b px-2 sticky top-[33px] z-30 bg-background">Količina (m³)</TableHead>
+                                        <TableHead className="whitespace-nowrap font-bold text-[10px] border-b sticky top-[33px] z-30 bg-background">Detalji</TableHead>
+                                        <TableHead className="border-b sticky top-[33px] z-30 bg-background" />
+                                        <TableHead className="border-b sticky top-[33px] z-30 bg-background" />
+                                        <TableHead className="w-[40px] border-b sticky top-[33px] right-0 z-[40] bg-background"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {loading ? (
                                         <TableRow>
-                                            <TableCell colSpan={materials.length + 5} className="h-64 text-center">
+                                            <TableCell colSpan={17} className="h-64 text-center">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                                     <p className="text-sm text-muted-foreground">Učitavam izvještaje...</p>
@@ -296,7 +296,7 @@ export function BetonaraReportsClient() {
                                         </TableRow>
                                     ) : records.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={materials.length + 5} className="h-64 text-center text-muted-foreground font-medium">
+                                            <TableCell colSpan={17} className="h-64 text-center text-muted-foreground font-medium">
                                                 Nema pronađenih zapisa za odabrani period.
                                             </TableCell>
                                         </TableRow>
@@ -309,7 +309,11 @@ export function BetonaraReportsClient() {
                                                 return (
                                                     <React.Fragment key={rowKey}>
                                                         <TableRow
-                                                            className="hover:bg-muted/5 transition-colors group cursor-pointer"
+                                                            className={cn(
+                                                                "transition-colors group cursor-pointer border-b border-muted/20",
+                                                                idx % 2 !== 0 ? "bg-muted/5" : "bg-background",
+                                                                "hover:bg-primary/5"
+                                                            )}
                                                             onClick={() => {
                                                                 const newExpanded = new Set(expandedRows);
                                                                 if (isExpanded) {
@@ -320,11 +324,11 @@ export function BetonaraReportsClient() {
                                                                 setExpandedRows(newExpanded);
                                                             }}
                                                         >
-                                                            <TableCell className="w-[50px] py-1 text-center" onClick={(e) => e.stopPropagation()}>
+                                                            <TableCell className="w-[50px] py-0.5 text-center" onClick={(e) => e.stopPropagation()}>
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger asChild>
-                                                                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                                                                            <Download className="h-4 w-4 text-primary" />
+                                                                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                                                                            <Download className="h-3.5 w-3.5 text-primary" />
                                                                         </Button>
                                                                     </DropdownMenuTrigger>
                                                                     <DropdownMenuContent align="start">
@@ -351,7 +355,7 @@ export function BetonaraReportsClient() {
                                                                         <div className="h-px bg-muted my-1" />
                                                                         <DropdownMenuItem
                                                                             onClick={() => {
-                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
+                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date || new Date(), r.date || new Date()));
                                                                                 exportImelToExcel(dayRecords, plant, month, year);
                                                                             }}
                                                                             className="cursor-pointer"
@@ -361,7 +365,7 @@ export function BetonaraReportsClient() {
                                                                         </DropdownMenuItem>
                                                                         <DropdownMenuItem
                                                                             onClick={() => {
-                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, r.date));
+                                                                                const dayRecords = records.filter(rec => isSameDay(rec.date || new Date(), r.date || new Date()));
                                                                                 exportImelToPDF(dayRecords, plant, month, year, months);
                                                                             }}
                                                                             className="cursor-pointer"
@@ -372,30 +376,29 @@ export function BetonaraReportsClient() {
                                                                     </DropdownMenuContent>
                                                                 </DropdownMenu>
                                                             </TableCell>
-                                                            <TableCell className="whitespace-nowrap text-[10px] py-1">{format(r.date, 'dd.MM.yyyy')}</TableCell>
-                                                            <TableCell className="whitespace-nowrap text-[10px] py-1">
+                                                            <TableCell className="whitespace-nowrap text-[10px] py-0.5">{format(r.date, 'dd.MM.yyyy')}</TableCell>
+                                                            <TableCell className="whitespace-nowrap text-[10px] py-0.5">
                                                                 {r.recipe_number}
                                                                 {r.count > 1 && <span className="ml-1 text-[8px] text-muted-foreground">({r.count}x)</span>}
                                                             </TableCell>
 
                                                             {/* Display flattened material values: Agg1-4, Cem1-2, Add1-2 */}
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg2_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg3_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg4_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.agg1_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem1_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.cem2_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.add1_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.add2_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.agg2_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.agg3_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.agg4_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.agg1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.cem1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.cem2_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.add1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.add2_actual || 0)}</TableCell>
 
-                                                            <TableCell className="text-right font-mono text-[10px] py-1 px-2 border-l">{formatNumber(r.water1_actual || 0)}</TableCell>
-                                                            <TableCell className="text-right font-bold text-[11px] py-1 px-2 border-l text-emerald-700">{formatNumber(r.total_quantity, { minimumFractionDigits: 1 })}</TableCell>
-                                                            <TableCell className="text-center text-[10px] py-1 border-l">
-                                                                <ChevronRight className={cn("h-4 w-4 inline-block transition-transform", isExpanded && "rotate-90")} />
+                                                            <TableCell className="text-right font-mono text-[10px] py-0.5 px-2 border-l border-muted/30">{formatNumber(r.water1_actual || 0)}</TableCell>
+                                                            <TableCell className="text-right font-bold text-[10px] py-0.5 px-2 border-l border-muted/30 text-emerald-700">{formatNumber(r.total_quantity, { minimumFractionDigits: 1 })}</TableCell>
+                                                            <TableCell className="text-center text-[10px] py-0.5 border-l border-muted/30">
+                                                                <ChevronRight className={cn("h-3 w-3 inline-block transition-transform", isExpanded && "rotate-90")} />
                                                             </TableCell>
-                                                            <TableCell colSpan={2} className="py-1" />
-                                                            <TableCell className="w-[50px] sticky right-0 z-30 bg-background/80 backdrop-blur py-1">
-                                                            </TableCell>
+                                                            <TableCell colSpan={2} className="py-0.5" />
+                                                            <TableCell className="w-[40px] sticky right-0 z-10 bg-inherit py-0.5" />
                                                         </TableRow>
 
                                                         {/* Expanded details row */}
@@ -450,24 +453,24 @@ export function BetonaraReportsClient() {
                                                     </React.Fragment>
                                                 );
                                             })}
-                                            <TableRow className="bg-primary hover:bg-primary font-bold border-t-2 sticky bottom-0 z-10 text-white shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
-                                                <TableCell colSpan={3} className="tracking-wider py-4 px-6 text-sm">UKUPNO:</TableCell>
+                                            <TableRow className="bg-primary hover:bg-primary font-bold border-t-2 sticky bottom-0 z-30 text-white shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+                                                <TableCell colSpan={3} className="tracking-wider py-3 px-6 text-sm font-bold text-white uppercase">UKUPNO:</TableCell>
 
                                                 {/* 8 material totals */}
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg2 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg3 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg4 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.agg1 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem1 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.cem2 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.add1 || 0)}</TableCell>
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.add2 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.agg2 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.agg3 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.agg4 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.agg1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.cem1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.cem2 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.add1 || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.add2 || 0)}</TableCell>
 
                                                 {/* Water total */}
-                                                <TableCell className="text-right font-mono text-white text-[10px] px-2">{formatNumber(totals.water || 0)}</TableCell>
+                                                <TableCell className="text-right font-mono font-bold text-white text-sm px-2">{formatNumber(totals.water || 0)}</TableCell>
 
                                                 {/* Total quantity of produced concrete */}
-                                                <TableCell className="text-right font-bold text-white text-[11px] px-2">{formatNumber(totals.total || 0, { minimumFractionDigits: 1 })}</TableCell>
+                                                <TableCell className="text-right font-bold text-white text-sm px-2">{formatNumber(totals.total || 0, { minimumFractionDigits: 1 })}</TableCell>
 
                                                 {/* Empty cell for issuance number */}
                                                 <TableCell />
@@ -475,7 +478,7 @@ export function BetonaraReportsClient() {
                                                 {/* 3 empty columns at the end */}
                                                 <TableCell />
                                                 <TableCell />
-                                                <TableCell />
+                                                <TableCell className="w-[40px] sticky right-0 z-[40] bg-primary" />
                                             </TableRow>
                                         </>
                                     )}
@@ -566,7 +569,7 @@ export function BetonaraReportsClient() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem
                                                             onClick={() => {
-                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, day));
+                                                                const dayRecords = records.filter(rec => isSameDay(rec.date || new Date(), day));
                                                                 exportImelToExcel(dayRecords, plant, month, year);
                                                             }}
                                                             className="cursor-pointer"
@@ -576,7 +579,7 @@ export function BetonaraReportsClient() {
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onClick={() => {
-                                                                const dayRecords = records.filter(rec => isSameDay(rec.date, day));
+                                                                const dayRecords = records.filter(rec => isSameDay(rec.date || new Date(), day));
                                                                 exportImelToPDF(dayRecords, plant, month, year, months);
                                                             }}
                                                             className="cursor-pointer"
@@ -593,7 +596,7 @@ export function BetonaraReportsClient() {
                                         {totalOnDay && (
                                             <div className="flex flex-col gap-1">
                                                 <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
-                                                    Broj unosa: {records.filter(r => isSameDay(r.date, day)).length}
+                                                    Broj unosa: {records.filter(r => isSameDay(r.date || new Date(), day)).length}
                                                 </div>
                                                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mt-1">
                                                     <div

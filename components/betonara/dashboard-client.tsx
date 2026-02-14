@@ -73,9 +73,10 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
 
     // Filters
     const now = new Date();
-    const [dateFrom, setDateFrom] = useState(format(subDays(now, 90), 'yyyy-MM-dd')); // Last 90 days
+    const [dateFrom, setDateFrom] = useState(format(startOfMonth(now), 'yyyy-MM-dd')); // Current month default
     const [dateTo, setDateTo] = useState(format(now, 'yyyy-MM-dd'));
     const [plant, setPlant] = useState('all');
+    const [activeRange, setActiveRange] = useState<string | null>('cm');
 
     const fetchStats = useCallback(async () => {
         setLoading(true);
@@ -101,8 +102,10 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
         setDateFrom(format(startOfMonth(now), 'yyyy-MM-dd'));
         setDateTo(format(now, 'yyyy-MM-dd'));
         setPlant('all');
+        setActiveRange('cm');
     };
 
+    // ... (rest of data prep code) ...
     // Chart Data Preparation
     const plantData = Object.entries(stats.by_plant).map(([name, value]) => ({ name, value }));
     const recipeData = Object.entries(stats.by_recipe)
@@ -145,6 +148,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
         const now = new Date();
         let from: Date;
         let to: Date = now;
+        setActiveRange(range);
 
         switch (range) {
             case '7d':
@@ -193,15 +197,31 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3 bg-card/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-emerald-500/10 shadow-sm self-start sm:self-center group">
-                    <div className="bg-emerald-500/10 p-2 rounded-xl group-hover:scale-110 transition-transform">
-                        <Calendar className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex flex-col sm:flex-row gap-4 self-start sm:self-center">
+                    {/* Last Import Badge */}
+                    <div className="flex items-center gap-3 bg-card/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-blue-500/10 shadow-sm group">
+                        <div className="bg-blue-500/10 p-2 rounded-xl group-hover:scale-110 transition-transform">
+                            <Layers className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Posljednji import</span>
+                            <span className="text-sm font-black tracking-tight text-foreground">
+                                {stats.last_import_date ? format(new Date(stats.last_import_date), 'dd.MM.yyyy') : 'Nema podataka'}
+                            </span>
+                        </div>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Izvještajni period</span>
-                        <span className="text-sm font-black tracking-tight text-foreground">
-                            {format(new Date(dateFrom), 'dd.MM.yyyy')} — {format(new Date(dateTo), 'dd.MM.yyyy')}
-                        </span>
+
+                    {/* Reporting Period Badge */}
+                    <div className="flex items-center gap-3 bg-card/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-emerald-500/10 shadow-sm group">
+                        <div className="bg-emerald-500/10 p-2 rounded-xl group-hover:scale-110 transition-transform">
+                            <Calendar className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Izvještajni period</span>
+                            <span className="text-sm font-black tracking-tight text-foreground">
+                                {format(new Date(dateFrom), 'dd.MM.yyyy')} — {format(new Date(dateTo), 'dd.MM.yyyy')}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -214,7 +234,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('cm')}
-                        className="h-8 text-xs font-bold bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10"
+                        className={cn("h-8 text-xs font-bold", activeRange === 'cm' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         Trenutni mjesec
                     </Button>
@@ -222,7 +242,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('7d')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === '7d' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         7 dana
                     </Button>
@@ -230,7 +250,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('15d')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === '15d' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         15 dana
                     </Button>
@@ -238,7 +258,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('1m')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === '1m' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         1 mjesec
                     </Button>
@@ -246,7 +266,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('3m')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === '3m' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         3 mjeseca
                     </Button>
@@ -254,7 +274,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('6m')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === '6m' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         6 mjeseci
                     </Button>
@@ -262,7 +282,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('cy')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === 'cy' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         Trenutna godina
                     </Button>
@@ -270,7 +290,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         variant="outline"
                         size="sm"
                         onClick={() => setQuickRange('ly')}
-                        className="h-8 text-xs font-bold"
+                        className={cn("h-8 text-xs font-bold", activeRange === 'ly' && "bg-emerald-500/5 border-emerald-500/20 text-emerald-700 hover:bg-emerald-500/10")}
                     >
                         Prošla godina
                     </Button>
@@ -283,14 +303,20 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Od datuma</label>
                             <DatePicker
                                 date={parseISO(dateFrom)}
-                                setDate={(d) => setDateFrom(format(d, 'yyyy-MM-dd'))}
+                                setDate={(d) => {
+                                    setDateFrom(format(d, 'yyyy-MM-dd'));
+                                    setActiveRange(null);
+                                }}
                             />
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] uppercase font-black text-muted-foreground tracking-widest pl-1">Do datuma</label>
                             <DatePicker
                                 date={parseISO(dateTo)}
-                                setDate={(d) => setDateTo(format(d, 'yyyy-MM-dd'))}
+                                setDate={(d) => {
+                                    setDateTo(format(d, 'yyyy-MM-dd'));
+                                    setActiveRange(null);
+                                }}
                             />
                         </div>
                         <div className="space-y-2 col-span-2 md:col-span-1">
@@ -407,7 +433,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-2xl font-black text-emerald-500">
+                                    <span className="text-2xl font-black text-blue-500">
                                         {(((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
                                     </span>
                                     <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
@@ -417,13 +443,13 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
+                                    className="h-full bg-blue-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
                                     style={{ width: `${((stats.by_plant['Betonara 1'] || 0) / stats.total_m3) * 100 || 0}%` }}
                                 />
                             </div>
                             <p className="text-[9px] font-bold text-muted-foreground uppercase flex justify-between">
                                 <span>Primarni kapacitet</span>
-                                <span className="text-emerald-600">Aktivno</span>
+                                <span className="text-blue-600">Aktivno</span>
                             </p>
                         </div>
                     </CardContent>
@@ -444,7 +470,7 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-2xl font-black text-orange-500">
+                                    <span className="text-2xl font-black text-emerald-500">
                                         {(((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0).toFixed(0)}%
                                     </span>
                                     <p className="text-[8px] font-black text-muted-foreground uppercase tracking-wider">Udjela</p>
@@ -454,13 +480,13 @@ export function BetonaraDashboardClient({ initialStats, materials }: BetonaraDas
                         <div className="px-6 pb-6 space-y-2">
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div
-                                    className="h-full bg-orange-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+                                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                                     style={{ width: `${((stats.by_plant['Betonara 2'] || 0) / stats.total_m3) * 100 || 0}%` }}
                                 />
                             </div>
                             <p className="text-[9px] font-bold text-muted-foreground uppercase flex justify-between">
                                 <span>Sekundarni kapacitet</span>
-                                <span className="text-orange-600">Aktivno</span>
+                                <span className="text-emerald-600">Aktivno</span>
                             </p>
                         </div>
                     </CardContent>

@@ -118,7 +118,8 @@ export async function getUnifiedProductionStats(filters: { from?: string, to?: s
         by_recipe: {} as Record<string, number>,
         daily_production: [] as Array<{ date: string, value: number }>,
         material_consumption: {} as Record<string, number>,
-        material_targets: {} as Record<string, number>
+        material_targets: {} as Record<string, number>,
+        last_import_date: undefined as string | undefined
     };
 
     const daily: Record<string, number> = {};
@@ -144,7 +145,16 @@ export async function getUnifiedProductionStats(filters: { from?: string, to?: s
         mat['01044077'] = (mat['01044077'] || 0) + Number(r.add2_kg || 0);
     });
 
+    const { data: latestRecord } = await supabase
+        .from('proizvodnja_betona')
+        .select('datum_pocetka')
+        .order('datum_pocetka', { ascending: false })
+        .limit(1)
+        .single();
+
     stats.daily_production = Object.entries(daily).sort().map(([date, value]) => ({ date, value }));
+    stats.last_import_date = latestRecord?.datum_pocetka;
+
     return stats;
 }
 

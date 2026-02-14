@@ -87,4 +87,5 @@ export interface BetonaraStats {
     daily_production: Array<{ date: string, value: number }>;
     material_consumption: Record<string, number>;
     material_targets: Record<string, number>;
+    last_import_date?: string;
 }
